@@ -1,10 +1,11 @@
-import Link from "next/link";
+import CeramicsList from "./components/CeramicsList";
+import SearchBar from "./components/SearchBar";
 
 export default function Home() {
   return (
-    <main>
-      <h1>Hello World</h1>
-      <Link href="/ceramics">Ceramics</Link>
+    <main className="w-full h-[100vh] flex flex-col items-center mt-[2rem]">
+      <SearchBar />
+      <CeramicsList />
     </main>
   );
 }
