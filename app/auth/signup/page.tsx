@@ -1,17 +1,28 @@
 "use client";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!email || !password || !passwordConfirm) {
+      setError("Missing email, password or password confirmation");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
     if (password !== passwordConfirm) {
-      console.error("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
     try {
@@ -19,12 +30,16 @@ const SignUpPage: React.FC = () => {
         email,
         password,
       });
+      if (response.status === 201) {
+        router.push("/auth/login");
+      }
       console.log(response.data);
       setEmail("");
       setPassword("");
       setPasswordConfirm("");
     } catch (error: any) {
-      console.error("Error:", error.response || error.message);
+      setError("Signup Failed");
+      console.log(`Error:, ${error.response || error.message}`);
     }
   };
 
@@ -41,7 +56,6 @@ const SignUpPage: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
             placeholder="Email"
             className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
           />
@@ -49,7 +63,6 @@ const SignUpPage: React.FC = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
             placeholder="Password"
             className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
           />
@@ -57,7 +70,6 @@ const SignUpPage: React.FC = () => {
             type="password"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
-            required
             placeholder="Confirm Password"
             className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
           />
@@ -69,7 +81,7 @@ const SignUpPage: React.FC = () => {
         >
           Sign up
         </button>
-
+        {error && <p className="text-red-500">{error}</p>}
         <p className="text-sm text-gray-500">
           Do not have an account?
           <Link href={"/auth/login"} className="text-blue-500 hover:underline">
