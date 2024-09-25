@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/app/context/AuthContext";
 import axios from "axios";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -6,6 +7,8 @@ import React, { useState } from "react";
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -14,7 +17,8 @@ const LoginPage: React.FC = () => {
         email,
         password,
       });
-      console.log(response.data);
+      const { token } = response.data;
+      login(token);
       setEmail("");
       setPassword("");
     } catch (error: any) {
