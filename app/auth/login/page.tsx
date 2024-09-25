@@ -15,6 +15,8 @@ const LoginPage: React.FC = () => {
         password,
       });
       console.log(response.data);
+      setEmail("");
+      setPassword("");
     } catch (error: any) {
       console.error("Error:", error.response || error.message);
     }

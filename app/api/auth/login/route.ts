@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import JWT from "jsonwebtoken";
 import clientPromise from "../../../lib/mongodb";
+
+const SECRET_KEY = process.env.JWT_SECRET as string;
+
+if (!SECRET_KEY) {
+  throw new Error("JWT_SECRET is not defined in the environment variables");
+}
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +38,15 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
+
+    const token = JWT.sign(
+      {
+        userId: user._id,
+        email: user.email,
+      },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
     return NextResponse.json(
       { message: "Login successful", user: { email: user.email } },
