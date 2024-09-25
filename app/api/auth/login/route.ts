@@ -45,11 +45,17 @@ export async function POST(req: Request) {
         email: user.email,
       },
       SECRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: process.env.TOKEN_EXPIRATION || "1d" }
     );
 
     return NextResponse.json(
-      { message: "Login successful", user: { email: user.email } },
+      {
+        message: "Login successful",
+        token,
+        user: {
+          email: user.email,
+        },
+      },
       { status: 200 }
     );
   } catch (error) {
