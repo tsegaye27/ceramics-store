@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import clientPromise from "../../lib/mongodb";
+import clientPromise from "../../../lib/mongodb";
 
 export async function POST(req: Request) {
   try {
@@ -17,26 +17,27 @@ export async function POST(req: Request) {
     const db = client.db("ceramics");
 
     const user = await db.collection("users").findOne({ email });
-    if (user) {
+    if (!user) {
       return NextResponse.json(
-        { message: "User already exists" },
-        { status: 400 }
+        { message: "Invalid email or password" },
+        { status: 401 }
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = {
-      email,
-      hashedPassword,
-    };
-    await db.collection("users").insertOne(newUser);
+    const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
+    if (!passwordMatch) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
 
     return NextResponse.json(
-      { message: "Signup successful", user: { email: newUser.email } },
+      { message: "Login successful", user: { email: user.email } },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error("Login error:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
