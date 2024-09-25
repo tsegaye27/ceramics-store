@@ -20,6 +20,9 @@ const SignUpPage: React.FC = () => {
         password,
       });
       console.log(response.data);
+      setEmail("");
+      setPassword("");
+      setPasswordConfirm("");
     } catch (error: any) {
       console.error("Error:", error.response || error.message);
     }
