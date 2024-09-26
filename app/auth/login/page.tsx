@@ -12,6 +12,14 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!email || !password) {
+      setError("Missing email or password");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
     try {
       const response = await axios.post("/api/auth/login", {
         email,
@@ -22,10 +30,9 @@ const LoginPage: React.FC = () => {
       setEmail("");
       setPassword("");
     } catch (error: any) {
-      console.error(
-        "Error:",
-        error.response ? error.response.data : error.message
-      );
+      setError(error.response.data.message);
+    } finally {
+      setError("");
     }
   };
 
@@ -42,7 +49,6 @@ const LoginPage: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
             placeholder="Email"
             className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
           />
@@ -50,7 +56,6 @@ const LoginPage: React.FC = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
             placeholder="Password"
             className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
           />
@@ -62,7 +67,7 @@ const LoginPage: React.FC = () => {
         >
           Login
         </button>
-
+        {error && <p className="text-red-500">{error}</p>}
         <p className="text-sm text-gray-500">
           Do not have an account?
           <Link href={"/auth/signup"} className="text-blue-500 hover:underline">

@@ -38,7 +38,7 @@ const SignUpPage: React.FC = () => {
       setPassword("");
       setPasswordConfirm("");
     } catch (error: any) {
-      setError("Signup Failed");
+      setError("Sign-up Failed");
       console.log(`Error:, ${error.response || error.message}`);
     }
   };
