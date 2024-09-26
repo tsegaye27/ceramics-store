@@ -31,8 +31,6 @@ const LoginPage: React.FC = () => {
       setPassword("");
     } catch (error: any) {
       setError(error.response.data.message);
-    } finally {
-      setError("");
     }
   };
 
