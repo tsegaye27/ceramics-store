@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
-import clientPromise from "../../../lib/mongodb";
+import clientPromise from "@/app/lib/mongodb";
 
 const SECRET_KEY = process.env.JWT_SECRET as string;
 

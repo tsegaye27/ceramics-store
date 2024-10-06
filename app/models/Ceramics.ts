@@ -9,6 +9,7 @@ interface ICeramics extends Document {
   totalArea?: number;
   totalPackets: number;
   totalPiecesWithoutPacket: number;
+  imageUrl?: string;
 }
 
 const ceramicsSchema = new Schema<ICeramics>({
@@ -45,8 +46,13 @@ const ceramicsSchema = new Schema<ICeramics>({
     type: Number,
     required: true,
   },
+  imageUrl: {
+    type: String,
+    required: false,
+  },
 });
 
 const Ceramics = model<ICeramics>("Ceramics", ceramicsSchema);
 
 export default Ceramics;
+export type { ICeramics };
