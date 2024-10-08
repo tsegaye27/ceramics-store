@@ -2,6 +2,7 @@
 import { useAuth } from "@/app/context/AuthContext";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const LoginPage: React.FC = () => {
@@ -9,6 +10,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -29,6 +31,7 @@ const LoginPage: React.FC = () => {
       login(token);
       setEmail("");
       setPassword("");
+      router.push("/");
     } catch (error: any) {
       setError(error.response.data.message);
     }
