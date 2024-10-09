@@ -3,17 +3,16 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 
 interface IFormData {
   size: string;
   type: string;
   manufacturer: string;
   code: string;
-  piecesPerPacket: number;
-  totalArea?: number;
-  totalPackets: number;
-  totalPiecesWithoutPacket: number;
-  imageUrl?: string;
+  piecesPerPacket: string;
+  totalPackets: string;
+  totalPiecesWithoutPacket: string;
 }
 const AddCeramicPage = () => {
   const [formData, setFormData] = useState<IFormData>({
@@ -21,14 +20,13 @@ const AddCeramicPage = () => {
     type: "",
     manufacturer: "",
     code: "",
-    piecesPerPacket: 0,
-    totalPackets: 0,
-    totalPiecesWithoutPacket: 0,
-    totalArea: 0,
-    imageUrl: "",
+    piecesPerPacket: "",
+    totalPackets: "",
+    totalPiecesWithoutPacket: "",
   });
   const [error, setError] = useState("");
   const router = useRouter();
+  const { token } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,7 +36,18 @@ const AddCeramicPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/ceramics", formData);
+      const finalData = {
+        ...formData,
+        piecesPerPacket: parseInt(formData.piecesPerPacket),
+        totalPackets: parseInt(formData.totalPackets),
+        totalPiecesWithoutPacket: parseInt(formData.totalPiecesWithoutPacket),
+      };
+      console.log("formData", finalData);
+      const response = await axios.post("/api/ceramics", finalData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status === 201) {
         router.push("/ceramics");
@@ -108,7 +117,7 @@ const AddCeramicPage = () => {
         <div>
           <label className="block text-gray-700">Pieces Per Packet</label>
           <input
-            type="number"
+            type="text"
             name="piecesPerPacket"
             value={formData.piecesPerPacket}
             onChange={handleChange}
@@ -120,7 +129,7 @@ const AddCeramicPage = () => {
         <div>
           <label className="block text-gray-700">Total Packets</label>
           <input
-            type="number"
+            type="text"
             name="totalPackets"
             value={formData.totalPackets}
             onChange={handleChange}
@@ -134,7 +143,7 @@ const AddCeramicPage = () => {
             Total Pieces Without Packet
           </label>
           <input
-            type="number"
+            type="text"
             name="totalPiecesWithoutPacket"
             value={formData.totalPiecesWithoutPacket}
             onChange={handleChange}
