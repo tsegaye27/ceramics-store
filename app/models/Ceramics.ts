@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, model, Document } from "mongoose";
 
 interface ICeramics extends Document {
   size: string;
@@ -52,7 +52,9 @@ const ceramicsSchema = new Schema<ICeramics>({
   },
 });
 
-const Ceramics = model<ICeramics>("Ceramics", ceramicsSchema);
+const Ceramics =
+  mongoose.models.Ceramics ||
+  mongoose.model<ICeramics>("Ceramics", ceramicsSchema);
 
 export default Ceramics;
 export type { ICeramics };
