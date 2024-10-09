@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import clientPromise from "@/app/lib/mongodb";
+import dbConnect from "@/app/lib/mongoose";
+import User from "@/app/models/User";
 
 export async function POST(req: Request) {
   try {
@@ -13,11 +14,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db("ceramics");
+    await dbConnect();
 
-    const user = await db.collection("users").findOne({ email });
-    if (user) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return NextResponse.json(
         { message: "User already exists" },
         { status: 400 }
@@ -25,11 +25,13 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = {
+
+    const newUser = new User({
       email,
       hashedPassword,
-    };
-    await db.collection("users").insertOne(newUser);
+    });
+
+    await newUser.save();
 
     return NextResponse.json(
       { message: "Signup successful", user: { email: newUser.email } },
