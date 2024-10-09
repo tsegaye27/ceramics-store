@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
-import clientPromise from "@/app/lib/mongodb";
+import dbConnect from "@/app/lib/mongoose";
+import User from "@/app/models/User";
 
 const SECRET_KEY = process.env.JWT_SECRET as string;
 
@@ -20,10 +21,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db("ceramics");
+    await dbConnect();
 
-    const user = await db.collection("users").findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
         { message: "Invalid email or password" },
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         email: user.email,
       },
       SECRET_KEY,
-      { expiresIn: process.env.TOKEN_EXPIRATION || "1d" }
+      { expiresIn: process.env.TOKEN_EXPIRATION }
     );
 
     return NextResponse.json(
