@@ -1,21 +1,8 @@
 "use client";
-
 import { useState } from "react";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
 
-interface IFormData {
-  size: string;
-  type: string;
-  manufacturer: string;
-  code: string;
-  piecesPerPacket: string;
-  totalPackets: string;
-  totalPiecesWithoutPacket: string;
-}
-const AddCeramicPage = () => {
-  const [formData, setFormData] = useState<IFormData>({
+const CeramicForm = () => {
+  const [formData, setFormData] = useState({
     size: "",
     type: "",
     manufacturer: "",
@@ -24,137 +11,177 @@ const AddCeramicPage = () => {
     totalPackets: "",
     totalPiecesWithoutPacket: "",
   });
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const { token } = useAuth();
+  const [showSizeList, setShowSizeList] = useState(false);
+  const [showTypeList, setShowTypeList] = useState(false);
+  const [showManufacturerList, setShowManufacturerList] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const sizes = ["60x60", "40x40", "30x30", "30x60"];
+  const types = {
+    "60x60": ["polished", "normal"],
+    "40x40": ["normal"],
+    "30x60": ["digital", "normal"],
+    "30x30": ["normal"],
+  };
+  const manufacturers = ["arerti", "dukem"];
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const finalData = {
-        ...formData,
-        piecesPerPacket: parseInt(formData.piecesPerPacket),
-        totalPackets: parseInt(formData.totalPackets),
-        totalPiecesWithoutPacket: parseInt(formData.totalPiecesWithoutPacket),
-      };
-      console.log("formData", finalData);
-      const response = await axios.post("/api/ceramics", finalData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 201) {
-        router.push("/ceramics");
-      }
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Something went wrong");
-    }
-  };
+  const handleSearch = (list: string[], query: string) =>
+    list?.filter((item: string) =>
+      item.toLowerCase().includes(query.toLowerCase())
+    );
 
   return (
-    <div className="max-w-xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-6">Add New Ceramic</h1>
-
-      {error && (
-        <p className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</p>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Size</label>
+    <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
+        Add New Ceramic
+      </h1>
+      <form className="flex flex-col space-y-4">
+        {/* Size Input */}
+        <div className="relative">
           <input
             type="text"
             name="size"
+            placeholder="Size"
             value={formData.size}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
+            onFocus={() => setShowSizeList(true)}
+            onBlur={() => setTimeout(() => setShowSizeList(false), 200)}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {showSizeList && (
+            <ul className="absolute bg-white border border-gray-300 w-full max-h-40 overflow-y-auto z-10 rounded-md shadow-lg">
+              {handleSearch(sizes, formData.size).map((size) => (
+                <li
+                  key={size}
+                  onClick={() => {
+                    setFormData((prevData) => ({ ...prevData, size }));
+                    setShowSizeList(false);
+                  }}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  {size}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        <div>
-          <label className="block text-gray-700">Type</label>
-          <input
-            type="text"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
+        {/* Type Input */}
+        {formData.size && (
+          <div className="relative">
+            <input
+              type="text"
+              name="type"
+              placeholder="Type"
+              value={formData.type}
+              onChange={handleChange}
+              onFocus={() => setShowTypeList(true)}
+              onBlur={() => setTimeout(() => setShowTypeList(false), 200)}
+              className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {showTypeList && (
+              <ul className="absolute bg-white border border-gray-300 w-full max-h-40 overflow-y-auto z-10 rounded-md shadow-lg">
+                {handleSearch(types[formData.size], formData.type).map(
+                  (type) => (
+                    <li
+                      key={type}
+                      onClick={() => {
+                        setFormData((prevData) => ({ ...prevData, type }));
+                        setShowTypeList(false);
+                      }}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {type}
+                    </li>
+                  )
+                )}
+              </ul>
+            )}
+          </div>
+        )}
 
-        <div>
-          <label className="block text-gray-700">Manufacturer</label>
+        {/* Manufacturer Input */}
+        <div className="relative">
           <input
             type="text"
             name="manufacturer"
+            placeholder="Manufacturer"
             value={formData.manufacturer}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
+            onFocus={() => setShowManufacturerList(true)}
+            onBlur={() => setTimeout(() => setShowManufacturerList(false), 200)}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {showManufacturerList && (
+            <ul className="absolute bg-white border border-gray-300 w-full max-h-40 overflow-y-auto z-10 rounded-md shadow-lg">
+              {handleSearch(manufacturers, formData.manufacturer).map(
+                (manufacturer) => (
+                  <li
+                    key={manufacturer}
+                    onClick={() => {
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        manufacturer,
+                      }));
+                      setShowManufacturerList(false);
+                    }}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {manufacturer}
+                  </li>
+                )
+              )}
+            </ul>
+          )}
         </div>
 
-        <div>
-          <label className="block text-gray-700">Code</label>
-          <input
-            type="text"
-            name="code"
-            value={formData.code}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Pieces Per Packet</label>
-          <input
-            type="text"
-            name="piecesPerPacket"
-            value={formData.piecesPerPacket}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Total Packets</label>
-          <input
-            type="text"
-            name="totalPackets"
-            value={formData.totalPackets}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">
-            Total Pieces Without Packet
-          </label>
-          <input
-            type="text"
-            name="totalPiecesWithoutPacket"
-            value={formData.totalPiecesWithoutPacket}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
+        {/* Additional Inputs */}
+        <input
+          type="text"
+          name="code"
+          placeholder="Code"
+          value={formData.code}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="text"
+          name="piecesPerPacket"
+          placeholder="Pieces Per Packet"
+          value={formData.piecesPerPacket}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="text"
+          name="totalPackets"
+          placeholder="Total Packets"
+          value={formData.totalPackets}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="text"
+          name="totalPiecesWithoutPacket"
+          placeholder="Total Pieces Without Packet"
+          value={formData.totalPiecesWithoutPacket}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
 
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          className="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
         >
           Add Ceramic
         </button>
@@ -163,4 +190,4 @@ const AddCeramicPage = () => {
   );
 };
 
-export default AddCeramicPage;
+export default CeramicForm;
