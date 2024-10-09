@@ -1,28 +1,47 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/app/lib/mongodb";
+import dbConnect from "@/app/lib/mongoose";
 import jwt from "jsonwebtoken";
 import Ceramics, { ICeramics } from "@/app/models/Ceramics";
 
 export async function GET(request: Request) {
-  const client = await clientPromise;
-  const db = client.db("ceramics");
+  try {
+    await dbConnect();
 
-  const url = new URL(request.url);
-  const searchQuery = url.searchParams.get("search") || "";
+    const url = new URL(request.url);
+    const searchQuery = url.searchParams.get("search");
+    const id = url.searchParams.get("id");
 
-  const ceramics = await db
-    .collection<ICeramics>("ceramics")
-    .find({
-      $or: [
-        { size: { $regex: searchQuery, $options: "i" } },
-        { type: { $regex: searchQuery, $options: "i" } },
-        { manufacturer: { $regex: searchQuery, $options: "i" } },
-        { code: { $regex: searchQuery, $options: "i" } },
-      ],
-    })
-    .toArray();
+    let ceramics;
 
-  return NextResponse.json(ceramics);
+    if (id) {
+      ceramics = await Ceramics.findById(id);
+      if (!ceramics) {
+        return NextResponse.json(
+          { error: "Ceramic not found" },
+          { status: 404 }
+        );
+      }
+    } else if (searchQuery) {
+      ceramics = await Ceramics.find({
+        $or: [
+          { size: { $regex: searchQuery, $options: "i" } },
+          { type: { $regex: searchQuery, $options: "i" } },
+          { manufacturer: { $regex: searchQuery, $options: "i" } },
+          { code: { $regex: searchQuery, $options: "i" } },
+        ],
+      });
+    } else {
+      ceramics = await Ceramics.find({});
+    }
+
+    return NextResponse.json(ceramics);
+  } catch (error) {
+    console.error("Error fetching ceramics:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
@@ -37,7 +56,7 @@ export async function POST(request: Request) {
 
   try {
     jwt.verify(token, process.env.JWT_SECRET as string);
-    console.log(body);
+
     const newCeramic = new Ceramics(body);
     await newCeramic.save();
     return NextResponse.json(newCeramic, { status: 201 });
