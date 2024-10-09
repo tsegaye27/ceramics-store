@@ -27,32 +27,55 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
 
-  if (
-    !body.size ||
-    !body.type ||
-    !body.manufacturer ||
-    !body.code ||
-    !body.piecesPerPacket
-  ) {
-    return NextResponse.json(
-      { error: "All fields are required" },
-      { status: 400 }
-    );
+  try {
+    const newCeramic = new Ceramics(body);
+    await newCeramic.save();
+    return NextResponse.json(newCeramic, { status: 201 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
   }
-
-  const newCeramic = new Ceramics(body);
-  await newCeramic.save();
-  return NextResponse.json(newCeramic, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
   const { id, ...updateData } = await request.json();
-  await Ceramics.findByIdAndUpdate(id, updateData);
-  return NextResponse.json({ message: "Updated successfully" });
+
+  try {
+    const updatedCeramic = await Ceramics.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedCeramic) {
+      return NextResponse.json({ error: "Ceramic not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      message: "Updated successfully",
+      data: updatedCeramic,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+  }
 }
 
 export async function DELETE(request: Request) {
   const { id } = await request.json();
-  await Ceramics.findByIdAndDelete(id);
-  return NextResponse.json({ message: "Deleted successfully" });
+
+  try {
+    const deletedCeramic = await Ceramics.findByIdAndDelete(id);
+
+    if (!deletedCeramic) {
+      return NextResponse.json({ error: "Ceramic not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Deleted successfully" });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+  }
 }
