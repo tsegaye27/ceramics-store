@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/mongoose";
 import jwt from "jsonwebtoken";
 import Ceramics, { ICeramics } from "@/app/models/Ceramics";
+import { Error } from "mongoose";
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
     const searchQuery = url.searchParams.get("search");
     const id = url.searchParams.get("id");
 
-    let ceramics;
+    let ceramics: ICeramics[] | ICeramics | null;
 
     if (id) {
       ceramics = await Ceramics.findById(id);
@@ -67,6 +68,13 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
+    if ((error as Error).code === 11000) {
+      return NextResponse.json(
+        { error: "Ceramic already exists" },
+        { status: 400 }
+      );
+    }
+
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
