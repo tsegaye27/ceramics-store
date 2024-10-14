@@ -23,7 +23,11 @@ const CeramicsPage = () => {
     const fetchCeramics = async () => {
       try {
         const response = await axios.get(`/api/ceramics?search=${searchQuery}`);
-        setCeramics(response.data);
+        const filteredCeramics = response.data.filter(
+          (ceramic: ICeramic) =>
+            ceramic.totalPackets > 0 || ceramic.totalPiecesWithoutPacket > 0
+        );
+        setCeramics(filteredCeramics);
       } catch (error) {
         console.error("Error fetching ceramics:", error);
       }
@@ -57,6 +61,7 @@ const CeramicsPage = () => {
         totalPackets * piecesPerPacket * 0.16 + totalPiecesWithoutPacket * 0.16;
       return area.toFixed(2);
     }
+    return "0.00";
   };
 
   return (
@@ -70,6 +75,9 @@ const CeramicsPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <Link href="/ceramics/add" className="text-blue-500 mb-6 inline-block">
+          Add Ceramic
+        </Link>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {ceramics.map((ceramic: ICeramic) => (
             <div
@@ -89,18 +97,15 @@ const CeramicsPage = () => {
                 )}{" "}
                 m²
               </p>
-              <Link
-                href={`/ceramics/${ceramic._id}`}
-                className="text-blue-500 "
-              >
+              <Link href={`/ceramics/${ceramic._id}`} className="text-blue-500">
                 View Details
               </Link>
               <div className="flex space-x-4 mt-4">
                 <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-200">
-                  Add
+                  <Link href={`/ceramics/add/${ceramic._id}`}>Add</Link>
                 </button>
                 <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-200">
-                  Sell
+                  <Link href={`/ceramics/sell/${ceramic._id}`}>Sell</Link>
                 </button>
               </div>
             </div>
