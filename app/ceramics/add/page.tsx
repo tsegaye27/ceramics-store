@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 
 const CeramicForm = () => {
@@ -38,6 +39,9 @@ const CeramicForm = () => {
 
   return (
     <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+      <Link href="/ceramics" className="text-blue-500">
+        Back
+      </Link>
       <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
         Add New Ceramic
       </h1>
