@@ -46,7 +46,6 @@ const CeramicForm = () => {
         Add New Ceramic
       </h1>
       <form className="flex flex-col space-y-4">
-        {/* Size Input */}
         <div className="relative">
           <input
             type="text"
