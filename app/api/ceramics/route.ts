@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
-    if ((error as Error).code === 11000) {
+    if ((error as any).code === 11000) {
       return NextResponse.json(
         { error: "Ceramic already exists" },
         { status: 400 }
@@ -82,18 +82,50 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { id, ...updateData } = await request.json();
+  const { id, totalPackets, totalPiecesWithoutPacket, action } =
+    await request.json();
 
   try {
-    const updatedCeramic = await Ceramics.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedCeramic) {
+    const ceramic = await Ceramics.findById(id);
+    if (!ceramic) {
       return NextResponse.json({ error: "Ceramic not found" }, { status: 404 });
     }
 
+    if (action === "sell") {
+      if (
+        ceramic.totalPackets < totalPackets ||
+        ceramic.totalPiecesWithoutPacket < totalPiecesWithoutPacket
+      ) {
+        return NextResponse.json(
+          { error: "Insufficient inventory for sale" },
+          { status: 400 }
+        );
+      }
+
+      ceramic.totalPackets -= totalPackets;
+      ceramic.totalPiecesWithoutPacket -= totalPiecesWithoutPacket;
+
+      ceramic.totalPackets = Math.max(0, ceramic.totalPackets);
+      ceramic.totalPiecesWithoutPacket = Math.max(
+        0,
+        ceramic.totalPiecesWithoutPacket
+      );
+
+      if (
+        ceramic.totalPackets === 0 &&
+        ceramic.totalPiecesWithoutPacket === 0
+      ) {
+        await Ceramics.findByIdAndDelete(id);
+        return NextResponse.json({
+          message: "Ceramic sold and deleted successfully",
+        });
+      }
+    } else if (action === "add") {
+      ceramic.totalPackets += totalPackets;
+      ceramic.totalPiecesWithoutPacket += totalPiecesWithoutPacket;
+    }
+
+    const updatedCeramic = await ceramic.save();
     return NextResponse.json({
       message: "Updated successfully",
       data: updatedCeramic,
