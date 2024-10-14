@@ -33,36 +33,54 @@ export default function CeramicDetail() {
   }, [id]);
 
   if (!ceramic) {
-    return <p>Loading...</p>;
+    return <p className="text-center mt-10 text-gray-500">Loading...</p>;
   }
 
   return (
-    <div className="container mx-auto p-4">
-        <Link href="/ceramics" className="text-blue-500">
-            Back
+    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
+      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <Link
+          href="/ceramics"
+          className="text-blue-500 hover:text-blue-700  mb-6 inline-block"
+        >
+          Back
         </Link>
-      <h1 className="text-2xl font-bold mb-4">Ceramic Details</h1>
-      <p>
-        <strong>Size:</strong> {ceramic.size}
-      </p>
-      <p>
-        <strong>Type:</strong> {ceramic.type}
-      </p>
-      <p>
-        <strong>Manufacturer:</strong> {ceramic.manufacturer}
-      </p>
-      <p>
-        <strong>Code:</strong> {ceramic.code}
-      </p>
-        <p>
-            <strong>Pieces Per Packet:</strong> {ceramic.piecesPerPacket}
-        </p>
-        <p>
-            <strong>Total Packets:</strong> {ceramic.totalPackets}
-        </p>
-        <p>
-            <strong>Total Pieces Without Packet:</strong> {ceramic.totalPiecesWithoutPacket}
-        </p>
+        <h1 className="text-3xl font-bold mb-6 text-center">Ceramic Details</h1>
+        <div className="space-y-4">
+          <div>
+            <strong className="block font-medium">Size:</strong>
+            <span className="text-gray-700">{ceramic.size}</span>
+          </div>
+          <div>
+            <strong className="block font-medium">Type:</strong>
+            <span className="text-gray-700">{ceramic.type}</span>
+          </div>
+          <div>
+            <strong className="block font-medium">Manufacturer:</strong>
+            <span className="text-gray-700">{ceramic.manufacturer}</span>
+          </div>
+          <div>
+            <strong className="block font-medium">Code:</strong>
+            <span className="text-gray-700">{ceramic.code}</span>
+          </div>
+          <div>
+            <strong className="block font-medium">Pieces Per Packet:</strong>
+            <span className="text-gray-700">{ceramic.piecesPerPacket}</span>
+          </div>
+          <div>
+            <strong className="block font-medium">Total Packets:</strong>
+            <span className="text-gray-700">{ceramic.totalPackets}</span>
+          </div>
+          <div>
+            <strong className="block font-medium">
+              Total Pieces Without Packet:
+            </strong>
+            <span className="text-gray-700">
+              {ceramic.totalPiecesWithoutPacket}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
