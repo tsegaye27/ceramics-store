@@ -58,40 +58,54 @@ const CeramicsPage = () => {
       return area.toFixed(2);
     }
   };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">Ceramics List</h1>
-      <input
-        type="text"
-        placeholder="Search ceramics..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="border p-2 my-4"
-      />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {ceramics.map((ceramic: ICeramic) => (
-          <div key={ceramic._id} className="border p-4">
-            <h2 className="font-bold">Code: {ceramic.code}</h2>
-            <p>Size: {ceramic.size}</p>
-            <p>Total Packets: {ceramic.totalPackets}</p>
-            <p>
-              Total Pieces Without Packet: {ceramic.totalPiecesWithoutPacket}
-            </p>
-            <p>
-              Total Area:{" "}
-              {calculateArea(
-                ceramic.totalPackets,
-                ceramic.totalPiecesWithoutPacket,
-                ceramic.piecesPerPacket,
-                ceramic.size
-              )}
-              m2
-            </p>
-            <Link href={`/ceramics/${ceramic._id}`} className="text-blue-500">
-              View Details
-            </Link>
-          </div>
-        ))}
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-center mb-8">Ceramics List</h1>
+      <div className="max-w-4xl mx-auto">
+        <input
+          type="text"
+          placeholder="Search ceramics..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {ceramics.map((ceramic: ICeramic) => (
+            <div
+              key={ceramic._id}
+              className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              <h2 className="font-bold text-xl mb-2">Code: {ceramic.code}</h2>
+              <p className="text-gray-600">Size: {ceramic.size}</p>
+              <p className="text-gray-600">Type: {ceramic.type}</p>
+              <p className="text-gray-600 mb-4">
+                Total Area:{" "}
+                {calculateArea(
+                  ceramic.totalPackets,
+                  ceramic.totalPiecesWithoutPacket,
+                  ceramic.piecesPerPacket,
+                  ceramic.size
+                )}{" "}
+                m²
+              </p>
+              <Link
+                href={`/ceramics/${ceramic._id}`}
+                className="text-blue-500 "
+              >
+                View Details
+              </Link>
+              <div className="flex space-x-4 mt-4">
+                <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-200">
+                  Add
+                </button>
+                <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-200">
+                  Sell
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
