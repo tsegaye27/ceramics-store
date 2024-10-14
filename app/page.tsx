@@ -1,5 +1,14 @@
-import React from "react";
+"use client";
 
-export default function page() {
-  return <div>Home page</div>;
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/ceramics");
+  }, [router]);
+
+  return null;
 }
