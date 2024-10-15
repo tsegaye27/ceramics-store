@@ -71,7 +71,7 @@ export default function SellCeramic() {
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
-          className="text-blue-600 hover:text-blue-800 underline mb-6 inline-block"
+          className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
           Back
         </Link>
@@ -102,7 +102,7 @@ export default function SellCeramic() {
           </div>
           <button
             onClick={handleSell}
-            className="w-full bg-green-600 text-white py-3 rounded-lg mt-4 hover:bg-green-700 transition duration-300"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
           >
             Sell
           </button>
