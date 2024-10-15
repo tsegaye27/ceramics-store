@@ -11,7 +11,9 @@ const CeramicForm = () => {
 
   useEffect(() => {
     const redirectToLogin = () => {
-      token ? null : router.push("/auth/login");
+      if (!token) {
+        router.push("/auth/login");
+      }
     };
 
     redirectToLogin();
