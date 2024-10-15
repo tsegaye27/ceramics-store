@@ -16,5 +16,14 @@
   "updatedAt": "Updated At",
   "totalPiecesWithoutPacket": "Total Pieces",
   "totalPackets": "Total Packets",
-  "piecesPerPacket": "Pieces Per Packet"
+  "piecesPerPacket": "Pieces Per Packet",
+  "sellCeramic": "Sell Ceramic",
+  "addNewCeramic": "Add New Ceramic",
+  "enterPackets": "Enter Packets",
+  "enterPieces": "Enter Pieces",
+  "packetsToAdd": "Packets to Add",
+  "piecesToAdd": "Pieces to Add",
+  "packetsToSell": "Packets to Sell",
+  "piecesToSell": "Pieces to Sell",
+  "loading": "Loading"
 }
