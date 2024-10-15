@@ -122,7 +122,20 @@ export async function PATCH(request: Request) {
       }
     } else if (action === "add") {
       ceramic.totalPackets += totalPackets;
-      ceramic.totalPiecesWithoutPacket += totalPiecesWithoutPacket;
+      if (
+        ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket >=
+        ceramic.piecesPerPacket
+      ) {
+        ceramic.totalPackets += Math.floor(
+          (ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket) /
+            ceramic.piecesPerPacket
+        );
+        ceramic.totalPiecesWithoutPacket =
+          (ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket) %
+          ceramic.piecesPerPacket;
+      } else {
+        ceramic.totalPiecesWithoutPacket += totalPiecesWithoutPacket;
+      }
     }
 
     const updatedCeramic = await ceramic.save();
