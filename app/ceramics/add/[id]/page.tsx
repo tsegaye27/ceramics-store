@@ -1,16 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AddCeramic() {
-  const [packetsToAdd, setPacketsToAdd] = useState<string>("");
-  const [piecesToAdd, setPiecesToAdd] = useState<string>("");
+  const [packetsToAdd, setPacketsToAdd] = useState<string>("0");
+  const [piecesToAdd, setPiecesToAdd] = useState<string>("0");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { id } = useParams();
   const router = useRouter();
+  const [ppp, setPpp] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchCeramic = async () => {
+      try {
+        const ceramic = await axios.get(`/api/ceramics`, {
+          params: {
+            id,
+          },
+        });
+        if (!ceramic) {
+          router.push("/ceramics");
+          return;
+        }
+        setPpp(ceramic.data.piecesPerPacket);
+      } catch (error) {
+        console.error("Error fetching ceramic:", error);
+      }
+    };
+    fetchCeramic();
+  }, [id, router]);
 
   const validateInput = (value: string) => {
     const numValue = Number(value);
@@ -18,12 +39,16 @@ export default function AddCeramic() {
   };
 
   const handleAdd = async () => {
-    const packets = Number(packetsToAdd);
-    const pieces = Number(piecesToAdd);
+    let packets = Number(packetsToAdd);
+    let pieces = Number(piecesToAdd);
 
     if (!validateInput(packetsToAdd) || !validateInput(piecesToAdd)) {
-      setErrorMessage("Please enter valid positive numbers.");
+      setErrorMessage("Please enter numbers only(non-negative number).");
       return;
+    }
+    while (pieces >= ppp) {
+      packets += Math.floor(pieces / ppp);
+      pieces = pieces % ppp;
     }
 
     try {
@@ -33,7 +58,7 @@ export default function AddCeramic() {
         totalPiecesWithoutPacket: pieces,
         action: "add",
       });
-      router.push(`/ceramics/${id}`);
+      router.push(`/ceramics`);
     } catch (error) {
       console.error("Error adding ceramic inventory:", error);
       setErrorMessage("Failed to update inventory.");
@@ -44,7 +69,7 @@ export default function AddCeramic() {
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
-          href={`/ceramics/${id}`}
+          href={`/ceramics`}
           className="text-blue-600 hover:text-blue-800 underline mb-6 inline-block"
         >
           Back
