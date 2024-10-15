@@ -22,12 +22,12 @@ const CeramicsPage = () => {
   useEffect(() => {
     const fetchCeramics = async () => {
       try {
-        const response = await axios.get(`/api/ceramics?search=${searchQuery}`);
-        const filteredCeramics = response.data.filter(
-          (ceramic: ICeramic) =>
-            ceramic.totalPackets > 0 || ceramic.totalPiecesWithoutPacket > 0
-        );
-        setCeramics(filteredCeramics);
+        const response = await axios.get(`/api/ceramics`, {
+          params: {
+            search: searchQuery,
+          },
+        });
+        setCeramics(response.data);
       } catch (error) {
         console.error("Error fetching ceramics:", error);
       }
