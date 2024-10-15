@@ -82,44 +82,50 @@ export default function CeramicDetail() {
             <span>{formatDate(ceramic.createdAt)}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-            <strong className="block font-semibold text-blue-900">Size:</strong>
+            <strong className="block font-semibold text-blue-900">
+              {t("size")}:
+            </strong>
             <span>{ceramic.size}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-            <strong className="block font-semibold text-blue-900">Type:</strong>
+            <strong className="block font-semibold text-blue-900">
+              {t("type")}:
+            </strong>
             <span>{ceramic.type}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">
-              Manufacturer:
+              {t("manufacturer")}:
             </strong>
             <span>{ceramic.manufacturer}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-            <strong className="block font-semibold text-blue-900">Code:</strong>
+            <strong className="block font-semibold text-blue-900">
+              {t("code")}:
+            </strong>
             <span>{ceramic.code}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">
-              Pieces Per Packet:
+              {t("piecesPerPacket")}:
             </strong>
             <span>{ceramic.piecesPerPacket}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">
-              Total Packets:
+              {t("totalPackets")}:
             </strong>
             <span>{ceramic.totalPackets}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">
-              Total Pieces Without Packet:
+              {t("totalPiecesWithoutPacket")}:
             </strong>
             <span>{ceramic.totalPiecesWithoutPacket}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">
-              Updated At:
+              {t("updatedAt")}:
             </strong>
             <span>{formatDate(ceramic.updatedAt)}</span>
           </div>
