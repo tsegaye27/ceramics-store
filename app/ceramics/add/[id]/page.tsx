@@ -70,7 +70,7 @@ export default function AddCeramic() {
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
-          className="text-blue-600 hover:text-blue-800 underline mb-6 inline-block"
+          className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
           Back
         </Link>
