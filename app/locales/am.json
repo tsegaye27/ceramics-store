@@ -1,13 +1,20 @@
 {
-    "ceramicsList": "የሴራሚክስ ዝርዝር",
-    "searchPlaceholder": "ሴራሚክስ ፈልግ...",
-    "addCeramic": "ሴራሚክ አክል",
-    "code": "ኮድ",
-    "size": "መጠን",
-    "type": "ዓይነት",
-    "totalArea": "አጠቃላይ አካባቢ",
-    "viewDetails": "ዝርዝር እይ",
-    "add": "አክል",
-    "sell": "ሽጥ"
-  }
-  
+  "ceramicsList": "የሴራሚክ ዝርዝር",
+  "searchPlaceholder": "ሴራሚክ ፈልግ...",
+  "addCeramic": "ሴራሚክ ጨምር",
+  "code": "ኮድ",
+  "size": "መጠን",
+  "type": "አይነት",
+  "totalArea": "ካሬ",
+  "viewDetails": "ዝርዝር እይ",
+  "add": "ጨምር",
+  "sell": "ሽጥ",
+  "back": "ተመለስ",
+  "ceramicDetails": "ሴራሚክ ዝርዝር",
+  "date": "የምዝገባ ቀን",
+  "manufacturer": "አምራች",
+  "updatedAt": "የተሻሻለበት ቀን",
+  "totalPiecesWithoutPacket": "ጠቅላላ ፍሬዎች",
+  "totalPackets": "ጠቅላላ ካርቶኖች",
+  "piecesPerPacket": "ካርቶኑ የሚይዘው ፍሬ"
+}

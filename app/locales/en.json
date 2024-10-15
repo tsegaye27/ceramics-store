@@ -8,5 +8,13 @@
   "totalArea": "Total Area",
   "viewDetails": "View Details",
   "add": "Add",
-  "sell": "Sell"
+  "sell": "Sell",
+  "back": "Back",
+  "ceramicDetails": "Ceramic Details",
+  "date": "Date",
+  "manufacturer": "Manufacturer",
+  "updatedAt": "Updated At",
+  "totalPiecesWithoutPacket": "Total Pieces",
+  "totalPackets": "Total Packets",
+  "piecesPerPacket": "Pieces Per Packet"
 }
