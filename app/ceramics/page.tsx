@@ -65,17 +65,22 @@ const CeramicsPage = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-center mb-8">Ceramics List</h1>
+    <div className="p-6 bg-blue-50 min-h-screen">
+      <h1 className="text-4xl font-extrabold text-center text-blue-700 mb-8">
+        Ceramics List
+      </h1>
       <div className="max-w-4xl mx-auto">
         <input
           type="text"
           placeholder="Search ceramics..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <Link href="/ceramics/add" className="text-blue-500 mb-6 inline-block">
+        <Link
+          href="/ceramics/add"
+          className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+        >
           Add Ceramic
         </Link>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -84,10 +89,12 @@ const CeramicsPage = () => {
               key={ceramic._id}
               className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
-              <h2 className="font-bold text-xl mb-2">Code: {ceramic.code}</h2>
-              <p className="text-gray-600">Size: {ceramic.size}</p>
-              <p className="text-gray-600">Type: {ceramic.type}</p>
-              <p className="text-gray-600 mb-4">
+              <h2 className="font-bold text-xl text-blue-800 mb-2">
+                Code: {ceramic.code}
+              </h2>
+              <p className="">Size: {ceramic.size}</p>
+              <p className="">Type: {ceramic.type}</p>
+              <p className=" mb-4">
                 Total Area:{" "}
                 {calculateArea(
                   ceramic.totalPackets,
@@ -101,10 +108,10 @@ const CeramicsPage = () => {
                 View Details
               </Link>
               <div className="flex space-x-4 mt-4">
-                <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-200">
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition-colors duration-200">
                   <Link href={`/ceramics/add/${ceramic._id}`}>Add</Link>
                 </button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-200">
+                <button className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200">
                   <Link href={`/ceramics/sell/${ceramic._id}`}>Sell</Link>
                 </button>
               </div>
