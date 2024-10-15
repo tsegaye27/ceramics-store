@@ -1,8 +1,22 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const CeramicForm = () => {
+  const { token } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    const redirectToLogin = () => {
+      token ? null : router.push("/auth/login");
+    };
+
+    redirectToLogin();
+  }, [token, router]);
+
   const [formData, setFormData] = useState({
     size: "",
     type: "",
@@ -12,6 +26,8 @@ const CeramicForm = () => {
     totalPackets: "",
     totalPiecesWithoutPacket: "",
   });
+
+  const [error, setError] = useState<string | null>(null);
   const [showSizeList, setShowSizeList] = useState(false);
   const [showTypeList, setShowTypeList] = useState(false);
   const [showManufacturerList, setShowManufacturerList] = useState(false);
@@ -37,6 +53,50 @@ const CeramicForm = () => {
       item.toLowerCase().includes(query.toLowerCase())
     );
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    let packets = Number(formData.totalPackets);
+    let pieces = Number(formData.totalPiecesWithoutPacket);
+    while (pieces >= Number(formData.piecesPerPacket)) {
+      packets += 1;
+      pieces -= Number(formData.piecesPerPacket);
+    }
+    try {
+      const response = await axios.post(
+        "/api/ceramics",
+        {
+          ...formData,
+          totalPackets: packets,
+          totalPiecesWithoutPacket: pieces,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 201) {
+        throw new Error("Failed to add ceramic");
+      }
+
+      setFormData({
+        size: "",
+        type: "",
+        manufacturer: "",
+        code: "",
+        piecesPerPacket: "",
+        totalPackets: "",
+        totalPiecesWithoutPacket: "",
+      });
+
+      setError(null);
+      alert("Ceramic added successfully!");
+    } catch (error: any) {
+      setError(error.message || "An unexpected error occurred.");
+    }
+  };
+
   return (
     <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
       <Link href="/ceramics" className="text-blue-500">
@@ -45,7 +105,7 @@ const CeramicForm = () => {
       <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
         Add New Ceramic
       </h1>
-      <form className="flex flex-col space-y-4">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="relative">
           <input
             type="text"
@@ -75,7 +135,6 @@ const CeramicForm = () => {
           )}
         </div>
 
-        {/* Type Input */}
         {formData.size && (
           <div className="relative">
             <input
@@ -109,7 +168,6 @@ const CeramicForm = () => {
           </div>
         )}
 
-        {/* Manufacturer Input */}
         <div className="relative">
           <input
             type="text"
@@ -144,7 +202,6 @@ const CeramicForm = () => {
           )}
         </div>
 
-        {/* Additional Inputs */}
         <input
           type="text"
           name="code"
