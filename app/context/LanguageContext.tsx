@@ -1,0 +1,27 @@
+"use client";
+import { createContext, ReactNode, useContext, useState } from "react";
+
+const LanguageContext = createContext<any>(null);
+
+const translations: { [key: string]: { [key: string]: string } } = {
+  en: require("@/app/locales/en.json"),
+  am: require("@/app/locales/am.json"),
+};
+
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [language, setLanguage] = useState<"en" | "am">("en");
+
+  const switchLanguage = (lang: "en" | "am") => {
+    setLanguage(lang);
+  };
+
+  const t = (key: string) => translations[language][key] || key;
+
+  return (
+    <LanguageContext.Provider value={{ language, switchLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export const useLanguage = () => useContext(LanguageContext);
