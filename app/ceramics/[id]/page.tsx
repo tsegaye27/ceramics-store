@@ -15,6 +15,7 @@ interface ICeramic {
   totalPackets: number;
   totalPiecesWithoutPacket: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export default function CeramicDetail() {
@@ -24,7 +25,11 @@ export default function CeramicDetail() {
   useEffect(() => {
     const fetchCeramicById = async () => {
       try {
-        const res = await axios.get(`/api/ceramics?id=${id}`);
+        const res = await axios.get(`/api/ceramics`, {
+          params: {
+            id,
+          },
+        });
         setCeramic(res.data);
       } catch (error) {
         console.error("Error fetching ceramic by ID:", error);
@@ -37,14 +42,17 @@ export default function CeramicDetail() {
     return <p className="text-center mt-10 text-blue-400">Loading...</p>;
   }
 
-  const formattedDate = new Date(ceramic.createdAt).toLocaleDateString(
-    "en-US",
-    {
+  const formatDate = (unformattedDate: string) => {
+    const date = new Date(unformattedDate).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-    }
-  );
+    });
+    const hours = new Date(unformattedDate).getHours();
+    const min = new Date(unformattedDate).getMinutes();
+    const time = hours >= 12 ? "pm" : "am";
+    return date + " at " + hours + ":" + min + " " + time.toUpperCase();
+  };
 
   return (
     <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
@@ -61,7 +69,7 @@ export default function CeramicDetail() {
         <div className="space-y-4 text-blue-800">
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">Date:</strong>
-            <span>{formattedDate}</span>
+            <span>{formatDate(ceramic.createdAt)}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">Size:</strong>
@@ -98,6 +106,12 @@ export default function CeramicDetail() {
               Total Pieces Without Packet:
             </strong>
             <span>{ceramic.totalPiecesWithoutPacket}</span>
+          </div>
+          <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
+            <strong className="block font-semibold text-blue-900">
+              Updated At:
+            </strong>
+            <span>{formatDate(ceramic.updatedAt)}</span>
           </div>
         </div>
       </div>
