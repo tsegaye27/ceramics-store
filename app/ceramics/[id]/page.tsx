@@ -41,7 +41,7 @@ export default function CeramicDetail() {
   }, [id]);
 
   if (!ceramic) {
-    return <p className="text-center mt-10 text-blue-400">Loading...</p>;
+    return <p className="text-center mt-10 text-blue-400">{t("loading")}...</p>;
   }
 
   const formatDate = (unformattedDate: string) => {
