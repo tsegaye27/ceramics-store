@@ -91,7 +91,7 @@ const CeramicsPage = () => {
           href="/ceramics/add"
           className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
         >
-          {t("addCeramic")}
+          {t("addNewCeramic")}
         </Link>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {ceramics.map((ceramic: ICeramic) => (
