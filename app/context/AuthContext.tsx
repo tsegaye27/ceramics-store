@@ -29,7 +29,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const token = cookies.token || null;
 
   const login = (newToken: string) => {
-    setCookie("token", newToken, { path: "/", maxAge: 604800, secure: true });
+    setCookie("token", newToken, {
+      path: "/",
+      maxAge: 604800,
+    });
   };
 
   const logout = () => {
