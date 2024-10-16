@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function AddCeramic() {
   const [packetsToAdd, setPacketsToAdd] = useState<string>("0");
@@ -12,6 +13,7 @@ export default function AddCeramic() {
   const { id } = useParams();
   const router = useRouter();
   const [ppp, setPpp] = useState<number>(0);
+  const { t, switchLanguage } = useLanguage();
 
   useEffect(() => {
     const fetchCeramic = async () => {
@@ -67,41 +69,53 @@ export default function AddCeramic() {
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
+      <button onClick={() => switchLanguage("en")} className="mr-2">
+        English
+      </button>
+      <button onClick={() => switchLanguage("am")} className="mr-2">
+        አማርኛ
+      </button>
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
           className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
-          Back
+          {t("back")}
         </Link>
-        <h1 className="text-3xl font-semibold mb-6 text-center">Add Ceramic</h1>
+        <h1 className="text-3xl font-semibold mb-6 text-center">
+          {t("addCeramic")}
+        </h1>
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <div className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">Packets to Add:</label>
+            <label className="block font-medium mb-1">
+              {t("packetsToAdd")}:
+            </label>
             <input
               type="text"
               value={packetsToAdd}
               onChange={(e) => setPacketsToAdd(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter the number of packets"
+              placeholder={t("enterPackets")}
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">Pieces to Add:</label>
+            <label className="block font-medium mb-1">
+              {t("piecesToAdd")}:
+            </label>
             <input
               type="text"
               value={piecesToAdd}
               onChange={(e) => setPiecesToAdd(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter the number of pieces"
+              placeholder={t("enterPieces")}
             />
           </div>
           <button
             onClick={handleAdd}
             className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
           >
-            Add
+            {t("add")}
           </button>
         </div>
       </div>
