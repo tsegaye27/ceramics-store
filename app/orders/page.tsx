@@ -1,10 +1,13 @@
+"use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 interface Order {
   _id: string;
   ceramicId: { name: string };
-  seller: { name: string };
+  user: { name: string };
+  seller: string;
   pieces: number;
   packets: number;
   createdAt: string;
@@ -19,7 +22,7 @@ const OrderList = () => {
     const fetchOrders = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("/api/sell-orders");
+        const response = await axios.get("/api/orders");
         setOrders(response.data);
         setError(null);
       } catch (err) {
@@ -34,6 +37,7 @@ const OrderList = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <Link href="/ceramics">Back</Link>
       <h1 className="text-2xl font-semibold mb-4">Sell Orders</h1>
 
       {isLoading ? (
@@ -50,18 +54,18 @@ const OrderList = () => {
                 <th className="py-2 px-4 border-b">Time</th>
                 <th className="py-2 px-4 border-b">Pieces</th>
                 <th className="py-2 px-4 border-b">Packets</th>
+                <th className="py-2 px-4 border-b">User</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-100">
-                  <td className="py-2 px-4 border-b">{order.ceramicId.name}</td>
-                  <td className="py-2 px-4 border-b">{order.seller.name}</td>
-                  <td className="py-2 px-4 border-b">
-                    {new Date(order.createdAt).toLocaleString()}
-                  </td>
-                  <td className="py-2 px-4 border-b">{order.pieces}</td>
-                  <td className="py-2 px-4 border-b">{order.packets}</td>
+                <tr key={order._id}>
+                  <td>{order.ceramicId.name}</td>
+                  <td>{order.seller}</td>
+                  <td>{new Date(order.createdAt).toLocaleString()}</td>
+                  <td>{order.pieces}</td>
+                  <td>{order.packets}</td>
+                  <td>{order.user.name}</td>
                 </tr>
               ))}
             </tbody>
