@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function SellCeramic() {
   const [packetsToSell, setPacketsToSell] = useState<string>("0");
@@ -14,6 +15,8 @@ export default function SellCeramic() {
   const router = useRouter();
   const [ppp, setPpp] = useState<number>(0);
   const { t, switchLanguage } = useLanguage();
+  const [seller, setSeller] = useState<string>("");
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchCeramic = async () => {
@@ -47,6 +50,9 @@ export default function SellCeramic() {
     if (!validateInput(packetsToSell) || !validateInput(piecesToSell)) {
       setErrorMessage("Please enter valid positive numbers.");
       return;
+    } else if (!seller) {
+      setErrorMessage("Please enter the seller's name.");
+      return;
     }
 
     while (pieces >= ppp) {
@@ -61,6 +67,21 @@ export default function SellCeramic() {
         totalPiecesWithoutPacket: pieces,
         action: "sell",
       });
+      await axios.post(
+        `/api/orders`,
+        {
+          ceramicId: id,
+          seller,
+          packets,
+          pieces,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(id, seller, packets, pieces);
       router.push(`/ceramics`);
     } catch (error) {
       console.error("Error selling ceramic inventory:", error);
@@ -110,6 +131,16 @@ export default function SellCeramic() {
               onChange={(e) => setPiecesToSell(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={t("enterPieces")}
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">{t("seller")}:</label>
+            <input
+              type="text"
+              value={seller}
+              onChange={(e) => setSeller(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={t("enterSellerName")}
             />
           </div>
           <button
