@@ -5,11 +5,10 @@ import User from "@/app/models/User";
 
 export async function POST(req: Request) {
   try {
-    const { fullName, email, password } = await req.json();
-
-    if (!fullName || !email || !password) {
+    const { name, email, password } = await req.json();
+    if (!name || !email || !password) {
       return NextResponse.json(
-        { message: "Missing fullName, email or password" },
+        { message: "Missing name, email or password" },
         { status: 400 }
       );
     }
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      fullName,
+      name,
       email,
       hashedPassword,
     });
@@ -35,7 +34,10 @@ export async function POST(req: Request) {
     await newUser.save();
 
     return NextResponse.json(
-      { message: "Signup successful", user: { email: newUser.email } },
+      {
+        message: "Signup successful",
+        user: { name: newUser.name, email: newUser.email },
+      },
       { status: 201 }
     );
   } catch (error) {
