@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (newToken: string) => {
     setCookie("token", newToken, {
       path: "/",
-      maxAge: 604800,
     });
   };
 
