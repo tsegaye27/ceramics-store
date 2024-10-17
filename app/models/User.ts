@@ -1,6 +1,7 @@
 import mongoose, { Schema, model, Document } from "mongoose";
 
 interface IUser extends Document {
+  fullName: string;
   email: string;
   hashedPassword: string;
   createdAt: Date;
@@ -8,6 +9,10 @@ interface IUser extends Document {
 
 const userSchema = new Schema<IUser>(
   {
+    fullName: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
