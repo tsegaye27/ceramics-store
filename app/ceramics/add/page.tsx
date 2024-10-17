@@ -7,22 +7,40 @@ import axios from "axios";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setLoading } from "@/app/store/userSlice";
+import { RootState } from "@/app/store/store";
+import { jwtDecode } from "jwt-decode";
 
 const CeramicForm = () => {
   const { token } = useAuth();
   const router = useRouter();
   const { t, switchLanguage } = useLanguage();
   const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.global);
+  const { error, isLoading } = useSelector((state: RootState) => state.global);
 
   useEffect(() => {
-    const redirectToLogin = () => {
+    const checkTokenExpiration = () => {
       if (!token) {
+        router.push("/auth/login");
+        return;
+      }
+
+      try {
+        const decodedToken: { exp: number } = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decodedToken.exp < currentTime) {
+          router.push("/auth/login");
+        }
+      } catch (error) {
         router.push("/auth/login");
       }
     };
 
-    redirectToLogin();
+    checkTokenExpiration();
+
+    const interval = setInterval(checkTokenExpiration, 43200 * 1000);
+
+    return () => clearInterval(interval);
   }, [token, router]);
 
   const [formData, setFormData] = useState({
@@ -97,15 +115,19 @@ const CeramicForm = () => {
         totalPackets: "",
         totalPiecesWithoutPacket: "",
       });
+      router.push("/ceramics");
 
       dispatch(setError(""));
-      alert("Ceramic added successfully!");
     } catch (error: any) {
-      dispatch(setError(error.message || "An unexpected error occurred."));
+      dispatch(
+        setError(error.response.data.error || "An unexpected error occurred.")
+      );
     } finally {
       dispatch(setLoading(false));
     }
   };
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <>
