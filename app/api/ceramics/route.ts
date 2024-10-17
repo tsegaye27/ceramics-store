@@ -111,15 +111,15 @@ export async function PATCH(request: Request) {
         ceramic.totalPiecesWithoutPacket
       );
 
-      if (
-        ceramic.totalPackets === 0 &&
-        ceramic.totalPiecesWithoutPacket === 0
-      ) {
-        await Ceramics.findByIdAndDelete(id);
-        return NextResponse.json({
-          message: "Ceramic sold and deleted successfully",
-        });
-      }
+      // if (
+      //   ceramic.totalPackets === 0 &&
+      //   ceramic.totalPiecesWithoutPacket === 0
+      // ) {
+      //   await Ceramics.findByIdAndDelete(id);
+      //   return NextResponse.json({
+      //     message: "Ceramic sold and deleted successfully",
+      //   });
+      // }
     } else if (action === "add") {
       ceramic.totalPackets += totalPackets;
       if (
