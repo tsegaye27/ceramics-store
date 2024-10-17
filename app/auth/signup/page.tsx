@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const SignUpPage: React.FC = () => {
-  const [fullName, setFullName] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -14,7 +14,7 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!fullName || !email || !password || !passwordConfirm) {
+    if (!name || !email || !password || !passwordConfirm) {
       setError("Missing name, email, password or password confirmation");
       return;
     }
@@ -28,15 +28,16 @@ const SignUpPage: React.FC = () => {
     }
     try {
       const response = await axios.post("/api/auth/signup", {
-        fullName,
+        name,
         email,
         password,
       });
       if (response.status === 201) {
         router.push("/auth/login");
       }
+      console.log("client data", name,email)
       console.log(response.data);
-      setFullName("");
+      setName("");
       setEmail("");
       setPassword("");
       setPasswordConfirm("");
@@ -57,8 +58,8 @@ const SignUpPage: React.FC = () => {
         <div className="w-full">
           <input
             type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Full Name"
             className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
           />
