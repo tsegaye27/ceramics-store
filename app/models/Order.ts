@@ -1,24 +1,29 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 
-interface ISellOrder extends Document {
+interface IOrder extends Document {
   ceramicId: mongoose.Types.ObjectId;
-  seller: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
+  seller: string;
   pieces: number;
   packets: number;
   createdAt: Date;
 }
 
-const SellOrderSchema: Schema<ISellOrder> = new Schema(
+const OrderSchema: Schema<IOrder> = new Schema(
   {
     ceramicId: {
       type: Schema.Types.ObjectId,
       ref: "Ceramic",
       required: true,
     },
-    seller: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    seller: {
+      type: String,
+      default: "Ananiya Shop",
     },
     pieces: {
       type: Number,
@@ -32,10 +37,8 @@ const SellOrderSchema: Schema<ISellOrder> = new Schema(
   { timestamps: true }
 );
 
-const SellOrder: Model<ISellOrder> = mongoose.model<ISellOrder>(
-  "Order",
-  SellOrderSchema
-);
+const Order: Model<IOrder> =
+  mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
 
-export default SellOrder;
-export type { ISellOrder };
+export default Order;
+export type { IOrder };
