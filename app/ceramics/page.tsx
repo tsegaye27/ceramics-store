@@ -87,12 +87,20 @@ const CeramicsPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <Link
-          href="/ceramics/add"
-          className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
-        >
-          {t("addNewCeramic")}
-        </Link>
+        <div className="w-4xl flex justify-between">
+          <Link
+            href="/ceramics/add"
+            className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+          >
+            {t("addNewCeramic")}
+          </Link>
+          <Link
+            href="/orders"
+            className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+          >
+            {t("orderList")}
+          </Link>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {ceramics.map((ceramic: ICeramic) => (
             <div
@@ -119,7 +127,10 @@ const CeramicsPage = () => {
                 )}{" "}
                 m²
               </p>
-              <Link href={`/ceramics/${ceramic._id}`} className="text-blue-500">
+              <Link
+                href={`/ceramics/${ceramic._id}`}
+                className="text-blue-500 hover:text-blue-600"
+              >
                 {t("viewDetails")}
               </Link>
               <div className="flex space-x-4 mt-4">
