@@ -13,12 +13,12 @@ const OrderSchema: Schema<IOrder> = new Schema(
   {
     ceramicId: {
       type: Schema.Types.ObjectId,
-      ref: "Ceramic",
+      ref: "Ceramics",
       required: true,
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Users",
       required: true,
     },
     seller: {

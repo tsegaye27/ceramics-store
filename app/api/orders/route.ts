@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/mongoose";
 import Order from "@/app/models/Order";
 import jwt from "jsonwebtoken";
+import Ceramics from "@/app/models/Ceramics";
+import User from "@/app/models/User";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -77,9 +79,7 @@ export async function GET(request: Request) {
   await dbConnect();
 
   try {
-    const Orders = await Order.find({})
-      .populate("ceramicId", "name")
-      .populate("user", "name");
+    const Orders = await Order.find().populate("ceramicId").populate("user");
 
     return NextResponse.json(Orders);
   } catch (error) {

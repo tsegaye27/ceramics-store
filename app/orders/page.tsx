@@ -5,7 +5,7 @@ import Link from "next/link";
 
 interface Order {
   _id: string;
-  ceramicId: { name: string };
+  ceramicId: { code: string };
   user: { name: string };
   seller: string;
   pieces: number;
@@ -60,7 +60,7 @@ const OrderList = () => {
             <tbody>
               {orders.map((order) => (
                 <tr key={order._id}>
-                  <td>{order.ceramicId.name}</td>
+                  <td>{order.ceramicId.code}</td>
                   <td>{order.seller}</td>
                   <td>{new Date(order.createdAt).toLocaleString()}</td>
                   <td>{order.pieces}</td>

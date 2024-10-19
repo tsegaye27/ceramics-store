@@ -30,6 +30,7 @@ export default function SellCeramic() {
           router.push("/ceramics");
           return;
         }
+
         setPpp(ceramic.data.piecesPerPacket);
       } catch (error) {
         console.error("Error fetching ceramic:", error);

@@ -92,14 +92,16 @@ export async function PATCH(request: Request) {
     }
 
     if (action === "sell") {
-      if (
-        ceramic.totalPackets < totalPackets ||
-        ceramic.totalPiecesWithoutPacket < totalPiecesWithoutPacket
-      ) {
+      if (ceramic.totalPackets < totalPackets) {
         return NextResponse.json(
           { error: "Insufficient inventory for sale" },
           { status: 400 }
         );
+      }
+
+      if (ceramic.totalPiecesWithoutPacket < totalPiecesWithoutPacket) {
+        ceramic.totalPackets -= 1;
+        ceramic.totalPiecesWithoutPacket += ceramic.piecesPerPacket;
       }
 
       ceramic.totalPackets -= totalPackets;
