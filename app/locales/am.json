@@ -26,5 +26,12 @@
   "packetsToSell": "የሚሸጠው ካርቶን",
   "piecesToSell": "የሚሸጠው ፍሬ",
   "loading": "በመጫን ላይ",
-  "orderList": "የሽያጭ ዝርዝር"
+  "orderList": "የሽያጭ ዝርዝር",
+  "seller": "የሻጭ ስም",
+  "enterSellerName": "የሻጭን ስም ያስገቡ",
+  "ceramic": "ሴራሚክ",
+  "time": "ሰዓት",
+  "packets": "ካርቶኖች",
+  "pieces": "ፍሬዎች",
+  "user": "ተጠቃሚ"
 }

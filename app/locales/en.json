@@ -26,5 +26,12 @@
   "packetsToSell": "Packets to Sell",
   "piecesToSell": "Pieces to Sell",
   "loading": "Loading",
-  "orderList": "Order List"
+  "orderList": "Order List",
+  "seller": "Seller",
+  "enterSellerName": "Enter Seller Name",
+  "ceramic": "Ceramic",
+  "time": "Time",
+  "packets": "Packets",
+  "pieces": "Pieces",
+  "user": "User"
 }
