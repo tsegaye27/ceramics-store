@@ -19,7 +19,8 @@ export async function POST(request: Request) {
 
   try {
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-    const userId = decoded.userId;
+    console.log(decoded);
+    const userId = decoded.id;
 
     if (!userId) {
       return NextResponse.json(
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
     const newOrder = new Order({
       ceramicId,
       seller,
-      user: userId,
+      userId,
       pieces,
       packets,
     });
@@ -79,7 +80,7 @@ export async function GET(request: Request) {
   await dbConnect();
 
   try {
-    const Orders = await Order.find().populate("ceramicId").populate("user");
+    const Orders = await Order.find().populate("userId").populate("ceramicId");
 
     return NextResponse.json(Orders);
   } catch (error) {

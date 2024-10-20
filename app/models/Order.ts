@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Model } from "mongoose";
 
 interface IOrder extends Document {
   ceramicId: mongoose.Types.ObjectId;
-  user: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   seller: string;
   pieces: number;
   packets: number;
@@ -16,9 +16,9 @@ const OrderSchema: Schema<IOrder> = new Schema(
       ref: "Ceramics",
       required: true,
     },
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "User",
       required: true,
     },
     seller: {
