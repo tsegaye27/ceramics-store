@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { ceramicId, seller, pieces, packets } = body;
+    const { ceramicId, seller, pieces, packets, price } = body;
 
     if (!ceramicId) {
       return NextResponse.json(
@@ -55,6 +55,12 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    if (price === undefined || price === null) {
+      return NextResponse.json(
+        { error: "The price is required" },
+        { status: 400 }
+      );
+    }
 
     const newOrder = new Order({
       ceramicId,
@@ -62,13 +68,16 @@ export async function POST(request: Request) {
       userId,
       pieces,
       packets,
+      price,
     });
 
     await newOrder.save();
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating sell order:", error);
+    if (error.name === "TokenExpiredError") {
+      return NextResponse.json({ error: "Token expired" }, { status: 401 });
+    }
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
