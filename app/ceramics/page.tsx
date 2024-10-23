@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
+import Spinner from "../components/Spinner";
 
 interface ICeramic {
   _id: string;
@@ -21,19 +22,17 @@ interface ICeramic {
 const CeramicsPage = () => {
   const [ceramics, setCeramics] = useState<ICeramic[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isMounted, setIsMounted] = useState<boolean>(false);
   const { t, switchLanguage } = useLanguage();
-  const { token, logout } = useAuth();
+  const { token, logout, isTokenValid } = useAuth();
   const [userName, setUserName] = useState<string>("");
 
   const router = useRouter();
 
   useEffect(() => {
-    setIsMounted(true);
-
     const fetchUserData = async () => {
+      if (!isTokenValid()) return;
       try {
         const response = await axios.get("/api/users", {
           headers: {
@@ -53,7 +52,7 @@ const CeramicsPage = () => {
 
     const fetchCeramics = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         const response = await axios.get(`/api/ceramics`, {
           params: {
             search: searchQuery,
@@ -64,15 +63,16 @@ const CeramicsPage = () => {
       } catch (err) {
         setError("Failed to fetch ceramics. Please try again later.");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchCeramics();
-  }, [searchQuery, token]);
+  }, [searchQuery, token, isTokenValid]);
 
   const handleLogout = async () => {
     logout();
+    setLoading(true);
     router.push("/auth/login");
   };
 
@@ -105,10 +105,10 @@ const CeramicsPage = () => {
     return "0.00";
   };
 
-  if (!isMounted) {
-    return null;
-  }
-
+  // if (!isMounted) {
+  //   return null;
+  // }
+  if (isLoading) return <Spinner />;
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -121,7 +121,7 @@ const CeramicsPage = () => {
           </button>
         </div>
         <div className="flex items-center space-x-4">
-          {token ? (
+          {isTokenValid() ? (
             <div className="flex flex-col items-center space-x-2">
               <span className="text-blue-700 font-semibold">{userName}</span>
               <button
@@ -170,7 +170,7 @@ const CeramicsPage = () => {
         </div>
 
         {isLoading ? (
-          <p className="text-center text-gray-600">{t("loading")}</p>
+          <Spinner />
         ) : error ? (
           <p className="text-center text-red-600">{error}</p>
         ) : (

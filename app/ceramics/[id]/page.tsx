@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/context/LanguageContext";
+import Spinner from "@/app/components/Spinner";
 
 interface ICeramic {
   _id: string;
@@ -41,7 +42,7 @@ export default function CeramicDetail() {
   }, [id]);
 
   if (!ceramic) {
-    return <p className="text-center mt-10 text-blue-400">{t("loading")}...</p>;
+    return <Spinner />;
   }
 
   const formatDate = (unformattedDate: string) => {
