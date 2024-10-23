@@ -7,6 +7,7 @@ interface IOrder extends Document {
   pieces: number;
   packets: number;
   createdAt: Date;
+  price: number;
 }
 
 const OrderSchema: Schema<IOrder> = new Schema(
@@ -30,6 +31,10 @@ const OrderSchema: Schema<IOrder> = new Schema(
       required: true,
     },
     packets: {
+      type: Number,
+      required: true,
+    },
+    price: {
       type: Number,
       required: true,
     },
