@@ -105,6 +105,10 @@ const CeramicsPage = () => {
     return "0.00";
   };
 
+  const handleNavigate = () => {
+    setLoading(true);
+  };
+
   // if (!isMounted) {
   //   return null;
   // }
@@ -134,6 +138,7 @@ const CeramicsPage = () => {
           ) : (
             <Link
               href="/auth/login"
+              onClick={handleNavigate}
               className="text-blue-600 hover:text-blue-800"
             >
               {t("login")}
@@ -156,12 +161,14 @@ const CeramicsPage = () => {
         />
         <div className="w-4xl flex justify-between">
           <Link
+            onClick={handleNavigate}
             href="/ceramics/add"
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
             {t("addNewCeramic")}
           </Link>
           <Link
+            onClick={handleNavigate}
             href="/orders"
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
@@ -200,19 +207,28 @@ const CeramicsPage = () => {
                   m²
                 </p>
                 <Link
+                  onClick={handleNavigate}
                   href={`/ceramics/${ceramic._id}`}
                   className="text-blue-500 hover:text-blue-600"
                 >
                   {t("viewDetails")}
                 </Link>
                 <div className="flex space-x-4 mt-4">
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition-colors duration-200">
-                    <Link href={`/ceramics/add/${ceramic._id}`}>
+                  <button>
+                    <Link
+                      href={`/ceramics/add/${ceramic._id}`}
+                      onClick={handleNavigate}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
+                    >
                       {t("add")}
                     </Link>
                   </button>
-                  <button className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200">
-                    <Link href={`/ceramics/sell/${ceramic._id}`}>
+                  <button>
+                    <Link
+                      href={`/ceramics/sell/${ceramic._id}`}
+                      onClick={handleNavigate}
+                      className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                    >
                       {t("sell")}
                     </Link>
                   </button>
