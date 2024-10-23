@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useLanguage } from "../context/LanguageContext";
+import Spinner from "../components/Spinner";
 
 interface Order {
   _id: string;
@@ -16,21 +17,21 @@ interface Order {
 
 const OrderList = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { t, switchLanguage } = useLanguage();
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         const response = await axios.get("/api/orders");
         setOrders(response.data);
         setError(null);
       } catch (err) {
         setError("Failed to fetch sell orders. Please try again later.");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
@@ -63,6 +64,7 @@ const OrderList = () => {
     return "0.00";
   };
 
+  if (isLoading) return <Spinner />;
   return (
     <div className="container mx-auto p-4">
       <button onClick={() => switchLanguage("en")} className="mr-2">
@@ -79,9 +81,10 @@ const OrderList = () => {
         {t("back")}
       </Link>
       <h1 className="text-3xl font-bold mb-6 text-center">{t("orderList")}</h1>
-
-      {isLoading ? (
-        <p className="text-gray-600 text-center">{t("loading")}...</p>
+      {orders.length === 0 ? (
+        <p className="text-center">{t("noOrdersYet")}</p>
+      ) : isLoading ? (
+        <Spinner />
       ) : error ? (
         <p className="text-red-600 text-center">{error}</p>
       ) : (
