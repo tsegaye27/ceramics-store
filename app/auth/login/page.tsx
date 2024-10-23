@@ -40,6 +40,10 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleNavigate = () => {
+    setLoading(true);
+  };
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -76,7 +80,11 @@ const LoginPage: React.FC = () => {
         {error && <p className="text-red-500">{error}</p>}
         <p className="text-sm text-gray-500">
           Do not have an account?
-          <Link href={"/auth/signup"} className="text-blue-500 hover:underline">
+          <Link
+            href={"/auth/signup"}
+            onClick={handleNavigate}
+            className="text-blue-500 hover:underline"
+          >
             Sign up
           </Link>
         </p>
