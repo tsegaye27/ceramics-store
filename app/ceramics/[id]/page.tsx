@@ -41,6 +41,10 @@ export default function CeramicDetail() {
     fetchCeramicById();
   }, [id]);
 
+  const handleNavigate = () => {
+    setCeramic(null);
+  };
+
   if (!ceramic) {
     return <Spinner />;
   }
@@ -68,6 +72,7 @@ export default function CeramicDetail() {
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href="/ceramics"
+          onClick={handleNavigate}
           className="text-blue-500 hover:text-blue-700 mb-6 inline-block"
         >
           {t("back")}

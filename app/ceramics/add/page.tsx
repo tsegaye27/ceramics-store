@@ -135,6 +135,10 @@ const CeramicForm = () => {
     }
   };
 
+  const handleNavigate = () => {
+    setLoading(true);
+  };
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -146,7 +150,11 @@ const CeramicForm = () => {
         አማርኛ
       </button>
       <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
-        <Link href="/ceramics" className="text-blue-500">
+        <Link
+          href="/ceramics"
+          onClick={handleNavigate}
+          className="text-blue-500"
+        >
           {t("back")}
         </Link>
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
