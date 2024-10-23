@@ -71,6 +71,10 @@ export default function AddCeramic() {
     }
   };
 
+  const handleNavigate = () => {
+    setLoading(true);
+  };
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -84,6 +88,7 @@ export default function AddCeramic() {
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
+          onClick={handleNavigate}
           className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
           {t("back")}
