@@ -6,7 +6,7 @@ import { useLanguage } from "../context/LanguageContext";
 
 interface Order {
   _id: string;
-  ceramicId: { code: string; size: string };
+  ceramicId: { code: string; size: string; piecesPerPacket: string };
   userId: { name: string };
   seller: string;
   pieces: number;
@@ -37,6 +37,32 @@ const OrderList = () => {
     fetchOrders();
   }, []);
 
+  const calculateArea = (
+    totalPackets: number,
+    totalPiecesWithoutPacket: number,
+    piecesPerPacket: string,
+    size: string
+  ) => {
+    const ppp = Number(piecesPerPacket);
+    if (size === "60x60") {
+      const area = totalPackets * ppp * 0.36 + totalPiecesWithoutPacket * 0.36;
+      return area.toFixed(2);
+    }
+    if (size === "30x60") {
+      const area = totalPackets * ppp * 0.18 + totalPiecesWithoutPacket * 0.18;
+      return area.toFixed(2);
+    }
+    if (size === "30x30") {
+      const area = totalPackets * ppp * 0.09 + totalPiecesWithoutPacket * 0.09;
+      return area.toFixed(2);
+    }
+    if (size === "40x40") {
+      const area = totalPackets * ppp * 0.16 + totalPiecesWithoutPacket * 0.16;
+      return area.toFixed(2);
+    }
+    return "0.00";
+  };
+
   return (
     <div className="container mx-auto p-4">
       <button onClick={() => switchLanguage("en")} className="mr-2">
@@ -63,20 +89,24 @@ const OrderList = () => {
           <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
             <thead>
               <tr className="bg-gray-100 text-left">
-                <th className="py-3 px-4 border-b font-medium">
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
                   {t("ceramic")}
                 </th>
-                <th className="py-3 px-4 border-b font-medium">
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
                   {t("seller")}
                 </th>
-                <th className="py-3 px-4 border-b font-medium">{t("time")}</th>
-                <th className="py-3 px-4 border-b font-medium">
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  {t("time")}
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  {t("totalArea")}
+                </th>
+                {/* <th className="py-3 px-4 border-b border-r-2 font-medium">
                   {t("pieces")}
+                </th> */}
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  {t("user")}
                 </th>
-                <th className="py-3 px-4 border-b font-medium">
-                  {t("packets")}
-                </th>
-                <th className="py-3 px-4 border-b font-medium">{t("user")}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,16 +115,30 @@ const OrderList = () => {
                   key={order._id}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                 >
-                  <td className="py-3 px-4 border-b">
+                  <td className="py-3 px-4 border-b border-r-2">
                     {order.ceramicId.size}({order.ceramicId.code})
                   </td>
-                  <td className="py-3 px-4 border-b">{order.seller}</td>
-                  <td className="py-3 px-4 border-b">
+                  <td className="py-3 px-4 border-b border-r-2">
+                    {order.seller}
+                  </td>
+                  <td className="py-3 px-4 border-b border-r-2">
                     {new Date(order.createdAt).toLocaleString()}
                   </td>
-                  <td className="py-3 px-4 border-b">{order.pieces}</td>
-                  <td className="py-3 px-4 border-b">{order.packets}</td>
-                  <td className="py-3 px-4 border-b">{order.userId.name}</td>
+                  <td className="py-3 px-4 border-b border-r-2">
+                    {calculateArea(
+                      order.packets,
+                      order.pieces,
+                      order.ceramicId.piecesPerPacket,
+                      order.ceramicId.size
+                    )}{" "}
+                    m²
+                  </td>
+                  {/* <td className="py-3 px-4 border-b border-r-2">
+                    {order.pieces}
+                  </td> */}
+                  <td className="py-3 px-4 border-b border-r-2">
+                    {order.userId.name}
+                  </td>
                 </tr>
               ))}
             </tbody>
