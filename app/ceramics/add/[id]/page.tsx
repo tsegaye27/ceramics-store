@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/context/LanguageContext";
+import Spinner from "@/app/components/Spinner";
 
 export default function AddCeramic() {
   const [packetsToAdd, setPacketsToAdd] = useState<string>("0");
@@ -14,6 +15,7 @@ export default function AddCeramic() {
   const router = useRouter();
   const [ppp, setPpp] = useState<number>(0);
   const { t, switchLanguage } = useLanguage();
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCeramic = async () => {
@@ -24,6 +26,7 @@ export default function AddCeramic() {
           },
         });
         if (!ceramic) {
+          setLoading(true);
           router.push("/ceramics");
           return;
         }
@@ -60,12 +63,15 @@ export default function AddCeramic() {
         totalPiecesWithoutPacket: pieces,
         action: "add",
       });
+      setLoading(true);
       router.push(`/ceramics`);
     } catch (error) {
       console.error("Error adding ceramic inventory:", error);
       setErrorMessage("Failed to update inventory.");
     }
   };
+
+  if (isLoading) return <Spinner />;
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
