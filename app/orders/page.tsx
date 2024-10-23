@@ -76,6 +76,7 @@ const OrderList = () => {
       <br />
       <Link
         href="/ceramics"
+        onClick={() => setLoading(true)}
         className="text-blue-500 hover:text-blue-700 mb-4 inline-block"
       >
         {t("back")}
