@@ -37,5 +37,6 @@
   "logout": "Logout",
   "login": "Login",
   "pricePerArea": "Price Per Area",
-  "enterPrice": "Enter Price"
+  "enterPrice": "Enter Price",
+  "noOrdersYet": "No orders yet"
 }

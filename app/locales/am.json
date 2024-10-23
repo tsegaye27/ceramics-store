@@ -37,5 +37,6 @@
   "logout": "ውጣ",
   "login": "ግባ",
   "pricePerArea": "ዋጋ በካሬ",
-  "enterPrice": "ዋጋ ያስገቡ"
+  "enterPrice": "ዋጋ ያስገቡ",
+  "noOrdersYet": "እስካሁን ሽያጭ የለም"
 }
