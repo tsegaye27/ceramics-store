@@ -6,6 +6,9 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useAuth } from "@/app/context/AuthContext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store/store";
+import Spinner from "@/app/components/Spinner";
 
 export default function SellCeramic() {
   const [packetsToSell, setPacketsToSell] = useState<string>("");
@@ -18,16 +21,19 @@ export default function SellCeramic() {
   const [seller, setSeller] = useState<string>("");
   const { token } = useAuth();
   const [price, setPrice] = useState<string>("");
+  const [isLoading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchCeramic = async () => {
       try {
+        setLoading(true);
         const ceramic = await axios.get(`/api/ceramics`, {
           params: {
             id,
           },
         });
         if (!ceramic) {
+          setLoading(true);
           router.push("/ceramics");
           return;
         }
@@ -35,6 +41,8 @@ export default function SellCeramic() {
         setPpp(ceramic.data.piecesPerPacket);
       } catch (error) {
         console.error("Error fetching ceramic:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCeramic();
@@ -63,6 +71,7 @@ export default function SellCeramic() {
     }
 
     try {
+      setLoading(true);
       await axios.patch(`/api/ceramics/`, {
         id,
         totalPackets: packets,
@@ -85,15 +94,23 @@ export default function SellCeramic() {
         }
       );
       console.log(id, seller, packets, pieces, price);
+      setLoading(true);
       router.push(`/ceramics`);
     } catch (error) {
       console.error("Error selling ceramic inventory:", error);
       setErrorMessage("Failed to update inventory.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (isLoading) return <Spinner />;
   return (
-    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
+    <div
+      className={`container mx-auto p-6 bg-gray-100 min-h-screen ${
+        isLoading ? "opacity-50" : ""
+      }`}
+    >
       <button onClick={() => switchLanguage("en")} className="mr-2">
         English
       </button>
