@@ -9,17 +9,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { setError, setLoading } from "@/app/store/userSlice";
 import { RootState } from "@/app/store/store";
 import { jwtDecode } from "jwt-decode";
+import Spinner from "@/app/components/Spinner";
 
 const CeramicForm = () => {
   const { token } = useAuth();
   const router = useRouter();
   const { t, switchLanguage } = useLanguage();
   const dispatch = useDispatch();
-  const { error, isLoading } = useSelector((state: RootState) => state.global);
+  const { error } = useSelector((state: RootState) => state.global);
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const checkTokenExpiration = () => {
       if (!token) {
+        setLoading(true);
         router.push("/auth/login");
         return;
       }
@@ -29,10 +32,14 @@ const CeramicForm = () => {
         const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
+          setLoading(true);
           router.push("/auth/login");
         }
       } catch (error) {
+        setLoading(true);
         router.push("/auth/login");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -80,7 +87,7 @@ const CeramicForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(setLoading(true));
+    setLoading(true);
     let packets = Number(formData.totalPackets);
     let pieces = Number(formData.totalPiecesWithoutPacket);
     while (pieces >= Number(formData.piecesPerPacket)) {
@@ -115,6 +122,7 @@ const CeramicForm = () => {
         totalPackets: "",
         totalPiecesWithoutPacket: "",
       });
+      setLoading(true);
       router.push("/ceramics");
 
       dispatch(setError(""));
@@ -123,11 +131,11 @@ const CeramicForm = () => {
         setError(error.response.data.error || "An unexpected error occurred.")
       );
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Spinner />;
 
   return (
     <>
