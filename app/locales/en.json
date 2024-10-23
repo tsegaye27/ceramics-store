@@ -33,5 +33,9 @@
   "time": "Time",
   "packets": "Packets",
   "pieces": "Pieces",
-  "user": "User"
+  "user": "User",
+  "logout": "Logout",
+  "login": "Login",
+  "pricePerArea": "Price Per Area",
+  "enterPrice": "Enter Price"
 }

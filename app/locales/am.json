@@ -33,5 +33,9 @@
   "time": "ሰዓት",
   "packets": "ካርቶኖች",
   "pieces": "ፍሬዎች",
-  "user": "ተጠቃሚ"
+  "user": "ተጠቃሚ",
+  "logout": "ውጣ",
+  "login": "ግባ",
+  "pricePerArea": "ዋጋ በካሬ",
+  "enterPrice": "ዋጋ ያስገቡ"
 }
