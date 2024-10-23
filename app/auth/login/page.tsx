@@ -1,4 +1,5 @@
 "use client";
+import Spinner from "@/app/components/Spinner";
 import { useAuth } from "@/app/context/AuthContext";
 import axios from "axios";
 import Link from "next/link";
@@ -11,6 +12,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState("");
   const { login } = useAuth();
   const router = useRouter();
+  const [isLoading, setLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -31,11 +33,14 @@ const LoginPage: React.FC = () => {
       login(token);
       setEmail("");
       setPassword("");
+      setLoading(true);
       router.push("/");
     } catch (error: any) {
       setError(error.response.data.message);
     }
   };
+
+  if (isLoading) return <Spinner />;
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
