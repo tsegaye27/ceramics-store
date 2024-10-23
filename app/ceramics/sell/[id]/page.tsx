@@ -120,6 +120,7 @@ export default function SellCeramic() {
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
+          onClick={() => setLoading(true)}
           className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
           {t("back")}
