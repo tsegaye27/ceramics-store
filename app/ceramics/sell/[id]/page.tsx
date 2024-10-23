@@ -8,8 +8,8 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { useAuth } from "@/app/context/AuthContext";
 
 export default function SellCeramic() {
-  const [packetsToSell, setPacketsToSell] = useState<string>("0");
-  const [piecesToSell, setPiecesToSell] = useState<string>("0");
+  const [packetsToSell, setPacketsToSell] = useState<string>("");
+  const [piecesToSell, setPiecesToSell] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { id } = useParams();
   const router = useRouter();
@@ -17,6 +17,7 @@ export default function SellCeramic() {
   const { t, switchLanguage } = useLanguage();
   const [seller, setSeller] = useState<string>("");
   const { token } = useAuth();
+  const [price, setPrice] = useState<string>("");
 
   useEffect(() => {
     const fetchCeramic = async () => {
@@ -75,6 +76,7 @@ export default function SellCeramic() {
           seller,
           packets,
           pieces,
+          price: Number(price),
         },
         {
           headers: {
@@ -82,7 +84,7 @@ export default function SellCeramic() {
           },
         }
       );
-      console.log(id, seller, packets, pieces);
+      console.log(id, seller, packets, pieces, price);
       router.push(`/ceramics`);
     } catch (error) {
       console.error("Error selling ceramic inventory:", error);
@@ -117,7 +119,9 @@ export default function SellCeramic() {
             <input
               type="text"
               value={packetsToSell}
-              onChange={(e) => setPacketsToSell(e.target.value)}
+              onChange={(e) =>
+                setPacketsToSell(Number(e.target.value) ? e.target.value : "")
+              }
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={t("enterPackets")}
             />
@@ -129,9 +133,25 @@ export default function SellCeramic() {
             <input
               type="text"
               value={piecesToSell}
-              onChange={(e) => setPiecesToSell(e.target.value)}
+              onChange={(e) =>
+                setPiecesToSell(Number(e.target.value) ? e.target.value : "")
+              }
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={t("enterPieces")}
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">
+              {t("pricePerArea")}:
+            </label>
+            <input
+              type="text"
+              value={price}
+              onChange={(e) =>
+                setPrice(Number(e.target.value) ? e.target.value : "")
+              }
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={t("enterPrice")}
             />
           </div>
           <div>
@@ -144,6 +164,7 @@ export default function SellCeramic() {
               placeholder={t("enterSellerName")}
             />
           </div>
+
           <button
             onClick={handleSell}
             className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
