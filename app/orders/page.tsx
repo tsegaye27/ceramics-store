@@ -12,6 +12,7 @@ interface Order {
   seller: string;
   pieces: number;
   packets: number;
+  price: number;
   createdAt: string;
 }
 
@@ -47,18 +48,22 @@ const OrderList = () => {
     const ppp = Number(piecesPerPacket);
     if (size === "60x60") {
       const area = totalPackets * ppp * 0.36 + totalPiecesWithoutPacket * 0.36;
+
       return area.toFixed(2);
     }
     if (size === "30x60") {
       const area = totalPackets * ppp * 0.18 + totalPiecesWithoutPacket * 0.18;
+
       return area.toFixed(2);
     }
     if (size === "30x30") {
       const area = totalPackets * ppp * 0.09 + totalPiecesWithoutPacket * 0.09;
+
       return area.toFixed(2);
     }
     if (size === "40x40") {
       const area = totalPackets * ppp * 0.16 + totalPiecesWithoutPacket * 0.16;
+
       return area.toFixed(2);
     }
     return "0.00";
@@ -105,9 +110,9 @@ const OrderList = () => {
                 <th className="py-3 px-4 border-b border-r-2 font-medium">
                   {t("totalArea")}
                 </th>
-                {/* <th className="py-3 px-4 border-b border-r-2 font-medium">
-                  {t("pieces")}
-                </th> */}
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  {t("totalPrice")}
+                </th>
                 <th className="py-3 px-4 border-b border-r-2 font-medium">
                   {t("user")}
                 </th>
@@ -137,9 +142,18 @@ const OrderList = () => {
                     )}{" "}
                     m²
                   </td>
-                  {/* <td className="py-3 px-4 border-b border-r-2">
-                    {order.pieces}
-                  </td> */}
+                  <td className="py-3 px-4 border-b border-r-2">
+                    {order.price *
+                      Number(
+                        calculateArea(
+                          order.packets,
+                          order.pieces,
+                          order.ceramicId.piecesPerPacket,
+                          order.ceramicId.size
+                        )
+                      )}{" "}
+                    {t("birr")}
+                  </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.userId.name}
                   </td>
