@@ -17,6 +17,7 @@
     "jwt-decode": "^4.0.0",
     "mongodb": "^6.9.0",
     "mongoose": "^8.7.0",
+    "multer": "^1.4.5-lts.1",
     "next": "^14.2.13",
     "next-auth": "^4.24.7",
     "react": "^18",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
