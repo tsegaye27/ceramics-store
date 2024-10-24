@@ -38,5 +38,7 @@
   "login": "ግባ",
   "pricePerArea": "ዋጋ በካሬ",
   "enterPrice": "ዋጋ ያስገቡ",
-  "noOrdersYet": "እስካሁን ሽያጭ የለም"
+  "noOrdersYet": "እስካሁን ሽያጭ የለም",
+  "birr": "ብር",
+  "totalPrice": "ዋጋ"
 }

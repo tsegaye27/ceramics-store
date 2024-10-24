@@ -38,5 +38,7 @@
   "login": "Login",
   "pricePerArea": "Price Per Area",
   "enterPrice": "Enter Price",
-  "noOrdersYet": "No orders yet"
+  "noOrdersYet": "No orders yet",
+  "birr": "Birr",
+  "totalPrice": "Total Price"
 }
