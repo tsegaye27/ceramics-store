@@ -32,7 +32,10 @@ export async function GET(request: Request) {
         ],
       });
     } else {
-      ceramics = await Ceramics.find({});
+      ceramics = await Ceramics.find({}).sort({
+        totalPackets: 1,
+        createdAt: -1,
+      });
     }
 
     return NextResponse.json(ceramics);
