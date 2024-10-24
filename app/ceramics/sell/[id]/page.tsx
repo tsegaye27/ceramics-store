@@ -11,8 +11,8 @@ import { RootState } from "@/app/store/store";
 import Spinner from "@/app/components/Spinner";
 
 export default function SellCeramic() {
-  const [packetsToSell, setPacketsToSell] = useState<string>("");
-  const [piecesToSell, setPiecesToSell] = useState<string>("");
+  const [packetsToSell, setPacketsToSell] = useState<string>("0");
+  const [piecesToSell, setPiecesToSell] = useState<string>("0");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { id } = useParams();
   const router = useRouter();
