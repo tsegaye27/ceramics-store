@@ -8,7 +8,6 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setLoading } from "@/app/store/userSlice";
 import { RootState } from "@/app/store/store";
-import { jwtDecode } from "jwt-decode";
 import Spinner from "@/app/components/Spinner";
 
 const CeramicForm = () => {
@@ -16,39 +15,8 @@ const CeramicForm = () => {
   const router = useRouter();
   const { t, switchLanguage } = useLanguage();
   const dispatch = useDispatch();
+  const isLoading = useSelector((state: RootState) => state.global.isLoading);
   const { error } = useSelector((state: RootState) => state.global);
-  const [isLoading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    const checkTokenExpiration = () => {
-      if (!token) {
-        setLoading(true);
-        router.push("/auth/login");
-        return;
-      }
-
-      try {
-        const decodedToken: { exp: number } = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-
-        if (decodedToken.exp < currentTime) {
-          setLoading(true);
-          router.push("/auth/login");
-        }
-      } catch (error) {
-        setLoading(true);
-        router.push("/auth/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkTokenExpiration();
-
-    const interval = setInterval(checkTokenExpiration, 43200 * 1000);
-
-    return () => clearInterval(interval);
-  }, [token, router]);
 
   const [formData, setFormData] = useState({
     size: "",
@@ -58,6 +26,7 @@ const CeramicForm = () => {
     piecesPerPacket: "",
     totalPackets: "",
     totalPiecesWithoutPacket: "",
+    imageUrl: "",
   });
 
   const [showSizeList, setShowSizeList] = useState(false);
@@ -87,7 +56,7 @@ const CeramicForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(setLoading(true));
     let packets = Number(formData.totalPackets);
     let pieces = Number(formData.totalPiecesWithoutPacket);
     while (pieces >= Number(formData.piecesPerPacket)) {
@@ -121,28 +90,37 @@ const CeramicForm = () => {
         piecesPerPacket: "",
         totalPackets: "",
         totalPiecesWithoutPacket: "",
+        imageUrl: "",
       });
-      setLoading(true);
       router.push("/ceramics");
 
       dispatch(setError(""));
     } catch (error: any) {
       dispatch(
-        setError(error.response.data.error || "An unexpected error occurred.")
+        setError(error.response?.data?.error || "An unexpected error occurred.")
       );
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
-  const handleNavigate = () => {
-    setLoading(true);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setFormData((prevData) => ({
+          ...prevData,
+          imageUrl: reader.result as string,
+        }));
+      };
+    }
   };
-
-  if (isLoading) return <Spinner />;
 
   return (
     <>
+      {isLoading && <Spinner />}
       <button onClick={() => switchLanguage("en")} className="mr-2">
         English
       </button>
@@ -150,11 +128,7 @@ const CeramicForm = () => {
         አማርኛ
       </button>
       <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
-        <Link
-          href="/ceramics"
-          onClick={handleNavigate}
-          className="text-blue-500"
-        >
+        <Link href="/ceramics" className="text-blue-500">
           {t("back")}
         </Link>
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
@@ -271,6 +245,15 @@ const CeramicForm = () => {
             required
           />
           <input
+            type="file"
+            name="imageUrl"
+            placeholder={t("image")}
+            value={formData.imageUrl}
+            onChange={handleImageChange}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
             type="text"
             name="piecesPerPacket"
             placeholder={t("piecesPerPacket")}
@@ -309,5 +292,4 @@ const CeramicForm = () => {
     </>
   );
 };
-
 export default CeramicForm;
