@@ -161,8 +161,8 @@ const CeramicsPage = () => {
         />
         <div className="w-4xl flex justify-between">
           <Link
-            onClick={handleNavigate}
             href="/ceramics/add"
+            onClick={handleNavigate}
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
             {t("addNewCeramic")}
@@ -185,7 +185,15 @@ const CeramicsPage = () => {
             {ceramics.map((ceramic: ICeramic) => (
               <div
                 key={ceramic._id}
-                className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                className={`bg-white p-5 rounded-lg  ${
+                  ceramic.totalPackets <= 10
+                    ? "border-2 border-red-600  shadow-lg"
+                    : "shadow-lg"
+                } ${
+                  ceramic.totalPackets <= 10
+                    ? "hover:shadow-red-400 shadow-lg"
+                    : "hover:shadow-lg"
+                } hover:transition-shadow duration-300`}
               >
                 <h2 className="font-bold text-xl text-blue-800 mb-2">
                   {t("code")}: {ceramic.code}
