@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { useLanguage } from "../context/LanguageContext";
-import Spinner from "../components/Spinner";
+import { useLanguage } from "../_context/LanguageContext";
+import Spinner from "../_components/Spinner";
 
 interface Order {
   _id: string;
@@ -69,7 +69,12 @@ const OrderList = () => {
     return "0.00";
   };
 
-  if (isLoading) return <Spinner />;
+  if (isLoading)
+    return (
+      <div className="h-screen">
+        <Spinner />;
+      </div>
+    );
   return (
     <div className="container mx-auto p-4">
       <button onClick={() => switchLanguage("en")} className="mr-2">
@@ -140,7 +145,7 @@ const OrderList = () => {
                       order.ceramicId.piecesPerPacket,
                       order.ceramicId.size
                     )}{" "}
-                    m²
+                    {t("m")}²
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.price *

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useLanguage } from "@/app/context/LanguageContext";
-import { useAuth } from "@/app/context/AuthContext";
+import { useLanguage } from "@/app/_context/LanguageContext";
+import { useAuth } from "@/app/_context/AuthContext";
 import { useSelector } from "react-redux";
-import { RootState } from "@/app/store/store";
-import Spinner from "@/app/components/Spinner";
+import { RootState } from "@/app/_store/store";
+import Spinner from "@/app/_components/Spinner";
 
 export default function SellCeramic() {
   const [packetsToSell, setPacketsToSell] = useState<string>("0");
@@ -103,7 +103,12 @@ export default function SellCeramic() {
     }
   };
 
-  if (isLoading) return <Spinner />;
+  if (isLoading)
+    return (
+      <div className="h-screen">
+        <Spinner />
+      </div>
+    );
   return (
     <div
       className={`container mx-auto p-6 bg-gray-100 min-h-screen ${
