@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import store from "./store/store";
+import store from "./_store/store";
 import { Provider } from "react-redux";
 
 const ReactProvider = ({ children }: { children: React.ReactNode }) => {

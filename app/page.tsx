@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { useLanguage } from "@/app/context/LanguageContext";
+import { useLanguage } from "@/app/_context/LanguageContext";
 import { useRouter } from "next/navigation";
-import Spinner from "./components/Spinner";
-import { useAuth } from "./context/AuthContext";
-import { ICeramics } from "./models/Ceramics";
+import Spinner from "./_components/Spinner";
+import { useAuth } from "./_context/AuthContext";
+import { ICeramics } from "./_models/Ceramics";
 
 const CeramicsPage = () => {
   const [isClient, setIsClient] = useState(false);
