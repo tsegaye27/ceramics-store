@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useLanguage } from "@/app/context/LanguageContext";
-import Spinner from "@/app/components/Spinner";
+import { useLanguage } from "@/app/_context/LanguageContext";
+import Spinner from "@/app/_components/Spinner";
 
 export default function AddCeramic() {
   const [packetsToAdd, setPacketsToAdd] = useState<string>("0");
@@ -75,7 +75,12 @@ export default function AddCeramic() {
     setLoading(true);
   };
 
-  if (isLoading) return <Spinner />;
+  if (isLoading)
+    return (
+      <div className="h-screen">
+        <Spinner />
+      </div>
+    );
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">

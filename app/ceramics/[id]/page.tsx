@@ -4,24 +4,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useLanguage } from "@/app/context/LanguageContext";
-import Spinner from "@/app/components/Spinner";
-
-interface ICeramic {
-  _id: string;
-  size: string;
-  type: string;
-  manufacturer: string;
-  code: string;
-  piecesPerPacket: number;
-  totalPackets: number;
-  totalPiecesWithoutPacket: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useLanguage } from "@/app/_context/LanguageContext";
+import Spinner from "@/app/_components/Spinner";
+import { ICeramics } from "@/app/_models/Ceramics";
 
 export default function CeramicDetail() {
-  const [ceramic, setCeramic] = useState<ICeramic | null>(null);
+  const [ceramic, setCeramic] = useState<ICeramics | null>(null);
   const { id } = useParams();
   const { t, switchLanguage } = useLanguage();
 
@@ -46,7 +34,11 @@ export default function CeramicDetail() {
   };
 
   if (!ceramic) {
-    return <Spinner />;
+    return (
+      <div className="h-screen">
+        <Spinner />
+      </div>
+    );
   }
 
   const formatDate = (unformattedDate: string) => {
@@ -85,7 +77,7 @@ export default function CeramicDetail() {
             <strong className="block font-semibold text-blue-900">
               {t("date")}:
             </strong>
-            <span>{formatDate(ceramic.createdAt)}</span>
+            <span>{formatDate(ceramic.createdAt.toString())}</span>
           </div>
           <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
             <strong className="block font-semibold text-blue-900">
@@ -133,7 +125,7 @@ export default function CeramicDetail() {
             <strong className="block font-semibold text-blue-900">
               {t("updatedAt")}:
             </strong>
-            <span>{formatDate(ceramic.updatedAt)}</span>
+            <span>{formatDate(ceramic.updatedAt.toString())}</span>
           </div>
         </div>
       </div>

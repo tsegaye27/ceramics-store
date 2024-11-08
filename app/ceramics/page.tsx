@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { useLanguage } from "@/app/context/LanguageContext";
-import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "@/app/_context/LanguageContext";
+import { useAuth } from "../_context/AuthContext";
 import { useRouter } from "next/navigation";
-import Spinner from "../components/Spinner";
+import Spinner from "../_components/Spinner";
 
 interface ICeramic {
   _id: string;

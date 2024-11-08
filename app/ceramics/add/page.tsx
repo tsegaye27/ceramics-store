@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useLanguage } from "@/app/context/LanguageContext";
+import { useLanguage } from "@/app/_context/LanguageContext";
 import { useDispatch, useSelector } from "react-redux";
-import { setError, setLoading } from "@/app/store/userSlice";
-import { RootState } from "@/app/store/store";
-import Spinner from "@/app/components/Spinner";
+import { setError, setLoading } from "@/app/_store/userSlice";
+import { RootState } from "@/app/_store/store";
+import Spinner from "@/app/_components/Spinner";
 
 const CeramicForm = () => {
   const { token } = useAuth();
@@ -105,23 +105,13 @@ const CeramicForm = () => {
     }
   };
 
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(file);
-  //     reader.onload = () => {
-  //       setFormData((prevData) => ({
-  //         ...prevData,
-  //         imageUrl: reader.result as string,
-  //       }));
-  //     };
-  //   }
-  // };
-
   return (
     <>
-      {isLoading && <Spinner />}
+      {isLoading && (
+        <div className="h-screen">
+          <Spinner />
+        </div>
+      )}
       <button onClick={() => switchLanguage("en")} className="mr-2">
         English
       </button>
