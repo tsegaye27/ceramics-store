@@ -22,7 +22,8 @@ interface ICeramic {
 const CeramicsPage = () => {
   const [ceramics, setCeramics] = useState<ICeramic[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setLoading] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isCeramicsLoading, setCeramicsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { t, switchLanguage } = useLanguage();
   const { token, logout, isTokenValid } = useAuth();
@@ -34,25 +35,29 @@ const CeramicsPage = () => {
     const fetchUserData = async () => {
       if (!isTokenValid()) return;
       try {
+        setLoading(true);
         const response = await axios.get("/api/users", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data.user.name);
         if (response.data) {
           setUserName(response.data.user.name);
         }
       } catch (err) {
         console.error("Error fetching user data:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserData();
+  }, [token, isTokenValid]);
 
+  useEffect(() => {
+    setCeramicsLoading(true);
     const fetchCeramics = async () => {
       try {
-        setLoading(true);
         const response = await axios.get(`/api/ceramics`, {
           params: {
             search: searchQuery,
@@ -63,12 +68,11 @@ const CeramicsPage = () => {
       } catch (err) {
         setError("Failed to fetch ceramics. Please try again later.");
       } finally {
-        setLoading(false);
+        setCeramicsLoading(false);
       }
     };
-
     fetchCeramics();
-  }, [searchQuery, token, isTokenValid]);
+  }, [searchQuery]);
 
   const handleLogout = async () => {
     logout();
@@ -102,6 +106,11 @@ const CeramicsPage = () => {
         totalPackets * piecesPerPacket * 0.16 + totalPiecesWithoutPacket * 0.16;
       return area.toFixed(2);
     }
+    if (size === "zekolo") {
+      const area =
+        (totalPackets * piecesPerPacket + totalPiecesWithoutPacket) * 0.6;
+      return area.toFixed(2);
+    }
     return "0.00";
   };
 
@@ -109,10 +118,12 @@ const CeramicsPage = () => {
     setLoading(true);
   };
 
-  // if (!isMounted) {
-  //   return null;
-  // }
-  if (isLoading) return <Spinner />;
+  if (isLoading)
+    return (
+      <div className="h-screen">
+        <Spinner />
+      </div>
+    );
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -152,13 +163,15 @@ const CeramicsPage = () => {
       </h1>
 
       <div className="max-w-4xl mx-auto">
-        <input
-          type="text"
-          placeholder={t("searchPlaceholder")}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div className="flex">
+          <input
+            type="text"
+            placeholder={t("searchPlaceholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
         <div className="w-4xl flex justify-between">
           <Link
             href="/ceramics/add"
@@ -176,7 +189,7 @@ const CeramicsPage = () => {
           </Link>
         </div>
 
-        {isLoading ? (
+        {isCeramicsLoading ? (
           <Spinner />
         ) : error ? (
           <p className="text-center text-red-600">{error}</p>
@@ -212,7 +225,7 @@ const CeramicsPage = () => {
                     ceramic.piecesPerPacket,
                     ceramic.size
                   )}{" "}
-                  m²
+                  {ceramic.size === "zekolo" ? "m" : "m²"}
                 </p>
                 <Link
                   onClick={handleNavigate}

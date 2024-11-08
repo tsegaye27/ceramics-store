@@ -33,14 +33,15 @@ const CeramicForm = () => {
   const [showTypeList, setShowTypeList] = useState(false);
   const [showManufacturerList, setShowManufacturerList] = useState(false);
 
-  const sizes = ["60x60", "40x40", "30x30", "30x60"];
+  const sizes = ["60x60", "40x40", "30x30", "30x60", "zekolo"];
   const types = {
     "60x60": ["Polished", "Normal"],
     "40x40": ["Normal"],
     "30x60": ["Digital", "Normal"],
     "30x30": ["Normal"],
+    zekolo: ["Normal"],
   };
-  const manufacturers = ["Arerti", "Dukem"];
+  const manufacturers = ["Arerti", "Dukem", "China"];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -104,19 +105,19 @@ const CeramicForm = () => {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        setFormData((prevData) => ({
-          ...prevData,
-          imageUrl: reader.result as string,
-        }));
-      };
-    }
-  };
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.readAsDataURL(file);
+  //     reader.onload = () => {
+  //       setFormData((prevData) => ({
+  //         ...prevData,
+  //         imageUrl: reader.result as string,
+  //       }));
+  //     };
+  //   }
+  // };
 
   return (
     <>
@@ -244,7 +245,7 @@ const CeramicForm = () => {
             className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          <input
+          {/* <input
             type="file"
             name="imageUrl"
             placeholder={t("image")}
@@ -252,7 +253,7 @@ const CeramicForm = () => {
             onChange={handleImageChange}
             className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-          />
+          /> */}
           <input
             type="text"
             name="piecesPerPacket"

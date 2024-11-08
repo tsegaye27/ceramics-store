@@ -93,7 +93,6 @@ export default function SellCeramic() {
           },
         }
       );
-      console.log(id, seller, packets, pieces, price);
       setLoading(true);
       router.push(`/ceramics`);
     } catch (error) {

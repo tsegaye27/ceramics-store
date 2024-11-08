@@ -38,15 +38,12 @@ const SignUpPage: React.FC = () => {
         setLoading(true);
         router.push("/auth/login");
       }
-      console.log("client data", name, email);
-      console.log(response.data);
       setName("");
       setEmail("");
       setPassword("");
       setPasswordConfirm("");
     } catch (error: any) {
       setError("Sign-up Failed");
-      console.log(`Error:, ${error.response || error.message}`);
     }
   };
 

@@ -19,7 +19,6 @@ export async function POST(request: Request) {
 
   try {
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-    console.log(decoded);
     const userId = decoded.id;
 
     if (!userId) {
