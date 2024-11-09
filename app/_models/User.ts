@@ -4,6 +4,7 @@ interface IUser extends Document {
   name: string;
   email: string;
   hashedPassword: string;
+  role: "admin" | "user";
   createdAt: Date;
 }
 
@@ -21,6 +22,11 @@ const userSchema = new Schema<IUser>(
     hashedPassword: {
       type: String,
       required: true,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
     },
   },
   { timestamps: true }
