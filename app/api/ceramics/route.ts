@@ -87,14 +87,50 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const { id, totalPackets, totalPiecesWithoutPacket, action } =
     await request.json();
+  const authHeader = request.headers.get("Authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.error("Authorization header is missing or incorrectly formatted");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const token = authHeader.split(" ")[1];
+  console.log("Token received:", token);
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      role: "chis" | "user";
+    };
+    console.log("Decoded token:", decoded);
     const ceramic = await Ceramics.findById(id);
     if (!ceramic) {
       return NextResponse.json({ error: "Ceramic not found" }, { status: 404 });
     }
-
-    if (action === "sell") {
+    if (action === "add") {
+      if (decoded.role !== "chis") {
+        return NextResponse.json(
+          {
+            error: "Access Denied",
+          },
+          { status: 403 }
+        );
+      }
+      ceramic.totalPackets += totalPackets;
+      if (
+        ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket >=
+        ceramic.piecesPerPacket
+      ) {
+        ceramic.totalPackets += Math.floor(
+          (ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket) /
+            ceramic.piecesPerPacket
+        );
+        ceramic.totalPiecesWithoutPacket =
+          (ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket) %
+          ceramic.piecesPerPacket;
+      } else {
+        ceramic.totalPiecesWithoutPacket += totalPiecesWithoutPacket;
+      }
+    } else if (action === "sell") {
       if (ceramic.totalPackets < totalPackets) {
         return NextResponse.json(
           { error: "Insufficient inventory for sale" },
@@ -125,22 +161,6 @@ export async function PATCH(request: Request) {
       //     message: "Ceramic sold and deleted successfully",
       //   });
       // }
-    } else if (action === "add") {
-      ceramic.totalPackets += totalPackets;
-      if (
-        ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket >=
-        ceramic.piecesPerPacket
-      ) {
-        ceramic.totalPackets += Math.floor(
-          (ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket) /
-            ceramic.piecesPerPacket
-        );
-        ceramic.totalPiecesWithoutPacket =
-          (ceramic.totalPiecesWithoutPacket + totalPiecesWithoutPacket) %
-          ceramic.piecesPerPacket;
-      } else {
-        ceramic.totalPiecesWithoutPacket += totalPiecesWithoutPacket;
-      }
     }
 
     const updatedCeramic = await ceramic.save();

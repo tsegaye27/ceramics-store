@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import { useAuth } from "../_context/AuthContext";
 import { useRouter } from "next/navigation";
-import Spinner from "../_components/Spinner";
 
 interface ICeramic {
   _id: string;
@@ -35,7 +34,6 @@ const CeramicsPage = () => {
     const fetchUserData = async () => {
       if (!isTokenValid()) return;
       try {
-        setLoading(true);
         const response = await axios.get("/api/users", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,8 +44,6 @@ const CeramicsPage = () => {
         }
       } catch (err) {
         console.error("Error fetching user data:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -76,7 +72,6 @@ const CeramicsPage = () => {
 
   const handleLogout = async () => {
     logout();
-    setLoading(true);
     router.push("/auth/login");
   };
 
@@ -114,16 +109,6 @@ const CeramicsPage = () => {
     return "0.00";
   };
 
-  const handleNavigate = () => {
-    setLoading(true);
-  };
-
-  if (isLoading)
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -149,7 +134,6 @@ const CeramicsPage = () => {
           ) : (
             <Link
               href="/auth/login"
-              onClick={handleNavigate}
               className="text-blue-600 hover:text-blue-800"
             >
               {t("login")}
@@ -175,13 +159,11 @@ const CeramicsPage = () => {
         <div className="w-4xl flex justify-between">
           <Link
             href="/ceramics/add"
-            onClick={handleNavigate}
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
             {t("addNewCeramic")}
           </Link>
           <Link
-            onClick={handleNavigate}
             href="/orders"
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
@@ -189,11 +171,7 @@ const CeramicsPage = () => {
           </Link>
         </div>
 
-        {isCeramicsLoading ? (
-          <Spinner />
-        ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
-        ) : (
+        {!isCeramicsLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {ceramics.map((ceramic: ICeramic) => (
               <div
@@ -228,7 +206,6 @@ const CeramicsPage = () => {
                   {ceramic.size === "zekolo" ? "m" : "m²"}
                 </p>
                 <Link
-                  onClick={handleNavigate}
                   href={`/ceramics/${ceramic._id}`}
                   className="text-blue-500 hover:text-blue-600"
                 >
@@ -238,7 +215,6 @@ const CeramicsPage = () => {
                   <button>
                     <Link
                       href={`/ceramics/add/${ceramic._id}`}
-                      onClick={handleNavigate}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
                     >
                       {t("add")}
@@ -247,7 +223,6 @@ const CeramicsPage = () => {
                   <button>
                     <Link
                       href={`/ceramics/sell/${ceramic._id}`}
-                      onClick={handleNavigate}
                       className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
                     >
                       {t("sell")}

@@ -6,9 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import { useAuth } from "@/app/_context/AuthContext";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/_store/store";
-import Spinner from "@/app/_components/Spinner";
 
 export default function SellCeramic() {
   const [packetsToSell, setPacketsToSell] = useState<string>("0");
@@ -54,6 +51,7 @@ export default function SellCeramic() {
   };
 
   const handleSell = async () => {
+    console.log("Selling ceramic inventory...");
     let packets = Number(packetsToSell);
     let pieces = Number(piecesToSell);
 
@@ -72,12 +70,16 @@ export default function SellCeramic() {
 
     try {
       setLoading(true);
-      await axios.patch(`/api/ceramics/`, {
-        id,
-        totalPackets: packets,
-        totalPiecesWithoutPacket: pieces,
-        action: "sell",
-      });
+      await axios.patch(
+        `/api/ceramics`,
+        {
+          id,
+          totalPackets: packets,
+          totalPiecesWithoutPacket: pieces,
+          action: "sell",
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       await axios.post(
         `/api/orders`,
         {
@@ -103,12 +105,6 @@ export default function SellCeramic() {
     }
   };
 
-  if (isLoading)
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
   return (
     <div
       className={`container mx-auto p-6 bg-gray-100 min-h-screen ${

@@ -4,7 +4,7 @@ declare global {
       name: string;
       email: string;
       hashedPassword: string;
-      role: "admin" | "user";
+      role: "chis" | "user";
       createdAt: Date;
     };
   }

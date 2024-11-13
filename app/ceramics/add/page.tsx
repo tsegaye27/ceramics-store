@@ -8,7 +8,7 @@ import { useLanguage } from "@/app/_context/LanguageContext";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setLoading } from "@/app/_store/userSlice";
 import { RootState } from "@/app/_store/store";
-import Spinner from "@/app/_components/Spinner";
+// import Spinner from "@/app/_components/Spinner";
 
 const CeramicForm = () => {
   const { token } = useAuth();
@@ -107,11 +107,7 @@ const CeramicForm = () => {
 
   return (
     <>
-      {isLoading && (
-        <div className="h-screen">
-          <Spinner />
-        </div>
-      )}
+      {isLoading && <div className="h-screen">{/*<Spinner />*/}</div>}
       <button onClick={() => switchLanguage("en")} className="mr-2">
         English
       </button>

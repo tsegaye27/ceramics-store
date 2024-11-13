@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 type UserPayload = {
   name: string;
   email: string;
-  role: "admin" | "user";
+  role: "chis" | "user";
   hashedPassword: string;
   createdAt: Date;
 };

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
-import Spinner from "../_components/Spinner";
+// import Spinner from "../_components/Spinner";
 
 interface Order {
   _id: string;
@@ -69,12 +69,6 @@ const OrderList = () => {
     return "0.00";
   };
 
-  if (isLoading)
-    return (
-      <div className="h-screen">
-        <Spinner />;
-      </div>
-    );
   return (
     <div className="container mx-auto p-4">
       <button onClick={() => switchLanguage("en")} className="mr-2">
@@ -94,10 +88,6 @@ const OrderList = () => {
       <h1 className="text-3xl font-bold mb-6 text-center">{t("orderList")}</h1>
       {orders.length === 0 ? (
         <p className="text-center">{t("noOrdersYet")}</p>
-      ) : isLoading ? (
-        <Spinner />
-      ) : error ? (
-        <p className="text-red-600 text-center">{error}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">

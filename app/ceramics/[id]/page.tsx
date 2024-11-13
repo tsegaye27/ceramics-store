@@ -5,7 +5,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/_context/LanguageContext";
-import Spinner from "@/app/_components/Spinner";
+// import Spinner from "@/app/_components/Spinner";
 import { ICeramics } from "@/app/_models/Ceramics";
 
 export default function CeramicDetail() {
@@ -34,11 +34,7 @@ export default function CeramicDetail() {
   };
 
   if (!ceramic) {
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
+    return <div className="h-screen">{/*<Spinner />*/}</div>;
   }
 
   const formatDate = (unformattedDate: string) => {

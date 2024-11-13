@@ -5,7 +5,8 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/app/_context/LanguageContext";
-import Spinner from "@/app/_components/Spinner";
+import { useAuth } from "@/app/_context/AuthContext";
+// import Spinner from "@/app/_components/Spinner";
 
 export default function AddCeramic() {
   const [packetsToAdd, setPacketsToAdd] = useState<string>("0");
@@ -16,6 +17,7 @@ export default function AddCeramic() {
   const [ppp, setPpp] = useState<number>(0);
   const { t, switchLanguage } = useLanguage();
   const [isLoading, setLoading] = useState<boolean>(false);
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchCeramic = async () => {
@@ -57,30 +59,34 @@ export default function AddCeramic() {
     }
 
     try {
-      await axios.patch(`/api/ceramics/`, {
-        id,
-        totalPackets: packets,
-        totalPiecesWithoutPacket: pieces,
-        action: "add",
-      });
+      await axios.patch(
+        `/api/ceramics/`,
+        {
+          id,
+          totalPackets: packets,
+          totalPiecesWithoutPacket: pieces,
+          action: "add",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setLoading(true);
       router.push(`/ceramics`);
-    } catch (error) {
-      console.error("Error adding ceramic inventory:", error);
-      setErrorMessage("Failed to update inventory.");
+    } catch (error: any | unknown) {
+      setErrorMessage(
+        error.response
+          ? error.response.data.error
+          : "An unexpected error occurred."
+      );
     }
   };
 
   const handleNavigate = () => {
     setLoading(true);
   };
-
-  if (isLoading)
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">

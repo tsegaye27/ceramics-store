@@ -1,5 +1,5 @@
 "use client";
-import Spinner from "@/app/_components/Spinner";
+// import Spinner from "@/app/_components/Spinner";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -51,12 +51,7 @@ const SignUpPage: React.FC = () => {
     setLoading(true);
   };
 
-  if (isLoading)
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
+  if (isLoading) return <div className="h-screen">{/*<Spinner />*/}</div>;
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">

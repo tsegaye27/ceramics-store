@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import { useRouter } from "next/navigation";
-import Spinner from "./_components/Spinner";
+// import Spinner from "./_components/Spinner";
 import { useAuth } from "./_context/AuthContext";
 import { ICeramics } from "./_models/Ceramics";
 
@@ -70,11 +70,7 @@ const CeramicsPage = () => {
   }, [searchQuery]);
 
   if (!isClient) {
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
+    return <div className="h-screen">{/*<Spinner />*/}</div>;
   }
 
   const calculateArea = (
@@ -120,12 +116,7 @@ const CeramicsPage = () => {
     setLoading(true);
   };
 
-  if (isLoading)
-    return (
-      <div className="h-screen">
-        <Spinner />
-      </div>
-    );
+  if (isLoading) return <div className="h-screen">{/*<Spinner />*/}</div>;
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -192,11 +183,7 @@ const CeramicsPage = () => {
           </Link>
         </div>
 
-        {isCeramicsLoading ? (
-          <Spinner />
-        ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
-        ) : (
+        {!isCeramicsLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {ceramics.map((ceramic: ICeramics) => (
               <div

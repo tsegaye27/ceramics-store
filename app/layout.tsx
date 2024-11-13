@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./_context/AuthContext";
 import { LanguageProvider } from "./_context/LanguageContext";
 import ReduxProvider from "./ReduxProvider";
+
+const inter = Inter({
+  display: "swap",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Ceramics Store",
@@ -16,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${inter.className}`}>
         <ReduxProvider>
           <AuthProvider>
             <LanguageProvider>{children}</LanguageProvider>
