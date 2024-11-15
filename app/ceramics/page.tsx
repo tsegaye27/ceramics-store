@@ -1,204 +1,144 @@
-"use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import {
+  getAllCeramics,
+  searchCeramics,
+} from "@/app/_services/ceramicsService";
 import Link from "next/link";
-import { useLanguage } from "@/app/_context/LanguageContext";
-import { useAuth } from "../_context/AuthContext";
-import { useRouter } from "next/navigation";
 
-interface ICeramic {
-  _id: string;
-  size: string;
-  type: string;
-  manufacturer: string;
-  code: string;
-  piecesPerPacket: number;
-  totalPackets: number;
-  totalPiecesWithoutPacket: number;
-  totalArea?: number;
+interface CeramicsPageProps {
+  searchParams: { search?: string };
 }
 
-const CeramicsPage = () => {
-  const [ceramics, setCeramics] = useState<ICeramic[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isCeramicsLoading, setCeramicsLoading] = useState<boolean>(false);
-  const { t } = useLanguage();
-  const { token, logout, isTokenValid } = useAuth();
-  const [userName, setUserName] = useState<string>("");
+export const revalidate = 60;
 
-  const router = useRouter();
+const calculateArea = (
+  totalPackets: number,
+  totalPiecesWithoutPacket: number,
+  piecesPerPacket: number,
+  size: string
+) => {
+  if (size === "60x60") {
+    return (
+      totalPackets * piecesPerPacket * 0.36 +
+      totalPiecesWithoutPacket * 0.36
+    ).toFixed(2);
+  }
+  if (size === "30x60") {
+    return (
+      totalPackets * piecesPerPacket * 0.18 +
+      totalPiecesWithoutPacket * 0.18
+    ).toFixed(2);
+  }
+  if (size === "30x30") {
+    return (
+      totalPackets * piecesPerPacket * 0.09 +
+      totalPiecesWithoutPacket * 0.09
+    ).toFixed(2);
+  }
+  if (size === "40x40") {
+    return (
+      totalPackets * piecesPerPacket * 0.16 +
+      totalPiecesWithoutPacket * 0.16
+    ).toFixed(2);
+  }
+  if (size === "zekolo") {
+    return (
+      (totalPackets * piecesPerPacket + totalPiecesWithoutPacket) *
+      0.6
+    ).toFixed(2);
+  }
+  return "0.00";
+};
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!isTokenValid()) return;
-      try {
-        const response = await axios.get("/api/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.data) {
-          setUserName(response.data.user.name);
-        }
-      } catch (err) {
-        console.log("Error fetching user data:", err);
-      }
-    };
-
-    fetchUserData();
-  }, [token, isTokenValid]);
-
-  useEffect(() => {
-    setCeramicsLoading(true);
-    const fetchCeramics = async () => {
-      try {
-        const response = await axios.get(`/api/ceramics`, {
-          params: {
-            search: searchQuery,
-          },
-        });
-        setCeramics(response.data);
-      } catch (err) {
-        console.log("Error");
-      } finally {
-        setCeramicsLoading(false);
-      }
-    };
-    fetchCeramics();
-  }, [searchQuery]);
-
-  const handleLogout = async () => {
-    logout();
-    router.push("/auth/login");
-  };
-
-  const calculateArea = (
-    totalPackets: number,
-    totalPiecesWithoutPacket: number,
-    piecesPerPacket: number,
-    size: string
-  ) => {
-    if (size === "60x60") {
-      const area =
-        totalPackets * piecesPerPacket * 0.36 + totalPiecesWithoutPacket * 0.36;
-      return area.toFixed(2);
-    }
-    if (size === "30x60") {
-      const area =
-        totalPackets * piecesPerPacket * 0.18 + totalPiecesWithoutPacket * 0.18;
-      return area.toFixed(2);
-    }
-    if (size === "30x30") {
-      const area =
-        totalPackets * piecesPerPacket * 0.09 + totalPiecesWithoutPacket * 0.09;
-      return area.toFixed(2);
-    }
-    if (size === "40x40") {
-      const area =
-        totalPackets * piecesPerPacket * 0.16 + totalPiecesWithoutPacket * 0.16;
-      return area.toFixed(2);
-    }
-    if (size === "zekolo") {
-      const area =
-        (totalPackets * piecesPerPacket + totalPiecesWithoutPacket) * 0.6;
-      return area.toFixed(2);
-    }
-    return "0.00";
-  };
+const CeramicsPage = async ({ searchParams }: CeramicsPageProps) => {
+  const searchQuery = searchParams?.search || "";
+  const ceramics = searchQuery
+    ? await searchCeramics(searchQuery)
+    : await getAllCeramics();
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
       <h1 className="text-4xl font-extrabold text-center text-blue-700 mb-8">
-        {t("ceramicsList")}
+        ceramicsList
       </h1>
 
       <div className="max-w-4xl mx-auto">
         <div className="flex">
-          <input
-            type="text"
-            placeholder={t("searchPlaceholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <form method="get" className="w-full">
+            <input
+              type="text"
+              name="search"
+              placeholder="searchCeramics"
+              defaultValue={searchQuery}
+              className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button type="submit" className="hidden" aria-hidden="true">
+              Find
+            </button>
+          </form>
         </div>
         <div className="w-4xl flex justify-between">
           <Link
             href="/ceramics/add"
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
-            {t("addNewCeramic")}
+            addNewCeramic
           </Link>
           <Link
             href="/orders"
             className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
           >
-            {t("orderList")}
+            orderList
           </Link>
         </div>
 
-        {!isCeramicsLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {ceramics.map((ceramic: ICeramic) => (
-              <div
-                key={ceramic._id}
-                className={`bg-white p-5 rounded-lg  ${
-                  ceramic.totalPackets <= 10
-                    ? "border-2 border-red-600  shadow-lg"
-                    : "shadow-lg"
-                } ${
-                  ceramic.totalPackets <= 10
-                    ? "hover:shadow-red-400 shadow-lg"
-                    : "hover:shadow-lg"
-                } hover:transition-shadow duration-300`}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {ceramics.map((ceramic) => (
+            <div
+              key={ceramic._id}
+              className={`bg-white p-5 rounded-lg ${
+                ceramic.totalPackets <= 10
+                  ? "border-2 border-red-600 shadow-lg"
+                  : "shadow-lg"
+              } hover:transition-shadow duration-300`}
+            >
+              <h2 className="font-bold text-xl text-blue-800 mb-2">
+                code: {ceramic.code}
+              </h2>
+              <p>size: {ceramic.size}</p>
+              <p>type: {ceramic.type}</p>
+              <p className="mb-4">
+                totalArea:{" "}
+                {calculateArea(
+                  ceramic.totalPackets,
+                  ceramic.totalPiecesWithoutPacket,
+                  ceramic.piecesPerPacket,
+                  ceramic.size
+                )}{" "}
+                {ceramic.size === "zekolo" ? "m" : "m²"}
+              </p>
+              <Link
+                href={`/ceramics/${ceramic._id}`}
+                className="text-blue-500 hover:text-blue-600"
               >
-                <h2 className="font-bold text-xl text-blue-800 mb-2">
-                  {t("code")}: {ceramic.code}
-                </h2>
-                <p>
-                  {t("size")}: {ceramic.size}
-                </p>
-                <p>
-                  {t("type")}: {ceramic.type}
-                </p>
-                <p className="mb-4">
-                  {t("totalArea")}:{" "}
-                  {calculateArea(
-                    ceramic.totalPackets,
-                    ceramic.totalPiecesWithoutPacket,
-                    ceramic.piecesPerPacket,
-                    ceramic.size
-                  )}{" "}
-                  {ceramic.size === "zekolo" ? "m" : "m²"}
-                </p>
+                viewDetails
+              </Link>
+              <div className="flex space-x-4 mt-4">
                 <Link
-                  href={`/ceramics/${ceramic._id}`}
-                  className="text-blue-500 hover:text-blue-600"
+                  href={`/ceramics/add/${ceramic._id}`}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
                 >
-                  {t("viewDetails")}
+                  add
                 </Link>
-                <div className="flex space-x-4 mt-4">
-                  <button>
-                    <Link
-                      href={`/ceramics/add/${ceramic._id}`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
-                    >
-                      {t("add")}
-                    </Link>
-                  </button>
-                  <button>
-                    <Link
-                      href={`/ceramics/sell/${ceramic._id}`}
-                      className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
-                    >
-                      {t("sell")}
-                    </Link>
-                  </button>
-                </div>
+                <Link
+                  href={`/ceramics/sell/${ceramic._id}`}
+                  className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                >
+                  sell
+                </Link>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
