@@ -32,3 +32,15 @@ export async function addNewCeramic(
 ) {
   return await this.create(newCeramic);
 }
+
+export async function updateCeramic(
+  this: Model<ICeramics>,
+  id: string,
+  updatedCeramic: ICeramics
+) {
+  return await this.findByIdAndUpdate(id, updatedCeramic, { new: true });
+}
+
+export async function deleteCeramic(this: Model<ICeramics>, id: string) {
+  return await this.findByIdAndDelete(id);
+}
