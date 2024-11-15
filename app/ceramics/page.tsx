@@ -21,10 +21,8 @@ interface ICeramic {
 const CeramicsPage = () => {
   const [ceramics, setCeramics] = useState<ICeramic[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setLoading] = useState<boolean>(false);
   const [isCeramicsLoading, setCeramicsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const { t, switchLanguage } = useLanguage();
+  const { t } = useLanguage();
   const { token, logout, isTokenValid } = useAuth();
   const [userName, setUserName] = useState<string>("");
 
@@ -43,7 +41,7 @@ const CeramicsPage = () => {
           setUserName(response.data.user.name);
         }
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.log("Error fetching user data:", err);
       }
     };
 
@@ -60,9 +58,8 @@ const CeramicsPage = () => {
           },
         });
         setCeramics(response.data);
-        setError(null);
       } catch (err) {
-        setError("Failed to fetch ceramics. Please try again later.");
+        console.log("Error");
       } finally {
         setCeramicsLoading(false);
       }
@@ -111,37 +108,6 @@ const CeramicsPage = () => {
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <button onClick={() => switchLanguage("en")} className="mr-2">
-            English
-          </button>
-          <button onClick={() => switchLanguage("am")} className="mr-2">
-            አማርኛ
-          </button>
-        </div>
-        <div className="flex items-center space-x-4">
-          {isTokenValid() ? (
-            <div className="flex flex-col items-center space-x-2">
-              <span className="text-blue-700 font-semibold">{userName}</span>
-              <button
-                onClick={handleLogout}
-                className="text-red-600 hover:text-red-800"
-              >
-                {t("logout")}
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="text-blue-600 hover:text-blue-800"
-            >
-              {t("login")}
-            </Link>
-          )}
-        </div>
-      </div>
-
       <h1 className="text-4xl font-extrabold text-center text-blue-700 mb-8">
         {t("ceramicsList")}
       </h1>

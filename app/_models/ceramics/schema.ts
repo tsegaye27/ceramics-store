@@ -1,21 +1,7 @@
-import mongoose, { Schema, model, Document } from "mongoose";
+import { Schema } from "mongoose";
+import { ICeramics } from "./types";
 
-interface ICeramics extends Document {
-  _id: string;
-  size: string;
-  type: string;
-  manufacturer: string;
-  piecesPerPacket: number;
-  code: string;
-  totalArea?: number;
-  totalPackets: number;
-  totalPiecesWithoutPacket: number;
-  imageUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const ceramicsSchema = new Schema<ICeramics>(
+export const ceramicsSchema = new Schema<ICeramics>(
   {
     size: {
       type: String,
@@ -55,10 +41,3 @@ const ceramicsSchema = new Schema<ICeramics>(
   },
   { timestamps: true }
 );
-
-const Ceramics =
-  mongoose.models.Ceramics ||
-  mongoose.model<ICeramics>("Ceramics", ceramicsSchema);
-
-export default Ceramics;
-export type { ICeramics };

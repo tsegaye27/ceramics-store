@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/_lib/mongoose";
 import jwt from "jsonwebtoken";
-import Ceramics, { ICeramics } from "@/app/_models/Ceramics";
+import { Ceramics } from "@/app/_models/ceramics/index";
+import { ICeramics } from "@/app/_models/ceramics/types";
 import { Error } from "mongoose";
 
 export async function GET(request: Request) {
