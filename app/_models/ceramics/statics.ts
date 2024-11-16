@@ -33,12 +33,26 @@ export async function addNewCeramic(
   return await this.create(newCeramic);
 }
 
-export async function updateCeramic(
+export async function addToExistingCeramic(
   this: Model<ICeramics>,
   id: string,
-  updatedCeramic: ICeramics
+  updatedCeramic: Partial<ICeramics>
 ) {
-  return await this.findByIdAndUpdate(id, updatedCeramic, { new: true });
+  const ceramic: ICeramics | null = await this.findById(id);
+  while (
+    updatedCeramic.totalPiecesWithoutPacket &&
+    ceramic?.piecesPerPacket &&
+    updatedCeramic.totalPiecesWithoutPacket > ceramic.piecesPerPacket
+  ) {
+    updatedCeramic.totalPackets && updatedCeramic.totalPackets++;
+    updatedCeramic.totalPiecesWithoutPacket &&
+      ceramic.piecesPerPacket &&
+      (updatedCeramic.totalPiecesWithoutPacket -= ceramic?.piecesPerPacket);
+  }
+  return await this.findByIdAndUpdate(id, updatedCeramic, {
+    new: true,
+    runValidators: true,
+  });
 }
 
 export async function deleteCeramic(this: Model<ICeramics>, id: string) {
