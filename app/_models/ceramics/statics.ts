@@ -2,21 +2,29 @@ import { Model } from "mongoose";
 import { ICeramics } from "./types";
 
 export async function getAllCeramics(this: Model<ICeramics>) {
-  return await this.find({}).sort({
+  const ceramics: ICeramics[] | null = await this.find({}).sort({
     totalPackets: 1,
     createdAt: -1,
   });
+  if (!ceramics) {
+    throw new Error("Ceramics not found.");
+  }
+  return ceramics;
 }
 
 export async function getCeramicById(this: Model<ICeramics>, id: string) {
-  return await this.findById(id);
+  const ceramic: ICeramics | null = await this.findById(id);
+  if (!ceramic) {
+    throw new Error("Ceramic not found.");
+  }
+  return ceramic;
 }
 
 export async function searchCeramics(
   this: Model<ICeramics>,
   searchQuery: string
 ) {
-  return await this.find({
+  const ceramics: ICeramics[] | null = await this.find({
     $or: [
       { size: { $regex: searchQuery, $options: "i" } },
       { type: { $regex: searchQuery, $options: "i" } },
@@ -24,6 +32,10 @@ export async function searchCeramics(
       { code: { $regex: searchQuery, $options: "i" } },
     ],
   });
+  if (!ceramics) {
+    throw new Error("Ceramics not found.");
+  }
+  return ceramics;
 }
 
 export async function addNewCeramic(
