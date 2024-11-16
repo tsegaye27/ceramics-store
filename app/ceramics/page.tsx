@@ -4,10 +4,6 @@ import {
 } from "@/app/_services/ceramicsService";
 import Link from "next/link";
 
-interface CeramicsPageProps {
-  searchParams: { search?: string };
-}
-
 export const revalidate = 60;
 
 const calculateArea = (
@@ -71,9 +67,11 @@ const CeramicsPage = async ({ searchParams }: CeramicsPageProps) => {
               defaultValue={searchQuery}
               className="border border-blue-300 p-3 w-full mb-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button type="submit" className="hidden" aria-hidden="true">
-              Find
-            </button>
+            <button
+              type="submit"
+              className="hidden"
+              aria-hidden="true"
+            ></button>
           </form>
         </div>
         <div className="w-4xl flex justify-between">

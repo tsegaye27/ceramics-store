@@ -5,7 +5,7 @@ import { useAuth } from "../_context/AuthContext";
 
 const CeramicsPage = ({ children }: { children: React.ReactNode }) => {
   const { t, switchLanguage } = useLanguage();
-  const { token, logout, isTokenValid } = useAuth();
+  const { isTokenValid } = useAuth();
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -21,18 +21,12 @@ const CeramicsPage = ({ children }: { children: React.ReactNode }) => {
         <div className="flex items-center space-x-4">
           {isTokenValid() ? (
             <div className="flex flex-col items-center space-x-2">
-              <Link
-                href="/auth/login"
-                className="text-red-600 hover:text-red-800"
-              >
+              <Link href="/login" className="text-red-600 hover:text-red-800">
                 {t("logout")}
               </Link>
             </div>
           ) : (
-            <Link
-              href="/auth/login"
-              className="text-blue-600 hover:text-blue-800"
-            >
+            <Link href="/login" className="text-blue-600 hover:text-blue-800">
               {t("login")}
             </Link>
           )}
