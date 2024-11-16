@@ -36,23 +36,82 @@ export async function addNewCeramic(
 export async function addToExistingCeramic(
   this: Model<ICeramics>,
   id: string,
-  updatedCeramic: Partial<ICeramics>
+  addData: { totalPackets: number; totalPiecesWithoutPacket: number }
 ) {
+  const { totalPackets, totalPiecesWithoutPacket } = addData;
   const ceramic: ICeramics | null = await this.findById(id);
-  while (
-    updatedCeramic.totalPiecesWithoutPacket &&
-    ceramic?.piecesPerPacket &&
-    updatedCeramic.totalPiecesWithoutPacket > ceramic.piecesPerPacket
-  ) {
-    updatedCeramic.totalPackets && updatedCeramic.totalPackets++;
-    updatedCeramic.totalPiecesWithoutPacket &&
-      ceramic.piecesPerPacket &&
-      (updatedCeramic.totalPiecesWithoutPacket -= ceramic?.piecesPerPacket);
+  let packetsToAdd = totalPackets || 0;
+  let piecesToAdd = totalPiecesWithoutPacket || 0;
+
+  if (!ceramic) {
+    throw new Error("Ceramic not found.");
   }
-  return await this.findByIdAndUpdate(id, updatedCeramic, {
-    new: true,
-    runValidators: true,
-  });
+
+  if (packetsToAdd < 0 || piecesToAdd < 0) {
+    throw new Error("Invalid data.");
+  }
+
+  if (piecesToAdd >= ceramic.piecesPerPacket) {
+    packetsToAdd += Math.floor(piecesToAdd / ceramic.piecesPerPacket);
+    piecesToAdd %= ceramic.piecesPerPacket;
+  }
+
+  return await this.findByIdAndUpdate(
+    id,
+    {
+      $inc: {
+        totalPackets: packetsToAdd,
+        totalPiecesWithoutPacket: piecesToAdd,
+      },
+    },
+    { new: true }
+  );
+}
+
+export async function sellCeramic(
+  this: Model<ICeramics>,
+  id: string,
+  sellData: { totalPackets: number; totalPiecesWithoutPacket: number }
+) {
+  const { totalPackets, totalPiecesWithoutPacket } = sellData;
+  const ceramic: ICeramics | null = await this.findById(id);
+  let packetsToSell = totalPackets || 0;
+  let piecesToSell = totalPiecesWithoutPacket || 0;
+
+  if (!ceramic) {
+    throw new Error("Ceramic not found.");
+  }
+
+  if (packetsToSell < 0 || piecesToSell < 0) {
+    throw new Error("Invalid data.");
+  }
+
+  if (piecesToSell >= ceramic.piecesPerPacket) {
+    packetsToSell += Math.floor(piecesToSell / ceramic.piecesPerPacket);
+    piecesToSell %= ceramic.piecesPerPacket;
+  }
+
+  if (ceramic.totalPackets < packetsToSell) {
+    throw new Error("Insufficient packets.");
+  }
+
+  if (
+    ceramic.totalPackets === packetsToSell &&
+    ceramic.totalPiecesWithoutPacket < piecesToSell
+  ) {
+    throw new Error("Insufficient pieces.");
+  }
+
+  return await this.findByIdAndUpdate(
+    id,
+    {
+      $inc: {
+        totalPackets: -packetsToSell,
+        totalPiecesWithoutPacket: -piecesToSell,
+      },
+    },
+    { new: true }
+  );
 }
 
 export async function deleteCeramic(this: Model<ICeramics>, id: string) {
