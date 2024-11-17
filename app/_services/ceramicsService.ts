@@ -26,6 +26,7 @@ export const searchCeramics = async (
 
 export const getCeramicById = async (id: string): Promise<ICeramics | null> => {
   try {
+    await dbConnect();
     return await Ceramics.getCeramicById(id);
   } catch (error) {
     console.error("Error fetching ceramic by ID:", error);
@@ -36,23 +37,34 @@ export const getCeramicById = async (id: string): Promise<ICeramics | null> => {
 export const addNewCeramic = async (
   ceramicData: ICeramics
 ): Promise<ICeramics> => {
-  try {
+  {
     return await Ceramics.addNewCeramic(ceramicData);
-  } catch (error) {
-    console.error("Error adding new ceramic:", error);
-    throw new Error("Failed to add new ceramic.");
   }
 };
 
-export const updateCeramic = async (
+export const addToExistingCeramic = async (
   id: string,
-  updatedData: ICeramics
-): Promise<ICeramics | null> => {
+  addData: { totalPackets: number; totalPiecesWithoutPacket: number }
+): Promise<ICeramics> => {
   try {
-    return await Ceramics.updateCeramic(id, updatedData);
+    await dbConnect();
+    return await Ceramics.addToExistingCeramic(id, addData);
   } catch (error) {
-    console.error("Error updating ceramic:", error);
-    throw new Error("Failed to update ceramic.");
+    console.error("Error adding to existing ceramic:", error);
+    throw new Error("Failed to add to existing ceramic.");
+  }
+};
+
+export const sellCeramic = async (
+  id: string,
+  sellData: { totalPackets: number; totalPiecesWithoutPacket: number }
+): Promise<ICeramics> => {
+  try {
+    await dbConnect();
+    return await Ceramics.sellCeramic(id, sellData);
+  } catch (error) {
+    console.error("Error selling ceramic:", error);
+    throw new Error("Failed to sell ceramic.");
   }
 };
 
