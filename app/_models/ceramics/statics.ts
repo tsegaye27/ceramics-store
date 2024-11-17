@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import { ICeramics } from "./types";
 
 export async function getAllCeramics(this: Model<ICeramics>) {
-  const ceramics: ICeramics[] | null = await this.find({}).sort({
+  const ceramics: ICeramics[] = await this.find({}).sort({
     totalPackets: 1,
     createdAt: -1,
   });
@@ -24,7 +24,7 @@ export async function searchCeramics(
   this: Model<ICeramics>,
   searchQuery: string
 ) {
-  const ceramics: ICeramics[] | null = await this.find({
+  const ceramics: ICeramics[] = await this.find({
     $or: [
       { size: { $regex: searchQuery, $options: "i" } },
       { type: { $regex: searchQuery, $options: "i" } },
@@ -42,6 +42,22 @@ export async function addNewCeramic(
   this: Model<ICeramics>,
   newCeramic: ICeramics
 ) {
+  const { piecesPerPacket, totalPackets, totalPiecesWithoutPacket } =
+    newCeramic;
+
+  let packetsToAdd = totalPackets || 0;
+  let piecesToAdd = totalPiecesWithoutPacket || 0;
+  let ppp = piecesPerPacket;
+
+  if (packetsToAdd < 0 || piecesToAdd < 0) {
+    throw new Error("Invalid data.");
+  }
+
+  if (piecesToAdd >= ppp) {
+    packetsToAdd += Math.floor(piecesToAdd / ppp);
+    piecesToAdd %= ppp;
+  }
+
   return await this.create(newCeramic);
 }
 

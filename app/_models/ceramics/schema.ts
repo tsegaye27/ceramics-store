@@ -41,3 +41,14 @@ export const ceramicsSchema = new Schema<ICeramics>(
   },
   { timestamps: true }
 );
+
+ceramicsSchema.index(
+  {
+    code: 1,
+    manufacturer: 1,
+    size: 1,
+  },
+  {
+    unique: true,
+  }
+);

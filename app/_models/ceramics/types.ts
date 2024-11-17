@@ -1,8 +1,6 @@
 import { Model } from "mongoose";
-import { Document } from "mongoose";
 
-export interface ICeramics extends Document {
-  _id: string;
+export interface ICeramics {
   size: string;
   type: string;
   manufacturer: string;
@@ -12,8 +10,6 @@ export interface ICeramics extends Document {
   totalPackets: number;
   totalPiecesWithoutPacket: number;
   imageUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ICeramicsModel extends Model<ICeramics> {
@@ -21,9 +17,13 @@ export interface ICeramicsModel extends Model<ICeramics> {
   getCeramicById(id: string): Promise<ICeramics | null>;
   searchCeramics(searchQuery: string): Promise<ICeramics[]>;
   addNewCeramic(newCeramic: ICeramics): Promise<ICeramics>;
-  updateCeramic(
+  addToExistingCeramic(
     id: string,
-    updatedCeramic: ICeramics
-  ): Promise<ICeramics | null>;
+    addData: { totalPackets: number; totalPiecesWithoutPacket: number }
+  ): Promise<ICeramics>;
+  sellCeramic(
+    id: string,
+    sellData: { totalPackets: number; totalPiecesWithoutPacket: number }
+  ): Promise<ICeramics>;
   deleteCeramic(id: string): Promise<ICeramics | null>;
 }
