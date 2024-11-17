@@ -1,6 +1,7 @@
 import dbConnect from "../_lib/mongoose";
 import Ceramics from "../_models/ceramics";
 import { ICeramics } from "../_models/ceramics/types";
+import { validateInput } from "../_utils/helperFunctions";
 
 export const getAllCeramics = async (): Promise<ICeramics[]> => {
   try {
@@ -33,18 +34,21 @@ export const getCeramicById = async (id: string): Promise<ICeramics | null> => {
     throw new Error("Failed to fetch ceramic.");
   }
 };
-
-export const addNewCeramic = async (
+export const addNewCeramicService = async (
   ceramicData: ICeramics
 ): Promise<ICeramics> => {
   {
+    validateInput(
+      ceramicData.totalPackets,
+      ceramicData.totalPiecesWithoutPacket
+    );
     return await Ceramics.addNewCeramic(ceramicData);
   }
 };
 
 export const addToExistingCeramic = async (
   id: string,
-  addData: { totalPackets: number; totalPiecesWithoutPacket: number }
+  addData: { packetsToAdd: number; piecesToAdd: number }
 ): Promise<ICeramics> => {
   try {
     await dbConnect();

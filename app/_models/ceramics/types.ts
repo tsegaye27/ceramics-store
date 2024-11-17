@@ -1,6 +1,7 @@
 import { Model } from "mongoose";
 
 export interface ICeramics {
+  _id?: string;
   size: string;
   type: string;
   manufacturer: string;
@@ -10,6 +11,8 @@ export interface ICeramics {
   totalPackets: number;
   totalPiecesWithoutPacket: number;
   imageUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ICeramicsModel extends Model<ICeramics> {
@@ -19,7 +22,7 @@ export interface ICeramicsModel extends Model<ICeramics> {
   addNewCeramic(newCeramic: ICeramics): Promise<ICeramics>;
   addToExistingCeramic(
     id: string,
-    addData: { totalPackets: number; totalPiecesWithoutPacket: number }
+    addData: { packetsToAdd: number; piecesToAdd: number }
   ): Promise<ICeramics>;
   sellCeramic(
     id: string,

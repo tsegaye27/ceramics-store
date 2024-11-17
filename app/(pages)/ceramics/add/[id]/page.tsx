@@ -1,144 +1,58 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { addToExistingCeramic } from "@/app/_services/ceramicsService";
 import Link from "next/link";
-import { useLanguage } from "@/app/_context/LanguageContext";
-import { useAuth } from "@/app/_context/AuthContext";
-// import Spinner from "@/app/_components/Spinner";
 
-export default function AddCeramic() {
-  const [packetsToAdd, setPacketsToAdd] = useState<string>("0");
-  const [piecesToAdd, setPiecesToAdd] = useState<string>("0");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { id } = useParams();
-  const router = useRouter();
-  const [ppp, setPpp] = useState<number>(0);
-  const { t, switchLanguage } = useLanguage();
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const { token } = useAuth();
+export default function AddCeramic({ params }: { params: { id: string } }) {
+  const handleAdd = async (formData: FormData) => {
+    "use server";
+    const packetsToAdd = parseInt(formData.get("packetsToAdd") as string, 10);
+    const piecesToAdd = parseInt(formData.get("piecesToAdd") as string, 10);
 
-  useEffect(() => {
-    const fetchCeramic = async () => {
-      try {
-        const ceramic = await axios.get(`/api/ceramics`, {
-          params: {
-            id,
-          },
-        });
-        if (!ceramic) {
-          setLoading(true);
-          router.push("/ceramics");
-          return;
-        }
-        setPpp(ceramic.data.piecesPerPacket);
-      } catch (error) {
-        console.error("Error fetching ceramic:", error);
-      }
-    };
-    fetchCeramic();
-  }, [id, router]);
-
-  const validateInput = (value: string) => {
-    const numValue = Number(value);
-    return !isNaN(numValue) && numValue >= 0 && /^\d+$/.test(value);
-  };
-
-  const handleAdd = async () => {
-    let packets = Number(packetsToAdd);
-    let pieces = Number(piecesToAdd);
-
-    if (!validateInput(packetsToAdd) || !validateInput(piecesToAdd)) {
-      setErrorMessage("Please enter numbers only(non-negative number).");
-      return;
-    }
-    while (pieces >= ppp) {
-      packets += Math.floor(pieces / ppp);
-      pieces = pieces % ppp;
+    if (!packetsToAdd || !piecesToAdd) {
+      return "Missing packets or pieces";
     }
 
-    try {
-      await axios.patch(
-        `/api/ceramics/`,
-        {
-          id,
-          totalPackets: packets,
-          totalPiecesWithoutPacket: pieces,
-          action: "add",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setLoading(true);
-      router.push(`/ceramics`);
-    } catch (error: any | unknown) {
-      setErrorMessage(
-        error.response
-          ? error.response.data.error
-          : "An unexpected error occurred."
-      );
+    if (packetsToAdd < 0 || piecesToAdd < 0) {
+      return "Invalid packets or pieces";
     }
+    return await addToExistingCeramic(params.id, { packetsToAdd, piecesToAdd });
   };
-
-  const handleNavigate = () => {
-    setLoading(true);
-  };
-
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
-      <button onClick={() => switchLanguage("en")} className="mr-2">
-        English
-      </button>
-      <button onClick={() => switchLanguage("am")} className="mr-2">
-        አማርኛ
-      </button>
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
-          onClick={handleNavigate}
           className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
-          {t("back")}
+          back
         </Link>
-        <h1 className="text-3xl font-semibold mb-6 text-center">
-          {t("addCeramic")}
-        </h1>
-        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+        <h1 className="text-3xl font-semibold mb-6 text-center">addCeramic</h1>
         <div className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1">
-              {t("packetsToAdd")}:
-            </label>
-            <input
-              type="text"
-              value={packetsToAdd}
-              onChange={(e) => setPacketsToAdd(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("enterPackets")}
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">
-              {t("piecesToAdd")}:
-            </label>
-            <input
-              type="text"
-              value={piecesToAdd}
-              onChange={(e) => setPiecesToAdd(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("enterPieces")}
-            />
-          </div>
-          <button
-            onClick={handleAdd}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
-          >
-            {t("add")}
-          </button>
+          <form action={handleAdd}>
+            <div>
+              <label className="block font-medium mb-1">packetsToAdd:</label>
+              <input
+                type="text"
+                name="packetsToAdd"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="enterPackets"
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">piecesToAdd:</label>
+              <input
+                type="text"
+                name="piecesToAdd"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="enterPieces"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
+            >
+              add
+            </button>
+          </form>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Model } from "mongoose";
 import { ICeramics } from "./types";
+import { formatPieces } from "@/app/_utils/helperFunctions";
 
 export async function getAllCeramics(this: Model<ICeramics>) {
   const ceramics: ICeramics[] = await this.find({}).sort({
@@ -42,54 +43,58 @@ export async function addNewCeramic(
   this: Model<ICeramics>,
   newCeramic: ICeramics
 ) {
-  const { piecesPerPacket, totalPackets, totalPiecesWithoutPacket } =
-    newCeramic;
+  try {
+    const { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } =
+      newCeramic;
+    const { packetsToAdd, piecesToAdd } = formatPieces(
+      totalPackets,
+      totalPiecesWithoutPacket,
+      piecesPerPacket
+    );
+    const nCeramic = await this.create({
+      ...newCeramic,
+      totalPackets: packetsToAdd,
+      totalPiecesWithoutPacket: piecesToAdd,
+    });
 
-  let packetsToAdd = totalPackets || 0;
-  let piecesToAdd = totalPiecesWithoutPacket || 0;
-  let ppp = piecesPerPacket;
-
-  if (packetsToAdd < 0 || piecesToAdd < 0) {
-    throw new Error("Invalid data.");
+    return nCeramic.toObject();
+  } catch (error: any) {
+    if (error.code === 11000) {
+      console.log("Ceramic already exists.");
+    }
+    console.log("Failed to add ceramic.");
   }
-
-  if (piecesToAdd >= ppp) {
-    packetsToAdd += Math.floor(piecesToAdd / ppp);
-    piecesToAdd %= ppp;
-  }
-
-  return await this.create(newCeramic);
 }
 
 export async function addToExistingCeramic(
   this: Model<ICeramics>,
   id: string,
-  addData: { totalPackets: number; totalPiecesWithoutPacket: number }
+  addData: { packetsToAdd: number; piecesToAdd: number }
 ) {
-  const { totalPackets, totalPiecesWithoutPacket } = addData;
+  const { packetsToAdd, piecesToAdd } = addData;
   const ceramic: ICeramics | null = await this.findById(id);
-  let packetsToAdd = totalPackets || 0;
-  let piecesToAdd = totalPiecesWithoutPacket || 0;
+  let packets = packetsToAdd || 0;
+  let pieces = piecesToAdd || 0;
 
   if (!ceramic) {
     throw new Error("Ceramic not found.");
   }
 
-  if (packetsToAdd < 0 || piecesToAdd < 0) {
+  if (packets < 0 || pieces < 0) {
     throw new Error("Invalid data.");
   }
 
-  if (piecesToAdd >= ceramic.piecesPerPacket) {
-    packetsToAdd += Math.floor(piecesToAdd / ceramic.piecesPerPacket);
-    piecesToAdd %= ceramic.piecesPerPacket;
+  if (pieces >= ceramic.piecesPerPacket) {
+    packets += Math.floor(piecesToAdd / ceramic.piecesPerPacket);
+    packets %= ceramic.piecesPerPacket;
   }
 
   return await this.findByIdAndUpdate(
     id,
     {
       $inc: {
-        totalPackets: packetsToAdd,
-        totalPiecesWithoutPacket: piecesToAdd,
+        totalPackets: packets,
+        totalPiecesWithoutPacket: pieces,
       },
     },
     { new: true }

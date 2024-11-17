@@ -1,5 +1,5 @@
 import { ICeramics } from "@/app/_models/ceramics/types";
-import { addNewCeramic } from "@/app/_services/ceramicsService";
+import { addNewCeramicService } from "@/app/_services/ceramicsService";
 import Link from "next/link";
 
 const CeramicForm = () => {
@@ -8,10 +8,14 @@ const CeramicForm = () => {
     const size = formData.get("size") as string;
     const manufacturer = formData.get("manufacturer") as string;
     const code = formData.get("code") as string;
-    const piecesPerPacket = parseInt(formData.get("piecesPerPacket") as string);
-    const totalPackets = parseInt(formData.get("totalPackets") as string);
+    const piecesPerPacket = parseInt(
+      formData.get("piecesPerPacket") as string,
+      10
+    );
+    const totalPackets = parseInt(formData.get("totalPackets") as string, 10);
     const totalPiecesWithoutPacket = parseInt(
-      formData.get("totalPiecesWithoutPacket") as string
+      formData.get("totalPiecesWithoutPacket") as string,
+      10
     );
     const ceramicType = formData.get("ceramicType") as string;
 
@@ -36,7 +40,7 @@ const CeramicForm = () => {
       totalPiecesWithoutPacket,
       type: ceramicType,
     };
-    await addNewCeramic(ceramic);
+    return await addNewCeramicService(ceramic);
   };
   return (
     <>
