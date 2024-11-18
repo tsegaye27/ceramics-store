@@ -1,13 +1,15 @@
 import { Model } from "mongoose";
 
 export interface IOrder {
-  ceramicId: {
-    _id?: string;
-    code: string;
-    piecesPerPacket: string;
-    size: string;
-    createdAt?: string;
-  };
+  ceramicId?:
+    | {
+        _id?: string;
+        code: string;
+        piecesPerPacket: number;
+        size: string;
+        createdAt?: string;
+      }
+    | string;
   seller?: string;
   pieces: number;
   packets: number;
