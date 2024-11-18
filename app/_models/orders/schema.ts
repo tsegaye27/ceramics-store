@@ -1,16 +1,11 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IOrder } from "./types";
 
 export const orderSchema: Schema<IOrder> = new Schema(
   {
     ceramicId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Ceramics",
-      required: true,
-    },
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
       required: true,
     },
     seller: {
