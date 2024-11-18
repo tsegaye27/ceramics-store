@@ -1,24 +1,12 @@
-import { serviceAddToExistingCeramic } from "@/app/_services/ceramicsService";
+import { addToExistingCeramicAction } from "@/app/_lib/actions";
 import Link from "next/link";
 
 export default function AddCeramic({ params }: { params: { id: string } }) {
-  const handleAdd = async (formData: FormData) => {
+  const handleAdd = async (formData: FormData): Promise<void> => {
     "use server";
-    const packetsToAdd = parseInt(formData.get("packetsToAdd") as string, 10);
-    const piecesToAdd = parseInt(formData.get("piecesToAdd") as string, 10);
-
-    if (!packetsToAdd || !piecesToAdd) {
-      return "Missing packets or pieces";
-    }
-
-    if (packetsToAdd < 0 || piecesToAdd < 0) {
-      return "Invalid packets or pieces";
-    }
-    return await serviceAddToExistingCeramic(params.id, {
-      packetsToAdd,
-      piecesToAdd,
-    });
+    await addToExistingCeramicAction(formData, params.id);
   };
+
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
