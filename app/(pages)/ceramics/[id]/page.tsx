@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { ICeramics } from "@/app/_models/ceramics/types";
 import { formatDate } from "@/app/_utils/helperFunctions";
-import { serviceGetCeramicById } from "@/app/_services/ceramicsService";
+import { getCeramicByIdAction } from "@/app/_lib/actions";
 
 export default async function CeramicDetail({
   params,
 }: {
   params: { id: string };
 }) {
-  const ceramic: ICeramics | null = await serviceGetCeramicById(params.id);
+  const ceramic: ICeramics | null = await getCeramicByIdAction(params.id);
   return (
     <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
