@@ -1,22 +1,29 @@
 import { Model } from "mongoose";
 import { ICeramics } from "./types";
-import { formatPieces } from "@/app/_utils/helperFunctions";
+import {
+  checkSufficiency,
+  formatPieces,
+  validateInput,
+} from "@/app/_utils/helperFunctions";
+import logger from "@/app/_utils/logger";
 
 export async function getAllCeramics(this: Model<ICeramics>) {
-  const ceramics: ICeramics[] = await this.find({}).sort({
-    totalPackets: 1,
-    createdAt: -1,
-  });
+  const ceramics: ICeramics[] = await this.find({})
+    .sort({
+      totalPackets: 1,
+      createdAt: -1,
+    })
+    .lean();
   if (!ceramics) {
-    throw new Error("Ceramics not found.");
+    logger.error("Ceramics not found.");
   }
   return ceramics;
 }
 
 export async function getCeramicById(this: Model<ICeramics>, id: string) {
-  const ceramic: ICeramics | null = await this.findById(id);
+  const ceramic: ICeramics | null = await this.findById(id).lean();
   if (!ceramic) {
-    throw new Error("Ceramic not found.");
+    logger.error("Ceramic not found.");
   }
   return ceramic;
 }
@@ -32,9 +39,9 @@ export async function searchCeramics(
       { manufacturer: { $regex: searchQuery, $options: "i" } },
       { code: { $regex: searchQuery, $options: "i" } },
     ],
-  });
+  }).lean();
   if (!ceramics) {
-    throw new Error("Ceramics not found.");
+    logger.error("Ceramics not found.");
   }
   return ceramics;
 }
@@ -60,9 +67,9 @@ export async function addNewCeramic(
     return nCeramic.toObject();
   } catch (error: any) {
     if (error.code === 11000) {
-      console.log("Ceramic already exists.");
+      logger.warn("Ceramic already exists.");
     }
-    console.log("Failed to add ceramic.");
+    logger.error("Failed to add ceramic.");
   }
 }
 
@@ -77,11 +84,13 @@ export async function addToExistingCeramic(
   let pieces = piecesToAdd || 0;
 
   if (!ceramic) {
-    throw new Error("Ceramic not found.");
+    logger.error("Ceramic not found.");
+    return;
   }
 
   if (packets < 0 || pieces < 0) {
-    throw new Error("Invalid data.");
+    logger.warn("Invalid data.");
+    return;
   }
 
   if (pieces >= ceramic.piecesPerPacket) {
@@ -98,7 +107,7 @@ export async function addToExistingCeramic(
       },
     },
     { new: true }
-  );
+  ).lean();
 }
 
 export async function sellCeramic(
@@ -108,31 +117,32 @@ export async function sellCeramic(
 ) {
   const { totalPackets, totalPiecesWithoutPacket } = sellData;
   const ceramic: ICeramics | null = await this.findById(id);
-  let packetsToSell = totalPackets || 0;
-  let piecesToSell = totalPiecesWithoutPacket || 0;
 
   if (!ceramic) {
-    throw new Error("Ceramic not found.");
+    logger.error("Ceramic not found.");
+    return;
   }
 
-  if (packetsToSell < 0 || piecesToSell < 0) {
-    throw new Error("Invalid data.");
-  }
+  const isInputValid = validateInput(totalPackets, totalPiecesWithoutPacket)
+    ? {}
+    : logger.warn("Invalid data.");
 
-  if (piecesToSell >= ceramic.piecesPerPacket) {
-    packetsToSell += Math.floor(piecesToSell / ceramic.piecesPerPacket);
-    piecesToSell %= ceramic.piecesPerPacket;
-  }
+  const { packetsToAdd: packetsToSell, piecesToAdd: piecesToSell } =
+    formatPieces(
+      totalPackets,
+      totalPiecesWithoutPacket,
+      ceramic.piecesPerPacket
+    );
 
-  if (ceramic.totalPackets < packetsToSell) {
-    throw new Error("Insufficient packets.");
-  }
+  const isSufficient = checkSufficiency(
+    totalPackets,
+    packetsToSell,
+    totalPiecesWithoutPacket,
+    piecesToSell
+  );
 
-  if (
-    ceramic.totalPackets === packetsToSell &&
-    ceramic.totalPiecesWithoutPacket < piecesToSell
-  ) {
-    throw new Error("Insufficient pieces.");
+  if (!isInputValid || !isSufficient) {
+    return;
   }
 
   return await this.findByIdAndUpdate(
@@ -144,9 +154,9 @@ export async function sellCeramic(
       },
     },
     { new: true }
-  );
+  ).lean();
 }
 
 export async function deleteCeramic(this: Model<ICeramics>, id: string) {
-  return await this.findByIdAndDelete(id);
+  return await this.findByIdAndDelete(id).lean();
 }
