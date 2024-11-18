@@ -2,82 +2,81 @@ import dbConnect from "../_lib/mongoose";
 import Ceramics from "../_models/ceramics";
 import { ICeramics } from "../_models/ceramics/types";
 import { validateInput } from "../_utils/helperFunctions";
+import logger from "../_utils/logger";
 
-export const getAllCeramics = async (): Promise<ICeramics[]> => {
+export const serviceGetAllCeramics = async (): Promise<ICeramics[]> => {
   try {
     await dbConnect();
     return await Ceramics.getAllCeramics();
   } catch (error) {
-    console.error("Error fetching ceramics:", error);
-    throw new Error("Failed to fetch ceramics.");
+    logger.error("Error fetching ceramics:", error);
+    return [];
   }
 };
 
-export const searchCeramics = async (
+export const serviceSearchCeramics = async (
   searchQuery: string
 ): Promise<ICeramics[]> => {
   try {
     await dbConnect();
     return await Ceramics.searchCeramics(searchQuery);
   } catch (error) {
-    console.error("Error searching ceramics:", error);
-    throw new Error("Failed to search ceramics.");
+    logger.error("Error searching ceramics:", error);
+    return [];
   }
 };
 
-export const getCeramicById = async (id: string): Promise<ICeramics | null> => {
+export const serviceGetCeramicById = async (
+  id: string
+): Promise<ICeramics | null> => {
   try {
     await dbConnect();
     return await Ceramics.getCeramicById(id);
   } catch (error) {
-    console.error("Error fetching ceramic by ID:", error);
-    throw new Error("Failed to fetch ceramic.");
+    logger.error("Error fetching ceramic by ID:", error);
+    return null;
   }
 };
-export const addNewCeramicService = async (
+export const serviceAddNewCeramic = async (
   ceramicData: ICeramics
 ): Promise<ICeramics> => {
   {
-    validateInput(
-      ceramicData.totalPackets,
-      ceramicData.totalPiecesWithoutPacket
-    );
     return await Ceramics.addNewCeramic(ceramicData);
   }
 };
 
-export const addToExistingCeramic = async (
+export const serviceAddToExistingCeramic = async (
   id: string,
   addData: { packetsToAdd: number; piecesToAdd: number }
-): Promise<ICeramics> => {
+): Promise<ICeramics | null> => {
   try {
     await dbConnect();
     return await Ceramics.addToExistingCeramic(id, addData);
   } catch (error) {
-    console.error("Error adding to existing ceramic:", error);
-    throw new Error("Failed to add to existing ceramic.");
+    logger.error("Error adding to existing ceramic:", error);
+    return null;
   }
 };
 
-export const sellCeramic = async (
+export const serviceSellCeramic = async (
   id: string,
   sellData: { totalPackets: number; totalPiecesWithoutPacket: number }
-): Promise<ICeramics> => {
+): Promise<ICeramics | null> => {
   try {
     await dbConnect();
     return await Ceramics.sellCeramic(id, sellData);
   } catch (error) {
-    console.error("Error selling ceramic:", error);
-    throw new Error("Failed to sell ceramic.");
+    logger.error("Error selling ceramic:", error);
+    return null;
   }
 };
 
-export const deleteCeramic = async (id: string): Promise<boolean> => {
+export const serviceDeleteCeramic = async (id: string): Promise<boolean> => {
   try {
     const result = await Ceramics.deleteCeramic(id);
     return result !== null;
   } catch (error) {
-    console.error("Error deleting ceramic:", error);
-    throw new Error("Failed to delete ceramic.");
+    logger.error("Error deleting ceramic:", error);
+    return false;
   }
 };
