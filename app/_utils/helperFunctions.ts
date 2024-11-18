@@ -60,10 +60,10 @@ export const checkSufficiency = (
 export const calculateArea = (
   totalPackets: number,
   totalPiecesWithoutPacket: number,
-  piecesPerPacket: string,
+  piecesPerPacket: number,
   size: string
 ) => {
-  const ppp = Number(piecesPerPacket);
+  const ppp = piecesPerPacket;
   if (size === "60x60") {
     const area = totalPackets * ppp * 0.36 + totalPiecesWithoutPacket * 0.36;
 
