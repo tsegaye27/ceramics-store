@@ -1,17 +1,9 @@
-import { IOrder } from "@/app/_models/orders/types";
-import { serviceGetOrders } from "@/app/_services/ordersService";
+import { getOrdersAction } from "@/app/_lib/actions";
 import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
 
 const OrderList = async () => {
-  const orders: IOrder[] = await serviceGetOrders();
-  const handleCalculateArea = (
-    packets: number,
-    pieces: number,
-    piecesPerPacket: string,
-    size: string
-  ) => calculateArea(packets, pieces, piecesPerPacket, size);
-
+  const orders = await getOrdersAction();
   return (
     <div className="container mx-auto p-4">
       <Link
@@ -52,48 +44,53 @@ const OrderList = async () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, index) => (
-                <tr
-                  key={order.ceramicId._id}
-                  className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                >
-                  <td className="py-3 px-4 border-b border-r-2">{index + 1}</td>
-                  <td className="py-3 px-4 border-b border-r-2">
-                    {order.ceramicId.size}({order.ceramicId.code})
-                  </td>
-                  <td className="py-3 px-4 border-b border-r-2">
-                    {order.seller}
-                  </td>
-                  <td className="py-3 px-4 border-b border-r-2">
-                    {order.createdAt &&
-                      new Date(order.createdAt).toLocaleString()}
-                  </td>
-                  <td className="py-3 px-4 border-b border-r-2">
-                    {handleCalculateArea(
-                      order.packets,
-                      order.pieces,
-                      order.ceramicId.piecesPerPacket,
-                      order.ceramicId.size
-                    )}{" "}
-                    m²
-                  </td>
-                  <td className="py-3 px-4 border-b border-r-2">
-                    {order.price *
-                      Number(
-                        calculateArea(
+              {orders.map(
+                (order, index) =>
+                  typeof order.ceramicId === "object" && (
+                    <tr
+                      key={order.ceramicId._id}
+                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    >
+                      <td className="py-3 px-4 border-b border-r-2">
+                        {index + 1}
+                      </td>
+                      <td className="py-3 px-4 border-b border-r-2">
+                        {order.ceramicId.size}({order.ceramicId.code})
+                      </td>
+                      <td className="py-3 px-4 border-b border-r-2">
+                        {order.seller}
+                      </td>
+                      <td className="py-3 px-4 border-b border-r-2">
+                        {order.createdAt &&
+                          new Date(order.createdAt).toLocaleString()}
+                      </td>
+                      <td className="py-3 px-4 border-b border-r-2">
+                        {calculateArea(
                           order.packets,
                           order.pieces,
                           order.ceramicId.piecesPerPacket,
                           order.ceramicId.size
-                        )
-                      )}{" "}
-                    birr
-                  </td>
-                  {/* <td className="py-3 px-4 border-b border-r-2">
+                        )}{" "}
+                        m²
+                      </td>
+                      <td className="py-3 px-4 border-b border-r-2">
+                        {order.price *
+                          Number(
+                            calculateArea(
+                              order.packets,
+                              order.pieces,
+                              order.ceramicId.piecesPerPacket,
+                              order.ceramicId.size
+                            )
+                          )}{" "}
+                        birr
+                      </td>
+                      {/* <td className="py-3 px-4 border-b border-r-2">
                     {order.userId.name}
                   </td> */}
-                </tr>
-              ))}
+                    </tr>
+                  )
+              )}
             </tbody>
           </table>
         </div>
