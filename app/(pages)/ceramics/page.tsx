@@ -1,56 +1,15 @@
+import { getCeramicsAction } from "@/app/_lib/actions";
 import { ICeramics } from "@/app/_models/ceramics/types";
 import {
   serviceGetAllCeramics,
   serviceSearchCeramics,
 } from "@/app/_services/ceramicsService";
+import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
-
-export const revalidate = 60;
-
-const calculateArea = (
-  totalPackets: number,
-  totalPiecesWithoutPacket: number,
-  piecesPerPacket: number,
-  size: string
-) => {
-  if (size === "60x60") {
-    return (
-      totalPackets * piecesPerPacket * 0.36 +
-      totalPiecesWithoutPacket * 0.36
-    ).toFixed(2);
-  }
-  if (size === "30x60") {
-    return (
-      totalPackets * piecesPerPacket * 0.18 +
-      totalPiecesWithoutPacket * 0.18
-    ).toFixed(2);
-  }
-  if (size === "30x30") {
-    return (
-      totalPackets * piecesPerPacket * 0.09 +
-      totalPiecesWithoutPacket * 0.09
-    ).toFixed(2);
-  }
-  if (size === "40x40") {
-    return (
-      totalPackets * piecesPerPacket * 0.16 +
-      totalPiecesWithoutPacket * 0.16
-    ).toFixed(2);
-  }
-  if (size === "zekolo") {
-    return (
-      (totalPackets * piecesPerPacket + totalPiecesWithoutPacket) *
-      0.6
-    ).toFixed(2);
-  }
-  return "0.00";
-};
 
 const CeramicsPage = async ({ searchParams }: CeramicsPageProps) => {
   const searchQuery = searchParams?.search || "";
-  const ceramics = searchQuery
-    ? await serviceSearchCeramics(searchQuery)
-    : await serviceGetAllCeramics();
+  const ceramics = await getCeramicsAction(searchQuery);
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
