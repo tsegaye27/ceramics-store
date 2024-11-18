@@ -1,5 +1,6 @@
 import { ICeramics } from "@/app/_models/ceramics/types";
-import { addNewCeramicService } from "@/app/_services/ceramicsService";
+import { serviceAddNewCeramic } from "@/app/_services/ceramicsService";
+import logger from "@/app/_utils/logger";
 import Link from "next/link";
 
 const CeramicForm = () => {
@@ -29,6 +30,7 @@ const CeramicForm = () => {
       !totalPiecesWithoutPacket
     ) {
       throw new Error("Please fill all the fields");
+      // logger.warn("Please fill all the fields");
     }
 
     const ceramic: ICeramics = {
@@ -40,7 +42,7 @@ const CeramicForm = () => {
       totalPiecesWithoutPacket,
       type: ceramicType,
     };
-    return await addNewCeramicService(ceramic);
+    return await serviceAddNewCeramic(ceramic);
   };
   return (
     <>
