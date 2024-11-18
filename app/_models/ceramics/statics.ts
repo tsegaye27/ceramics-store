@@ -14,17 +14,11 @@ export async function getAllCeramics(this: Model<ICeramics>) {
       createdAt: -1,
     })
     .lean();
-  if (!ceramics) {
-    logger.error("Ceramics not found.");
-  }
   return ceramics;
 }
 
 export async function getCeramicById(this: Model<ICeramics>, id: string) {
   const ceramic: ICeramics | null = await this.findById(id).lean();
-  if (!ceramic) {
-    logger.error("Ceramic not found.");
-  }
   return ceramic;
 }
 
@@ -40,9 +34,6 @@ export async function searchCeramics(
       { code: { $regex: searchQuery, $options: "i" } },
     ],
   }).lean();
-  if (!ceramics) {
-    logger.error("Ceramics not found.");
-  }
   return ceramics;
 }
 
@@ -50,27 +41,20 @@ export async function addNewCeramic(
   this: Model<ICeramics>,
   newCeramic: ICeramics
 ) {
-  try {
-    const { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } =
-      newCeramic;
-    const { packetsToAdd, piecesToAdd } = formatPieces(
-      totalPackets,
-      totalPiecesWithoutPacket,
-      piecesPerPacket
-    );
-    const nCeramic = await this.create({
-      ...newCeramic,
-      totalPackets: packetsToAdd,
-      totalPiecesWithoutPacket: piecesToAdd,
-    });
+  const { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } =
+    newCeramic;
+  const { packetsToAdd, piecesToAdd } = formatPieces(
+    totalPackets,
+    totalPiecesWithoutPacket,
+    piecesPerPacket
+  );
+  const nCeramic = await this.create({
+    ...newCeramic,
+    totalPackets: packetsToAdd,
+    totalPiecesWithoutPacket: piecesToAdd,
+  });
 
-    return nCeramic.toObject();
-  } catch (error: any) {
-    if (error.code === 11000) {
-      logger.warn("Ceramic already exists.");
-    }
-    logger.error("Failed to add ceramic.");
-  }
+  return nCeramic.toObject();
 }
 
 export async function addToExistingCeramic(
@@ -82,21 +66,6 @@ export async function addToExistingCeramic(
   const ceramic: ICeramics | null = await this.findById(id);
   let packets = packetsToAdd || 0;
   let pieces = piecesToAdd || 0;
-
-  if (!ceramic) {
-    logger.error("Ceramic not found.");
-    return;
-  }
-
-  if (packets < 0 || pieces < 0) {
-    logger.warn("Invalid data.");
-    return;
-  }
-
-  if (pieces >= ceramic.piecesPerPacket) {
-    packets += Math.floor(piecesToAdd / ceramic.piecesPerPacket);
-    packets %= ceramic.piecesPerPacket;
-  }
 
   return await this.findByIdAndUpdate(
     id,
@@ -117,12 +86,7 @@ export async function sellCeramic(
 ) {
   const { totalPackets, totalPiecesWithoutPacket } = sellData;
   const ceramic: ICeramics | null = await this.findById(id);
-
-  if (!ceramic) {
-    logger.error("Ceramic not found.");
-    return;
-  }
-
+  if (!ceramic) throw new Error("Ceramic not found.");
   const isInputValid = validateInput(totalPackets, totalPiecesWithoutPacket)
     ? {}
     : logger.warn("Invalid data.");
