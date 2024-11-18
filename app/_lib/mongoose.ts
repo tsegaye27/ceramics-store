@@ -1,9 +1,10 @@
 import mongoose, { Connection } from "mongoose";
+import logger from "../_utils/logger";
 
 const MONGODB_URI: string = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error("Please add your Mongo URI to .env.local");
+  logger.warn("Please add your Mongo URI to .env.local");
 }
 
 interface MongooseCache {
@@ -28,7 +29,7 @@ async function dbConnect() {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log("Connected to DB");
+      logger.info("Connected to DB");
       return mongoose.connection;
     });
   }
