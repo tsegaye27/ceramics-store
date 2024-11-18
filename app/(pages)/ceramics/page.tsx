@@ -1,6 +1,7 @@
+import { ICeramics } from "@/app/_models/ceramics/types";
 import {
-  getAllCeramics,
-  searchCeramics,
+  serviceGetAllCeramics,
+  serviceSearchCeramics,
 } from "@/app/_services/ceramicsService";
 import Link from "next/link";
 
@@ -48,8 +49,8 @@ const calculateArea = (
 const CeramicsPage = async ({ searchParams }: CeramicsPageProps) => {
   const searchQuery = searchParams?.search || "";
   const ceramics = searchQuery
-    ? await searchCeramics(searchQuery)
-    : await getAllCeramics();
+    ? await serviceSearchCeramics(searchQuery)
+    : await serviceGetAllCeramics();
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -90,7 +91,7 @@ const CeramicsPage = async ({ searchParams }: CeramicsPageProps) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {ceramics.map((ceramic) => (
+          {ceramics.map((ceramic: ICeramics) => (
             <div
               key={ceramic._id}
               className={`bg-white p-5 rounded-lg ${
