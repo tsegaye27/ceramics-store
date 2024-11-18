@@ -10,10 +10,6 @@ export default function SellCeramic({ params }: { params: { id: string } }) {
     const pricePerArea = parseInt(formData.get("pricePerArea") as string, 10);
     const seller = formData.get("seller") as string;
 
-    if (!packetsToSell || !piecesToSell || !pricePerArea || !seller) {
-      return "Please fill all the fields";
-    }
-
     await serviceCreateOrder({
       ceramicId: params.id,
       pieces: piecesToSell,
@@ -26,8 +22,6 @@ export default function SellCeramic({ params }: { params: { id: string } }) {
       totalPackets: packetsToSell,
       totalPiecesWithoutPacket: piecesToSell,
     });
-
-    return;
   };
   return (
     <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
