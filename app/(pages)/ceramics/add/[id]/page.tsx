@@ -1,4 +1,4 @@
-import { addToExistingCeramic } from "@/app/_services/ceramicsService";
+import { serviceAddToExistingCeramic } from "@/app/_services/ceramicsService";
 import Link from "next/link";
 
 export default function AddCeramic({ params }: { params: { id: string } }) {
@@ -14,7 +14,10 @@ export default function AddCeramic({ params }: { params: { id: string } }) {
     if (packetsToAdd < 0 || piecesToAdd < 0) {
       return "Invalid packets or pieces";
     }
-    return await addToExistingCeramic(params.id, { packetsToAdd, piecesToAdd });
+    return await serviceAddToExistingCeramic(params.id, {
+      packetsToAdd,
+      piecesToAdd,
+    });
   };
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">

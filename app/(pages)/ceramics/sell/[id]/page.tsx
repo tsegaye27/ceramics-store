@@ -1,194 +1,87 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { serviceSellCeramic } from "@/app/_services/ceramicsService";
+import { serviceCreateOrder } from "@/app/_services/ordersService";
 import Link from "next/link";
-import { useLanguage } from "@/app/_context/LanguageContext";
-import { useAuth } from "@/app/_context/AuthContext";
 
-export default function SellCeramic() {
-  const [packetsToSell, setPacketsToSell] = useState<string>("0");
-  const [piecesToSell, setPiecesToSell] = useState<string>("0");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { id } = useParams();
-  const router = useRouter();
-  const [ppp, setPpp] = useState<number>(0);
-  const { t, switchLanguage } = useLanguage();
-  const [seller, setSeller] = useState<string>("");
-  const { token } = useAuth();
-  const [price, setPrice] = useState<string>("");
-  const [isLoading, setLoading] = useState<boolean>(true);
+export default function SellCeramic({ params }: { params: { id: string } }) {
+  const handleSell = async (formData: FormData) => {
+    "use server";
+    const packetsToSell = parseInt(formData.get("packetsToSell") as string, 10);
+    const piecesToSell = parseInt(formData.get("piecesToSell") as string, 10);
+    const pricePerArea = parseInt(formData.get("pricePerArea") as string, 10);
+    const seller = formData.get("seller") as string;
 
-  useEffect(() => {
-    const fetchCeramic = async () => {
-      try {
-        setLoading(true);
-        const ceramic = await axios.get(`/api/ceramics`, {
-          params: {
-            id,
-          },
-        });
-        if (!ceramic) {
-          setLoading(true);
-          router.push("/ceramics");
-          return;
-        }
+    if (!packetsToSell || !piecesToSell || !pricePerArea || !seller) {
+      return "Please fill all the fields";
+    }
 
-        setPpp(ceramic.data.piecesPerPacket);
-      } catch (error) {
-        console.error("Error fetching ceramic:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCeramic();
-  }, [id, router]);
+    await serviceCreateOrder({
+      ceramicId: params.id,
+      pieces: piecesToSell,
+      packets: packetsToSell,
+      seller,
+      price: pricePerArea,
+    });
 
-  const validateInput = (value: string) => {
-    const numValue = Number(value);
-    return !isNaN(numValue) && numValue >= 0 && /^\d+$/.test(value);
+    await serviceSellCeramic(params.id, {
+      totalPackets: packetsToSell,
+      totalPiecesWithoutPacket: piecesToSell,
+    });
+
+    return;
   };
-
-  const handleSell = async () => {
-    console.log("Selling ceramic inventory...");
-    let packets = Number(packetsToSell);
-    let pieces = Number(piecesToSell);
-
-    if (!validateInput(packetsToSell) || !validateInput(piecesToSell)) {
-      setErrorMessage("Please enter valid positive numbers.");
-      return;
-    } else if (!seller) {
-      setErrorMessage("Please enter the seller's name.");
-      return;
-    }
-
-    while (pieces >= ppp) {
-      packets += Math.floor(pieces / ppp);
-      pieces = pieces % ppp;
-    }
-
-    try {
-      setLoading(true);
-      await axios.patch(
-        `/api/ceramics`,
-        {
-          id,
-          totalPackets: packets,
-          totalPiecesWithoutPacket: pieces,
-          action: "sell",
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      await axios.post(
-        `/api/orders`,
-        {
-          ceramicId: id,
-          seller,
-          packets,
-          pieces,
-          price: Number(price),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setLoading(true);
-      router.push(`/ceramics`);
-    } catch (error) {
-      console.error("Error selling ceramic inventory:", error);
-      setErrorMessage("Failed to update inventory.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div
-      className={`container mx-auto p-6 bg-gray-100 min-h-screen ${
-        isLoading ? "opacity-50" : ""
-      }`}
-    >
-      <button onClick={() => switchLanguage("en")} className="mr-2">
-        English
-      </button>
-      <button onClick={() => switchLanguage("am")} className="mr-2">
-        አማርኛ
-      </button>
+    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <Link
           href={`/ceramics`}
-          onClick={() => setLoading(true)}
           className="text-blue-600 hover:text-blue-800  mb-6 inline-block"
         >
-          {t("back")}
+          back
         </Link>
-        <h1 className="text-3xl font-semibold mb-6 text-center">
-          {t("sellCeramic")}
-        </h1>
-        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+        <h1 className="text-3xl font-semibold mb-6 text-center">sellCeramic</h1>
         <div className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1">
-              {t("packetsToSell")}:
-            </label>
-            <input
-              type="text"
-              value={packetsToSell}
-              onChange={(e) =>
-                setPacketsToSell(Number(e.target.value) ? e.target.value : "")
-              }
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("enterPackets")}
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">
-              {t("piecesToSell")}:
-            </label>
-            <input
-              type="text"
-              value={piecesToSell}
-              onChange={(e) =>
-                setPiecesToSell(Number(e.target.value) ? e.target.value : "")
-              }
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("enterPieces")}
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">
-              {t("pricePerArea")}:
-            </label>
-            <input
-              type="text"
-              value={price}
-              onChange={(e) =>
-                setPrice(Number(e.target.value) ? e.target.value : "")
-              }
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("enterPrice")}
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">{t("seller")}:</label>
-            <input
-              type="text"
-              value={seller}
-              onChange={(e) => setSeller(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("enterSellerName")}
-            />
-          </div>
+          <form action={handleSell}>
+            <div>
+              <label className="block font-medium mb-1">packetsToSell:</label>
+              <input
+                type="text"
+                name="packetsToSell"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="enterPackets"
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">piecesToSell:</label>
+              <input
+                type="text"
+                name="piecesToSell"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="enterPieces"
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">pricePerArea:</label>
+              <input
+                type="text"
+                name="pricePerArea"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="enterPrice"
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">seller:</label>
+              <input
+                type="text"
+                name="seller"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="enterSellerName"
+              />
+            </div>
 
-          <button
-            onClick={handleSell}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
-          >
-            {t("sell")}
-          </button>
+            <button className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300">
+              sell
+            </button>
+          </form>
         </div>
       </div>
     </div>
