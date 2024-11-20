@@ -1,7 +1,6 @@
 import dbConnect from "../_lib/mongoose";
 import Ceramics from "../_models/ceramics";
 import { ICeramics } from "../_models/ceramics/types";
-import logger from "../_utils/logger";
 
 export const serviceGetAllCeramics = async (): Promise<ICeramics[]> => {
   await dbConnect();
