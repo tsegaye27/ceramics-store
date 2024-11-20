@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { ICeramics } from "../_models/ceramics/types";
 import { IOrder } from "../_models/orders/types";
 import {
@@ -7,8 +8,12 @@ import {
   serviceGetAllCeramics,
   serviceGetCeramicById,
   serviceSearchCeramics,
+  serviceSellCeramic,
 } from "../_services/ceramicsService";
-import { serviceGetOrders } from "../_services/ordersService";
+import {
+  serviceCreateOrder,
+  serviceGetOrders,
+} from "../_services/ordersService";
 
 export const getOrdersAction = async () => {
   const orders: IOrder[] = await serviceGetOrders();
@@ -47,6 +52,7 @@ export const addNewCeramicAction = async (formData: FormData) => {
     type: ceramicType,
   };
   await serviceAddNewCeramic(ceramic);
+  revalidatePath("/ceramics");
 };
 
 export const getCeramicByIdAction = async (id: string) => {
@@ -65,4 +71,26 @@ export const addToExistingCeramicAction = async (
     packetsToAdd,
     piecesToAdd,
   });
+  revalidatePath("/ceramics");
+};
+
+export const sellCeramicAction = async (formData: FormData, id: string) => {
+  const packetsToSell = parseInt(formData.get("packetsToSell") as string, 10);
+  const piecesToSell = parseInt(formData.get("piecesToSell") as string, 10);
+  const pricePerArea = parseInt(formData.get("pricePerArea") as string, 10);
+  const seller = formData.get("seller") as string;
+
+  await serviceCreateOrder({
+    ceramicId: id,
+    pieces: piecesToSell,
+    packets: packetsToSell,
+    seller,
+    price: pricePerArea,
+  });
+
+  await serviceSellCeramic(id, {
+    totalPackets: packetsToSell,
+    totalPiecesWithoutPacket: piecesToSell,
+  });
+  revalidatePath("/ceramics");
 };

@@ -1,27 +1,10 @@
-import { serviceSellCeramic } from "@/app/_services/ceramicsService";
-import { serviceCreateOrder } from "@/app/_services/ordersService";
+import { sellCeramicAction } from "@/app/_lib/actions";
 import Link from "next/link";
 
 export default function SellCeramic({ params }: { params: { id: string } }) {
   const handleSell = async (formData: FormData) => {
     "use server";
-    const packetsToSell = parseInt(formData.get("packetsToSell") as string, 10);
-    const piecesToSell = parseInt(formData.get("piecesToSell") as string, 10);
-    const pricePerArea = parseInt(formData.get("pricePerArea") as string, 10);
-    const seller = formData.get("seller") as string;
-
-    await serviceCreateOrder({
-      ceramicId: params.id,
-      pieces: piecesToSell,
-      packets: packetsToSell,
-      seller,
-      price: pricePerArea,
-    });
-
-    await serviceSellCeramic(params.id, {
-      totalPackets: packetsToSell,
-      totalPiecesWithoutPacket: piecesToSell,
-    });
+    await sellCeramicAction(formData, params.id);
   };
   return (
     <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
