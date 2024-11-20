@@ -1,42 +1,39 @@
+import { ZodError, ZodIssue } from "zod";
 import logger from "./logger";
 
-export const formatDate = (unformattedDate: string) => {
+export const formatDate = (unformattedDate: string): string => {
   const date = new Date(unformattedDate).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
   const hours = new Date(unformattedDate).getHours();
-  const min = new Date(unformattedDate).getMinutes();
-  const time = hours >= 12 ? "pm" : "am";
-  return date + " at " + hours + ":" + min + " " + time.toUpperCase();
+  const minutes = new Date(unformattedDate).getMinutes();
+  const period = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12;
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+  return `${date} at ${formattedHours}:${formattedMinutes} ${period}`;
 };
 
 export const formatPieces = (
   totalPackets: number,
   totalPiecesWithoutPacket: number,
   piecesPerPacket: number
-) => {
-  let packetsToAdd = totalPackets;
-  let piecesToAdd = totalPiecesWithoutPacket;
-  let ppp = piecesPerPacket;
-
-  if (piecesToAdd >= ppp) {
-    packetsToAdd += Math.floor(piecesToAdd / ppp);
-    piecesToAdd %= ppp;
+): { packetsToAdd: number; piecesToAdd: number } => {
+  if (totalPiecesWithoutPacket >= piecesPerPacket) {
+    totalPackets += Math.floor(totalPiecesWithoutPacket / piecesPerPacket);
+    totalPiecesWithoutPacket %= piecesPerPacket;
   }
-  return { packetsToAdd, piecesToAdd };
+  return { packetsToAdd: totalPackets, piecesToAdd: totalPiecesWithoutPacket };
 };
 
 export const validateInput = (
   totalPackets: number,
   totalPiecesWithoutPacket: number
 ): boolean => {
-  if (totalPackets < 0 || totalPiecesWithoutPacket < 0) {
-    logger.warn("Invalid Data");
-    return false;
-  }
-  return true;
+  const isValid = totalPackets >= 0 && totalPiecesWithoutPacket >= 0;
+  if (!isValid) logger.warn("Invalid Data: Negative values are not allowed.");
+  return isValid;
 };
 
 export const checkSufficiency = (
@@ -49,7 +46,6 @@ export const checkSufficiency = (
     logger.warn("Insufficient packets.");
     return false;
   }
-
   if (packetsAvailable === packetsToSell && piecesAvailable < piecesToSell) {
     logger.warn("Insufficient pieces.");
     return false;
@@ -62,27 +58,25 @@ export const calculateArea = (
   totalPiecesWithoutPacket: number,
   piecesPerPacket: number,
   size: string
-) => {
-  const ppp = piecesPerPacket;
-  if (size === "60x60") {
-    const area = totalPackets * ppp * 0.36 + totalPiecesWithoutPacket * 0.36;
+): string => {
+  const sizeToAreaFactor: Record<string, number> = {
+    "60x60": 0.36,
+    "30x60": 0.18,
+    "30x30": 0.09,
+    "40x40": 0.16,
+  };
 
-    return area.toFixed(2);
-  }
-  if (size === "30x60") {
-    const area = totalPackets * ppp * 0.18 + totalPiecesWithoutPacket * 0.18;
+  const factor = sizeToAreaFactor[size] || 0;
+  const totalArea =
+    totalPackets * piecesPerPacket * factor + totalPiecesWithoutPacket * factor;
+  return totalArea.toFixed(2);
+};
 
-    return area.toFixed(2);
-  }
-  if (size === "30x30") {
-    const area = totalPackets * ppp * 0.09 + totalPiecesWithoutPacket * 0.09;
-
-    return area.toFixed(2);
-  }
-  if (size === "40x40") {
-    const area = totalPackets * ppp * 0.16 + totalPiecesWithoutPacket * 0.16;
-
-    return area.toFixed(2);
-  }
-  return "0.00";
+export const formatZodErrors = (error: ZodError): string => {
+  return error.issues
+    .map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join(".") : "root";
+      return `Error at "${path}": ${issue.message}`;
+    })
+    .join("\n");
 };
