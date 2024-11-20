@@ -1,4 +1,5 @@
 "use server";
+
 import { revalidatePath } from "next/cache";
 import { ICeramics } from "../_models/ceramics/types";
 import { IOrder } from "../_models/orders/types";
@@ -14,83 +15,96 @@ import {
   serviceCreateOrder,
   serviceGetOrders,
 } from "../_services/ordersService";
+import { validateCeramicData } from "./validators/ceramics";
+import { redirect } from "next/navigation";
 
-export const getOrdersAction = async () => {
-  const orders: IOrder[] = await serviceGetOrders();
-  return orders;
+// Fetch orders
+export const getOrdersAction = async (): Promise<IOrder[]> => {
+  return await serviceGetOrders();
 };
 
-export const getCeramicsAction = async (searchQuery: string) => {
-  const ceramics = searchQuery
+// Fetch ceramics with optional search query
+export const getCeramicsAction = async (
+  searchQuery: string
+): Promise<ICeramics[]> => {
+  return searchQuery
     ? await serviceSearchCeramics(searchQuery)
     : await serviceGetAllCeramics();
-  return ceramics;
 };
 
-export const addNewCeramicAction = async (formData: FormData) => {
-  const size = formData.get("size") as string;
-  const manufacturer = formData.get("manufacturer") as string;
-  const code = formData.get("code") as string;
-  const piecesPerPacket = parseInt(
-    formData.get("piecesPerPacket") as string,
-    10
-  );
-  const totalPackets = parseInt(formData.get("totalPackets") as string, 10);
-  const totalPiecesWithoutPacket = parseInt(
-    formData.get("totalPiecesWithoutPacket") as string,
-    10
-  );
-  const ceramicType = formData.get("ceramicType") as string;
-
+export const addNewCeramicAction = async (
+  formData: FormData
+): Promise<void> => {
   const ceramic: ICeramics = {
-    size,
-    manufacturer,
-    code,
-    piecesPerPacket,
-    totalPackets,
-    totalPiecesWithoutPacket,
-    type: ceramicType,
+    size: formData.get("size") as string,
+    manufacturer: formData.get("manufacturer") as string,
+    code: formData.get("code") as string,
+    piecesPerPacket: parseInt(formData.get("piecesPerPacket") as string, 10),
+    totalPackets: parseInt(formData.get("totalPackets") as string, 10),
+    totalPiecesWithoutPacket: parseInt(
+      formData.get("totalPiecesWithoutPacket") as string,
+      10
+    ),
+    type: formData.get("ceramicType") as string,
   };
-  await serviceAddNewCeramic(ceramic);
+
+  const validation = validateCeramicData(ceramic);
+
+  if (!validation.success) {
+    const errorMessages = validation.errors?.issues
+      .map((issue) => `Error at "${issue.path.join(".")}": ${issue.message}`)
+      .join("\n");
+    throw new Error(errorMessages || "Invalid data provided.");
+  }
+
+  validation.data && (await serviceAddNewCeramic(validation.data));
   revalidatePath("/ceramics");
+  redirect("/ceramics");
 };
 
-export const getCeramicByIdAction = async (id: string) => {
-  const ceramic: ICeramics | null = await serviceGetCeramicById(id);
-  return ceramic;
+// Fetch ceramic by ID
+export const getCeramicByIdAction = async (
+  id: string
+): Promise<ICeramics | null> => {
+  return await serviceGetCeramicById(id);
 };
 
+// Add to an existing ceramic
 export const addToExistingCeramicAction = async (
   formData: FormData,
   id: string
-) => {
+): Promise<void> => {
   const packetsToAdd = parseInt(formData.get("packetsToAdd") as string, 10);
   const piecesToAdd = parseInt(formData.get("piecesToAdd") as string, 10);
 
-  await serviceAddToExistingCeramic(id, {
-    packetsToAdd,
-    piecesToAdd,
-  });
-  revalidatePath("/ceramics");
+  await serviceAddToExistingCeramic(id, { packetsToAdd, piecesToAdd });
+  revalidatePath(`/ceramics/${id}`);
 };
 
-export const sellCeramicAction = async (formData: FormData, id: string) => {
+// Sell a ceramic and create an order
+export const sellCeramicAction = async (
+  formData: FormData,
+  id: string
+): Promise<void> => {
   const packetsToSell = parseInt(formData.get("packetsToSell") as string, 10);
   const piecesToSell = parseInt(formData.get("piecesToSell") as string, 10);
   const pricePerArea = parseInt(formData.get("pricePerArea") as string, 10);
   const seller = formData.get("seller") as string;
 
+  // Create an order
   await serviceCreateOrder({
     ceramicId: id,
-    pieces: piecesToSell,
     packets: packetsToSell,
+    pieces: piecesToSell,
     seller,
     price: pricePerArea,
   });
 
+  // Update the ceramic stock
   await serviceSellCeramic(id, {
     totalPackets: packetsToSell,
     totalPiecesWithoutPacket: piecesToSell,
   });
-  revalidatePath("/ceramics");
+
+  revalidatePath(`/ceramics/${id}`);
 };
