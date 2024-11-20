@@ -1,15 +1,11 @@
-import {
-  CeramicsManufacturersEnum,
-  CeramicsSizesEnum,
-  CeramicsTypesEnum,
-} from "@/app/_utils/enums";
-import { z } from "zod";
+import { formatZodErrors } from "@/app/_utils/helperFunctions";
+import { string, z, ZodError } from "zod";
 
 export const ceramicsSchemaZod = z
   .object({
-    size: CeramicsSizesEnum,
-    type: CeramicsTypesEnum,
-    manufacturer: CeramicsManufacturersEnum,
+    size: string(),
+    type: string(),
+    manufacturer: string(),
     piecesPerPacket: z
       .number()
       .int()
@@ -31,3 +27,15 @@ export const ceramicsSchemaZod = z
     message: "Total pieces must be less than or equal to pieces per packet",
     path: ["totalPiecesWithoutPacket"],
   });
+
+export const validateCeramicData = (data: unknown) => {
+  try {
+    const validatedData = ceramicsSchemaZod.parse(data);
+    return { success: true, data: validatedData };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, errors: error };
+    }
+    throw error;
+  }
+};
