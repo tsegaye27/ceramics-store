@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./_context/AuthContext";
 import { LanguageProvider } from "./_context/LanguageContext";
 import ReduxProvider from "./ReduxProvider";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   display: "swap",
@@ -25,7 +26,10 @@ export default function RootLayout({
       <body className={`${inter.className} bg-gray-50 text-gray-800`}>
         <ReduxProvider>
           <AuthProvider>
-            <LanguageProvider>{children}</LanguageProvider>
+            <LanguageProvider>
+              <Toaster position="top-right" reverseOrder={false} />
+              {children}
+            </LanguageProvider>
           </AuthProvider>
         </ReduxProvider>
       </body>
