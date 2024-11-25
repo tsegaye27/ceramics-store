@@ -2,21 +2,11 @@ import Link from "next/link";
 import React from "react";
 
 const LoginPage: React.FC = () => {
-  const handleSubmit = async (formData: FormData) => {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    if (!email || !password) {
-      return "Missing email or password";
-    }
-    if (password.length < 6) {
-      return "Password must be at least 6 characters";
-    }
-  };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
       <form
-        action={handleSubmit}
+        onSubmit={handleSubmit}
         className="bg-white shadow-lg ring-1 ring-blue-500 flex flex-col items-center gap-6 py-8 px-6 rounded-2xl w-full max-w-md"
       >
         <h2 className="text-3xl font-semibold text-blue-600">Login</h2>
