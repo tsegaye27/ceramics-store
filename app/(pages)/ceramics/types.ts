@@ -1,3 +1,6 @@
-interface CeramicsPageProps {
-  searchParams: { search?: string };
+import { ICeramics } from "@/app/_models/ceramics/types";
+
+export interface CeramicsClientProps {
+  ceramics: ICeramics[];
+  searchQuery: string;
 }

@@ -1,9 +1,9 @@
-import { Document } from "mongoose";
+// import { Document } from "mongoose";
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  hashedPassword: string;
-  role: "chis" | "user";
-  createdAt: Date;
-}
+// export interface IUser extends Document {
+//   name: string;
+//   email: string;
+//   hashedPassword: string;
+//   role: "chis" | "user";
+//   createdAt: Date;
+// }
