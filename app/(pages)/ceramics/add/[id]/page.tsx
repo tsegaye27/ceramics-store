@@ -1,11 +1,6 @@
-import { addToExistingCeramicAction } from "@/app/_lib/actions";
 import Link from "next/link";
 
 export default function AddCeramic({ params }: { params: { id: string } }) {
-  const handleAdd = async (formData: FormData): Promise<void> => {
-    "use server";
-    await addToExistingCeramicAction(formData, params.id);
-  };
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
@@ -18,7 +13,7 @@ export default function AddCeramic({ params }: { params: { id: string } }) {
         </Link>
         <h1 className="text-3xl font-semibold mb-6 text-center">addCeramic</h1>
         <div className="space-y-4">
-          <form action={handleAdd}>
+          <form onSubmit={handleAdd}>
             <div>
               <label className="block font-medium mb-1">packetsToAdd:</label>
               <input

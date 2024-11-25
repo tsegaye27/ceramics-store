@@ -1,90 +1,72 @@
 "use client";
 
-import { addNewCeramicAction } from "@/app/_lib/actions";
+import { useLanguage } from "@/app/_context/LanguageContext";
 import Link from "next/link";
 import { useTransition } from "react";
 import { toast } from "react-hot-toast";
 
 const CeramicForm = () => {
-  const [isPending, startTransition] = useTransition();
-
-  const handleSubmit = async (formData: FormData) => {
-    startTransition(async () => {
-      try {
-        await addNewCeramicAction(formData);
-        toast.success("Ceramic added successfully!");
-      } catch (error) {
-        if (error instanceof Error) {
-          toast.error(error.message); // Show error message in toast
-        } else {
-          toast.error("An unexpected error occurred.");
-        }
-      }
-    });
-  };
+  const { t } = useLanguage();
 
   return (
     <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
       <Link href="/ceramics" className="text-blue-500">
-        Back
+        {t("back")}
       </Link>
       <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
-        Add New Ceramic
+        {t("addCeramic")}
       </h1>
       <form
-        action={(formData) => handleSubmit(formData)}
+        onSubmit={handleSubmit}
         className="flex flex-col space-y-4"
       >
         <input
           type="text"
           name="size"
-          placeholder="Size"
+          placeholder={t("size")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
           name="ceramicType"
-          placeholder="Ceramic Type"
+          placeholder={t("type")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
           name="manufacturer"
-          placeholder="Manufacturer"
+          placeholder={t("manufacturer")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
           name="code"
-          placeholder="Code"
+          placeholder={t("code")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           name="piecesPerPacket"
-          placeholder="Pieces per Packet"
+          placeholder={t("piecesPerPacket")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           name="totalPackets"
-          placeholder="Total Packets"
+          placeholder={t("totalPackets")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
           name="totalPiecesWithoutPacket"
-          placeholder="Total Pieces Without Packet"
+          placeholder={t("totalPiecesWithoutPacket")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           type="submit"
-          className={`bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 ${
-            isPending ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={isPending}
+          className={`bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200`}
         >
-          {isPending ? "Adding..." : "Add Ceramic"}
+          {t("addNewCeramic")}
         </button>
       </form>
     </div>
