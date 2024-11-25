@@ -1,23 +1,23 @@
-import { Model } from "mongoose";
+// import { Model } from "mongoose";
 
-export interface IOrder {
-  ceramicId?:
-    | {
-        _id?: string;
-        code: string;
-        piecesPerPacket: number;
-        size: string;
-        createdAt?: string;
-      }
-    | string;
-  seller?: string;
-  pieces: number;
-  packets: number;
-  createdAt?: Date;
-  price: number;
-}
+// export interface IOrder {
+//   ceramicId?:
+//     | {
+//         _id?: string;
+//         code: string;
+//         piecesPerPacket: number;
+//         size: string;
+//         createdAt?: string;
+//       }
+//     | string;
+//   seller?: string;
+//   pieces: number;
+//   packets: number;
+//   createdAt?: Date;
+//   price: number;
+// }
 
-export interface IOrderModel extends Model<IOrder> {
-  createOrder(order: IOrder): Promise<IOrder>;
-  getOrders(): Promise<IOrder[]>;
-}
+// export interface IOrderModel extends Model<IOrder> {
+//   createOrder(order: IOrder): Promise<IOrder>;
+//   getOrders(): Promise<IOrder[]>;
+// }

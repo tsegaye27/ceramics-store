@@ -73,10 +73,5 @@ export const calculateArea = (
 };
 
 export const formatZodErrors = (error: ZodError): string => {
-  return error.issues
-    .map((issue) => {
-      const path = issue.path.length > 0 ? issue.path.join(".") : "root";
-      return `Error at "${path}": ${issue.message}`;
-    })
-    .join("\n");
+  return error.issues[0].message;
 };
