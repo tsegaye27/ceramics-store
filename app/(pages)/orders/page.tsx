@@ -1,9 +1,7 @@
-import { getOrdersAction } from "@/app/_lib/actions";
 import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
 
 const OrderList = async () => {
-  const orders = await getOrdersAction();
   return (
     <div className="container mx-auto p-4">
       <Link

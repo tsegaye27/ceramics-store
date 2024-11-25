@@ -1,11 +1,7 @@
-import { sellCeramicAction } from "@/app/_lib/actions";
 import Link from "next/link";
 
 export default function SellCeramic({ params }: { params: { id: string } }) {
-  const handleSell = async (formData: FormData) => {
-    "use server";
-    await sellCeramicAction(formData, params.id);
-  };
+  
   return (
     <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
@@ -17,7 +13,7 @@ export default function SellCeramic({ params }: { params: { id: string } }) {
         </Link>
         <h1 className="text-3xl font-semibold mb-6 text-center">sellCeramic</h1>
         <div className="space-y-4">
-          <form action={handleSell}>
+          <form onSubmit={handleSell}>
             <div>
               <label className="block font-medium mb-1">packetsToSell:</label>
               <input
