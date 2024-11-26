@@ -19,12 +19,12 @@ export const formatPieces = (
   totalPackets: number,
   totalPiecesWithoutPacket: number,
   piecesPerPacket: number
-): { packetsToAdd: number; piecesToAdd: number } => {
+): { packets: number; pieces: number } => {
   if (totalPiecesWithoutPacket >= piecesPerPacket) {
     totalPackets += Math.floor(totalPiecesWithoutPacket / piecesPerPacket);
     totalPiecesWithoutPacket %= piecesPerPacket;
   }
-  return { packetsToAdd: totalPackets, piecesToAdd: totalPiecesWithoutPacket };
+  return { packets: totalPackets, pieces: totalPiecesWithoutPacket };
 };
 
 export const validateInput = (

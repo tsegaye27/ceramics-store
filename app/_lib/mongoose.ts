@@ -1,41 +1,16 @@
-import mongoose, { Connection } from "mongoose";
+import mongoose from "mongoose";
 import logger from "../_utils/logger";
 
-const MONGODB_URI: string = process.env.MONGODB_URI!;
+const dbConnect = async () => {
+  if (mongoose.connection.readyState >= 1) return;
 
-if (!MONGODB_URI) {
-  logger.warn("Please add your Mongo URI to .env.local");
-}
-
-interface MongooseCache {
-  conn: Connection | null;
-  promise: Promise<Connection> | null;
-}
-
-let cached: MongooseCache = (global as any).mongoose;
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
-}
-
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI as string);
+    logger.info("MongoDB connected");
+  } catch (error) {
+    logger.error("MongoDB connection error:", error);
+    throw error;
   }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      logger.info("Connected to DB");
-      return mongoose.connection;
-    });
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
+};
 
 export default dbConnect;
