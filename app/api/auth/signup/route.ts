@@ -5,12 +5,10 @@ import dbConnect from "@/app/_lib/mongoose";
 
 export async function POST(request: Request) {
   try {
-    // Connect to the database before performing any operations
     await dbConnect();
 
     const { name, email, password } = await request.json();
 
-    // Validate input fields
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "All fields are required" },
@@ -18,8 +16,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check for existing user
-    const existingUser = await User.findOne({ email }); // Use findOne to return a single document
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already in use" },
@@ -27,17 +24,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user with the correct field name
     const newUser = new User({
       name,
       email,
-      hashedPassword, // Ensure you are using 'hashedPassword'
+      hashedPassword,
     });
 
-    // Save the new user to the database
     await newUser.save();
 
     return NextResponse.json(
