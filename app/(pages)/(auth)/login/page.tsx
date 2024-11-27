@@ -2,6 +2,7 @@
 import axiosInstance from "@/app/_lib/axios";
 import logger from "@/app/_utils/logger";
 import Link from "next/link";
+import { Router, useRouter } from "next/router";
 import React, { useState } from "react";
 
 const LoginPage: React.FC = () => {
@@ -12,6 +13,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -41,6 +43,7 @@ const LoginPage: React.FC = () => {
       setTimeout(() => {
         setSuccess(null);
       }, 3000);
+      router.push("/ceramics");
     } catch (err: any) {
       logger.error("Error during signup:", err);
       setError(err.response.data.error || "Internal server error");
@@ -104,7 +107,7 @@ const LoginPage: React.FC = () => {
           } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
           disabled={loading}
         >
-          <Link href="/ceramics">{loading ? "Logging in..." : "Login"}</Link>
+          {loading ? "Logging in..." : "Login"}
         </button>
         <p className="text-sm text-gray-500">
           Do not have an account?
