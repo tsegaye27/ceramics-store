@@ -1,7 +1,6 @@
 "use client";
 
 import { useLanguage } from "@/app/_context/LanguageContext";
-import { ICeramic } from "@/app/_types/types";
 import logger from "@/app/_utils/logger";
 import Link from "next/link";
 import { useState } from "react";

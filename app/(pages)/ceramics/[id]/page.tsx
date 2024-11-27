@@ -24,6 +24,12 @@ export default function CeramicDetail({ params }: { params: { id: string } }) {
     };
     fetchDetails();
   }, [params.id]);
+  if (!ceramic)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="h-20 w-20 border-4 border-t-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
   return (
     <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
