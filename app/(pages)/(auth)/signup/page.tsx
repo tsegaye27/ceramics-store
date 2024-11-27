@@ -1,7 +1,6 @@
 "use client";
 import axiosInstance from "@/app/_lib/axios";
 import logger from "@/app/_utils/logger";
-import axios from "axios";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -51,7 +50,7 @@ const SignUpPage: React.FC = () => {
 
       setTimeout(() => {
         setSuccess(null);
-      }, 5000);
+      }, 3000);
     } catch (err: any) {
       logger.error("Error during signup:", err);
       setError(err.response.data.error || "Internal server error");
@@ -133,7 +132,7 @@ const SignUpPage: React.FC = () => {
           } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
           disabled={loading}
         >
-          {loading ? "Signing up..." : "Sign up"}
+          <Link href="/login">{loading ? "Signing up..." : "Sign up"}</Link>
         </button>
         <p className="text-sm text-gray-500">
           Already have an account?{" "}
