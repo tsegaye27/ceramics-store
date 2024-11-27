@@ -3,7 +3,7 @@ import { ICeramic } from "../_types/types";
 
 const ceramicSchema = new Schema<ICeramic>(
   {
-    imageUrl: { type: String, required: true },
+    imageUrl: { type: String },
     size: { type: String, required: true },
     type: { type: String, required: true },
     code: { type: String, required: true },
