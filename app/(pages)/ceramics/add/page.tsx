@@ -1,12 +1,34 @@
 "use client";
 
 import { useLanguage } from "@/app/_context/LanguageContext";
+import { ICeramic } from "@/app/_types/types";
+import logger from "@/app/_utils/logger";
 import Link from "next/link";
-import { useTransition } from "react";
-import { toast } from "react-hot-toast";
+import { useState } from "react";
 
 const CeramicForm = () => {
   const { t } = useLanguage();
+  const [formData, setFormData] = useState({
+    size: "",
+    type: "",
+    manufacturer: "",
+    code: "",
+    piecesPerPacket: 0,
+    totalPackets: 0,
+    totalPiecesWithoutPacket: 0,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    logger.info(`${formData}`);
+  };
 
   return (
     <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
@@ -16,19 +38,17 @@ const CeramicForm = () => {
       <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
         {t("addCeramic")}
       </h1>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col space-y-4"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <input
           type="text"
           name="size"
+          onChange={handleChange}
           placeholder={t("size")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
-          name="ceramicType"
+          name="type"
           placeholder={t("type")}
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
