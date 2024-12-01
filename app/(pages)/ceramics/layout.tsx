@@ -5,7 +5,8 @@ import { useAuth } from "../../_context/AuthContext";
 
 const CeramicsPage = ({ children }: { children: React.ReactNode }) => {
   const { t, switchLanguage } = useLanguage();
-  const { isTokenValid } = useAuth();
+  const authContext = useAuth();
+  const isTokenValid = authContext ? authContext.isTokenValid : () => false;
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
