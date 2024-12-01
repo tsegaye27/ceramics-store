@@ -2,7 +2,7 @@ import { Ceramic } from "@/app/_models/Ceramics";
 import dbConnect from "@/app/_lib/mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   try {
     const { ceramicId, packetsAdded, piecesAdded } = await req.json();
 
