@@ -36,9 +36,6 @@ const OrderList = async () => {
                 <th className="py-3 px-4 border-b border-r-2 font-medium">
                   totalPrice
                 </th>
-                {/* <th className="py-3 px-4 border-b border-r-2 font-medium">
-                  user
-                </th> */}
               </tr>
             </thead>
             <tbody>
