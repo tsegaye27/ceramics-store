@@ -11,8 +11,10 @@ const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useLanguage();
   const [ceramics, setCeramics] = useState<ICeramic[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchCeramics = async () => {
+      setLoading(true);
       try {
         if (searchQuery) {
           const res = await axiosInstance.get(
@@ -27,6 +29,8 @@ const CeramicsPage = () => {
         logger.info("Ceramics fetched successfully", res.data);
       } catch (err: any) {
         logger.error(err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCeramics();
@@ -45,7 +49,7 @@ const CeramicsPage = () => {
             name="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("searchCeramics")}
+            placeholder={t("searchPlaceholder")}
             className="border border-blue-300 p-3 w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </form>
@@ -118,6 +122,10 @@ const CeramicsPage = () => {
                 </div>
               </div>
             ))
+          ) : loading ? (
+            <div className="flex justify-center items-center w-[100%]">
+              Loading...
+            </div>
           ) : (
             <p className="col-span-3 text-center text-gray-500">
               {t("noCeramicsFound")}
