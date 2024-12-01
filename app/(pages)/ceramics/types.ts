@@ -1,6 +1,6 @@
-import { ICeramics } from "@/app/_models/ceramics/types";
+import { ICeramic } from "@/app/_types/types";
 
 export interface CeramicsClientProps {
-  ceramics: ICeramics[];
+  ceramics: ICeramic[];
   searchQuery: string;
 }
