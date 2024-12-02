@@ -1,3 +1,4 @@
+import dbConnect from "@/app/_lib/mongoose";
 import { Order } from "@/app/_models/Orders";
 import logger from "@/app/_utils/logger";
 import { jwtDecode } from "jwt-decode";
@@ -5,6 +6,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    await dbConnect();
     const token = req.headers.get("Authorization");
     const { ceramicId, packets, pieces, price, seller } = await req.json();
 
