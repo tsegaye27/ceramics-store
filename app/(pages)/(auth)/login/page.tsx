@@ -3,24 +3,21 @@
 import axiosInstance from "@/app/_lib/axios";
 import logger from "@/app/_utils/logger";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Use `next/navigation` for App Router
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useAuth } from "@/app/_context/AuthContext";
 
 const LoginPage: React.FC = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const authContext: ReturnType<typeof useAuth> = useAuth();
+  const login = authContext?.login;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,34 +27,20 @@ const LoginPage: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await axiosInstance.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data } = await axiosInstance.post("/auth/login", formData);
+      const { token } = data;
 
-      setSuccess("Logged in successfully!");
-      setFormData({
-        email: "",
-        password: "",
-      });
-
-      setTimeout(() => {
-        setSuccess(null);
-      }, 3000);
-
-      // Navigate to the ceramics page after login
-      router.push("/ceramics");
+      if (token && login) {
+        login(token);
+        setSuccess("Logged in successfully!");
+        setTimeout(() => router.push("/ceramics"), 1000);
+      } else {
+        throw new Error("No token received from server.");
+      }
     } catch (err: any) {
-      logger.error("Error during login:", err);
-      setError(err.response?.data?.error || "Internal server error");
+      setError(err.response?.data?.error || "An error occurred.");
     } finally {
       setLoading(false);
-
-      if (error) {
-        setTimeout(() => {
-          setError(null);
-        }, 3000);
-      }
     }
   };
 
@@ -68,7 +51,6 @@ const LoginPage: React.FC = () => {
         className="bg-white shadow-lg ring-1 ring-blue-500 flex flex-col items-center gap-6 py-8 px-6 rounded-2xl w-full max-w-md"
       >
         <h2 className="text-3xl font-semibold text-blue-600">Login</h2>
-
         {error && (
           <p className="text-red-500 bg-red-100 p-2 rounded-lg w-full text-center">
             {error}
@@ -79,36 +61,30 @@ const LoginPage: React.FC = () => {
             {success}
           </p>
         )}
-
-        <div className="w-full">
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            disabled={loading}
-            className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
-          />
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="Password"
-            className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
-          />
-        </div>
-
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Email"
+          disabled={loading}
+          className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
+        />
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Password"
+          disabled={loading}
+          className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
+        />
         <button
           type="submit"
-          className={`w-full py-3 ${
-            loading
-              ? "bg-blue-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
           disabled={loading}
+          className={`w-full py-3 ${
+            loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-500"
+          } text-white rounded-lg`}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
