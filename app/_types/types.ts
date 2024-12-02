@@ -12,10 +12,19 @@ export type ICeramic = {
   updatedAt?: string;
 };
 
+export type IUser = {
+  _id?: string;
+  email: string;
+  fullName: string;
+  hashedPassword: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type IOrder = {
   _id?: string;
   ceramicId: ICeramic;
-  userId: string;
+  userId: IUser;
   packets: number;
   pieces: number;
   price: number;
