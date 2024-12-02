@@ -8,7 +8,8 @@ import { ICeramic } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
 
 export default function CeramicDetail({ params }: { params: { id: string } }) {
-  const { t } = useLanguage();
+  const languageContext = useLanguage();
+  const t = languageContext?.t;
   const [ceramic, setCeramic] = useState<ICeramic | null>(null);
   useEffect(() => {
     const fetchDetails = async () => {

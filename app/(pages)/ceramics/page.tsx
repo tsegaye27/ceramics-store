@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { t } = useLanguage();
+  const languageContext = useLanguage();
+  const t = languageContext?.t;
   const [ceramics, setCeramics] = useState<ICeramic[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
