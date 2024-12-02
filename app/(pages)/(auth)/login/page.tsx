@@ -1,8 +1,9 @@
 "use client";
+
 import axiosInstance from "@/app/_lib/axios";
 import logger from "@/app/_utils/logger";
 import Link from "next/link";
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // Use `next/navigation` for App Router
 import React, { useState } from "react";
 
 const LoginPage: React.FC = () => {
@@ -34,7 +35,7 @@ const LoginPage: React.FC = () => {
         password: formData.password,
       });
 
-      setSuccess("Account created successfully! Please log in.");
+      setSuccess("Logged in successfully!");
       setFormData({
         email: "",
         password: "",
@@ -43,10 +44,12 @@ const LoginPage: React.FC = () => {
       setTimeout(() => {
         setSuccess(null);
       }, 3000);
+
+      // Navigate to the ceramics page after login
       router.push("/ceramics");
     } catch (err: any) {
-      logger.error("Error during signup:", err);
-      setError(err.response.data.error || "Internal server error");
+      logger.error("Error during login:", err);
+      setError(err.response?.data?.error || "Internal server error");
     } finally {
       setLoading(false);
 
@@ -110,8 +113,8 @@ const LoginPage: React.FC = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
         <p className="text-sm text-gray-500">
-          Do not have an account?
-          <Link href={"/signup"} className="text-blue-500 hover:underline">
+          Don’t have an account?{" "}
+          <Link href="/signup" className="text-blue-500 hover:underline">
             Sign up
           </Link>
         </p>
