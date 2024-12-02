@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const CeramicForm = () => {
-  const { t } = useLanguage();
+  const languageContext = useLanguage();
+  const t = languageContext?.t;
   const [formData, setFormData] = useState({
     size: "",
     type: "",

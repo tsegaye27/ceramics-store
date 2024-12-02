@@ -9,18 +9,21 @@ import { useLanguage } from "@/app/_context/LanguageContext";
 
 const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
-  const [error, setError] = useState(null);
-  const { t } = useLanguage();
+  const [error, setError] = useState<string | null>(null);
+  const languageContext = useLanguage();
+  const t = languageContext?.t;
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res: IOrder[] | null = await axiosInstance.get(
-          "/orders/getOrders"
-        );
-        setOrders(res || []);
+        const res = await axiosInstance.get("/orders/getOrders");
+        if (Array.isArray(res.data)) {
+          setOrders(res.data);
+        } else {
+          throw new Error("Unexpected API response format");
+        }
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || "Failed to fetch orders");
       }
     };
 
