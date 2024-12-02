@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "./_context/AuthContext";
-import { LanguageProvider } from "./_context/LanguageContext";
-import ReduxProvider from "./ReduxProvider";
-import { Toaster } from "react-hot-toast";
+import RLayout from "@/app/_layouts/RootLayout";
 
 export const metadata: Metadata = {
   title: "Ceramics Store",
@@ -15,18 +12,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html>
-      <body>
-        <ReduxProvider>
-          <AuthProvider>
-            <LanguageProvider>
-              <Toaster position="top-right" reverseOrder={false} />
-              {children}
-            </LanguageProvider>
-          </AuthProvider>
-        </ReduxProvider>
-      </body>
-    </html>
-  );
+  return <RLayout>{children}</RLayout>;
 }
