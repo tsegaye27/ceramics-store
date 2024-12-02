@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
-
-const orderSchema = new Schema(
+import { IOrder } from "../_types/types";
+const orderSchema = new Schema<IOrder>(
   {
     ceramicId: {
       type: mongoose.Schema.Types.ObjectId,
