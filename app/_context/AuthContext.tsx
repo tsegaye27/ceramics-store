@@ -2,8 +2,8 @@
 
 import { createContext, useContext, ReactNode } from "react";
 import { useCookies } from "react-cookie";
-import logger from "../_utils/logger";
 
+// Define the shape of the AuthContext
 interface AuthContextType {
   token: string | null;
   login: (token: string) => void;
@@ -16,11 +16,12 @@ interface AuthContextType {
   ) => void;
   removeCookie: (
     name: "token" | "expirationTime",
-    options?: { path?: string; maxAge?: number; secure?: boolean }
+    options?: { path?: string }
   ) => void;
   isTokenValid: () => boolean;
 }
 
+// Create the AuthContext with a default value of `undefined`
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -52,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const isTokenValid = () => {
-    return token && expirationTime && Date.now() < expirationTime;
+    return Boolean(token && expirationTime && Date.now() < expirationTime);
   };
 
   return (
@@ -72,10 +73,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useAuth = () => {
+// Hook to use the AuthContext
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    logger.warn("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
