@@ -3,7 +3,6 @@ import { useLanguage } from "@/app/_context/LanguageContext";
 import axiosInstance from "@/app/_lib/axios";
 import { ICeramic } from "@/app/_types/types";
 import { calculateArea } from "@/app/_utils/helperFunctions";
-import logger from "@/app/_utils/logger";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -22,14 +21,11 @@ const CeramicsPage = () => {
             `/ceramics/search?search=${searchQuery}`
           );
           setCeramics(res.data.data);
-          logger.info("Ceramics fetched successfully", res.data);
           return;
         }
         const res = await axiosInstance.get("/ceramics/getAll");
         setCeramics(res.data);
-        logger.info("Ceramics fetched successfully", res.data);
       } catch (err: any) {
-        logger.error(err);
       } finally {
         setLoading(false);
       }
