@@ -2,7 +2,6 @@
 
 import { useLanguage } from "@/app/_context/LanguageContext";
 import axiosInstance from "@/app/_lib/axios";
-import logger from "@/app/_utils/logger";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -43,7 +42,6 @@ const CeramicForm = () => {
         totalPackets: Number(formData.totalPackets),
         totalPiecesWithoutPacket: Number(formData.totalPiecesWithoutPacket),
       });
-      logger.info(`${res}`);
       setSuccess("Ceramic added successfully");
       setTimeout(() => {
         setSuccess(null);
@@ -59,7 +57,6 @@ const CeramicForm = () => {
       });
       router.push("/ceramics");
     } catch (err: any) {
-      logger.error("Error while adding ceramic:", err);
       setError(err.response.data.error || "Internal server error");
     } finally {
       setLoading(false);
