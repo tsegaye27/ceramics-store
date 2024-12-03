@@ -1,7 +1,14 @@
 "use client";
+
 import { createContext, ReactNode, useContext, useState } from "react";
 
-const LanguageContext = createContext<any>(null);
+type LanguageContextType = {
+  language: "en" | "am";
+  switchLanguage: (lang: "en" | "am") => void;
+  t: (key: string) => string;
+};
+
+const LanguageContext = createContext<LanguageContextType | null>(null);
 
 const translations: { [key: string]: { [key: string]: string } } = {
   en: require("@/app/_locales/en.json"),
@@ -24,4 +31,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useLanguage = () => useContext(LanguageContext);
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  return context;
+};

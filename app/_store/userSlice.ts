@@ -1,29 +1,26 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { IUser } from "../_types/types";
 
-const initialState = {
+interface UserState {
+  user: IUser | {};
+}
+
+const initialState: UserState = {
   user: {},
-  isLoading: false,
-  error: "",
 };
 
 const userSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    login: (state, action) => {
+    login: (state, action: PayloadAction<UserState["user"]>) => {
       state.user = action.payload;
     },
     logout: (state) => {
-      state.user = "";
-    },
-    setLoading: (state, action) => {
-      state.isLoading = action.payload;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
+      state.user = {};
     },
   },
 });
 
-export const { login, logout, setLoading, setError } = userSlice.actions;
+export const { login, logout } = userSlice.actions;
 export default userSlice.reducer;

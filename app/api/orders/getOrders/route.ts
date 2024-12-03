@@ -1,7 +1,6 @@
 import dbConnect from "@/app/_lib/mongoose";
 import { Order } from "@/app/_models/Orders";
 import logger from "@/app/_utils/logger";
-import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -9,8 +8,8 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     const orders = await Order.find().populate({
-      path: "ceramicId",
-      select: "size piecesPerPacket code",
+      path: "ceramicId userId",
+      select: "size piecesPerPacket code fullName",
     });
 
     return NextResponse.json(orders, { status: 200 });
