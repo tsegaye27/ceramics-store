@@ -10,8 +10,12 @@ import { useLanguage } from "@/app/_context/LanguageContext";
 const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const languageContext = useLanguage();
-  const t = languageContext?.t;
+  const { t } = useLanguage();
+  if (!t || typeof t !== "function") {
+    throw new Error(
+      "Translation function 't' is not available in LanguageContext"
+    );
+  }
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -68,6 +72,9 @@ const OrderList = () => {
                 <th className="py-3 px-4 border-b border-r-2 font-medium">
                   Total Price
                 </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  User
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -109,6 +116,9 @@ const OrderList = () => {
                       )
                     ).toFixed(2)}{" "}
                     birr
+                  </td>
+                  <td className="py-3 px-4 border-b border-r-2">
+                    {order.userId.fullName}
                   </td>
                 </tr>
               ))}
