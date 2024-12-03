@@ -1,7 +1,6 @@
 "use client";
 
 import axiosInstance from "@/app/_lib/axios";
-import logger from "@/app/_utils/logger";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
