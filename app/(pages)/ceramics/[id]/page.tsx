@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { formatDate } from "@/app/_utils/helperFunctions";
 import { useEffect, useState } from "react";
-import logger from "@/app/_utils/logger";
 import axiosInstance from "@/app/_lib/axios";
 import { ICeramic } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
@@ -18,10 +17,7 @@ export default function CeramicDetail({ params }: { params: { id: string } }) {
           `/ceramics/getById?ceramicId=${params.id}`
         );
         setCeramic(res.data.data);
-        logger.info("Ceramic Details Loaded", res.data.data);
-      } catch (err: any) {
-        logger.error(err);
-      }
+      } catch (err: any) {}
     };
     fetchDetails();
   }, [params.id]);
