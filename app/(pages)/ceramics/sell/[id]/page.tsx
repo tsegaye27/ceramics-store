@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import axiosInstance from "@/app/_lib/axios";
+import { useAuth } from "@/app/_context/AuthContext";
+import { useRouter } from "next/navigation";
 
 type SellCeramicProps = {
   params: {
@@ -16,6 +18,8 @@ export default function SellCeramic({ params }: SellCeramicProps) {
   const [seller, setSeller] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const { token } = useAuth();
+  const router = useRouter();
 
   async function sellCeramic(
     ceramicId: string,
@@ -24,13 +28,27 @@ export default function SellCeramic({ params }: SellCeramicProps) {
     pricePerArea: number,
     seller: string
   ) {
+    if (!token) return;
     try {
+      await axiosInstance.post(
+        `/orders/createOrder`,
+        {
+          ceramicId,
+          packets: packetsToSell,
+          pieces: piecesToSell,
+          price: pricePerArea,
+          seller,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       await axiosInstance.patch(`/ceramics/sell`, {
         ceramicId,
         packetsSold: packetsToSell,
         piecesSold: piecesToSell,
-        pricePerArea,
-        seller,
       });
     } catch (error: any) {
       throw new Error(error.response.data.error);
@@ -44,7 +62,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
 
     const packets = parseInt(packetsToSell, 10);
     const pieces = parseInt(piecesToSell, 10);
-    const price = parseFloat(pricePerArea);
+    const price = parseInt(pricePerArea, 10);
 
     if (isNaN(packets) || isNaN(pieces) || isNaN(price) || !seller.trim()) {
       setErrorMessage("All fields are required and must be valid.");
@@ -58,6 +76,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
       setPiecesToSell("");
       setPricePerArea("");
       setSeller("");
+      router.push("/ceramics");
     } catch (error: any) {
       setErrorMessage(error.message);
     }
@@ -86,7 +105,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
             <div>
               <label className="block font-medium mb-1">Packets to Sell:</label>
               <input
-                type="number"
+                type="text"
                 name="packetsToSell"
                 value={packetsToSell}
                 onChange={(e) => setPacketsToSell(e.target.value)}
@@ -98,7 +117,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
             <div>
               <label className="block font-medium mb-1">Pieces to Sell:</label>
               <input
-                type="number"
+                type="text"
                 name="piecesToSell"
                 value={piecesToSell}
                 onChange={(e) => setPiecesToSell(e.target.value)}
@@ -110,7 +129,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
             <div>
               <label className="block font-medium mb-1">Price per Area:</label>
               <input
-                type="number"
+                type="text"
                 step="0.01"
                 name="pricePerArea"
                 value={pricePerArea}
