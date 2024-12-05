@@ -6,6 +6,7 @@ import Link from "next/link";
 import axiosInstance from "@/app/_lib/axios";
 import { IOrder } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
+import logger from "@/app/_utils/logger";
 
 const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -23,6 +24,7 @@ const OrderList = () => {
         const res = await axiosInstance.get("/orders/getOrders");
         if (Array.isArray(res.data)) {
           setOrders(res.data);
+          logger.info("Orders fetched successfully", res.data);
         } else {
           throw new Error("Unexpected API response format");
         }
@@ -118,7 +120,7 @@ const OrderList = () => {
                     birr
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
-                    {order.userId.fullName}
+                    {order.userId.name}
                   </td>
                 </tr>
               ))}
