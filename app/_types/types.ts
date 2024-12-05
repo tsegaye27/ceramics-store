@@ -15,6 +15,7 @@ export type ICeramic = {
 export type IUser = {
   _id?: string;
   email: string;
+  name: string;
   fullName: string;
   hashedPassword: string;
   createdAt?: string;

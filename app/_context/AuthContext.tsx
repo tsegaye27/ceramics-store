@@ -3,7 +3,6 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useCookies } from "react-cookie";
 
-// Define the shape of the AuthContext
 interface AuthContextType {
   token: string | null;
   login: (token: string) => void;
@@ -21,7 +20,6 @@ interface AuthContextType {
   isTokenValid: () => boolean;
 }
 
-// Create the AuthContext with a default value of `undefined`
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -73,7 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook to use the AuthContext
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
