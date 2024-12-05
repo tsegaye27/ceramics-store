@@ -7,11 +7,16 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect();
 
-    const orders = await Order.find().populate({
-      path: "ceramicId userId",
-      select: "size piecesPerPacket code fullName",
-    });
-
+    const orders = await Order.find().populate([
+      {
+        path: "ceramicId",
+        select: "size piecesPerPacket code name",
+      },
+      {
+        path: "userId",
+        select: "name",
+      },
+    ]);
     return NextResponse.json(orders, { status: 200 });
   } catch (error) {
     logger.error(`Error in GET /api/orders/getOrders: ${error}`);
