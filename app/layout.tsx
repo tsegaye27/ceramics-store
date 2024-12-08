@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import RLayout from "@/app/_layouts/RootLayout";
+import RLayout from "@/app/_layouts/RLayout";
 
 export const metadata: Metadata = {
   title: "Ceramics Store",
