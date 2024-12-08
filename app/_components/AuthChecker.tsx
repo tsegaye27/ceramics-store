@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const AuthChecker = ({ children }: { children: React.ReactNode }) => {
-  const authContext = useAuth();
-  const isTokenValid = authContext?.isTokenValid;
+  const { isTokenValid } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
