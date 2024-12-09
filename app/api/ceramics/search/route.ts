@@ -1,8 +1,8 @@
 import dbConnect from "@/app/_lib/mongoose";
 import { Ceramic } from "@/app/_models/Ceramics";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         { type: { $regex: search, $options: "i" } },
         { manufacturer: { $regex: search, $options: "i" } },
       ],
-    });
+    }).limit(100); // Limit for performance
 
     return NextResponse.json(
       {
