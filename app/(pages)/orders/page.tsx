@@ -12,11 +12,6 @@ const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { t } = useLanguage();
-  if (!t || typeof t !== "function") {
-    throw new Error(
-      "Translation function 't' is not available in LanguageContext"
-    );
-  }
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -90,7 +85,7 @@ const OrderList = () => {
                     {order.ceramicId?.size} ({order.ceramicId?.code})
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
-                    {orderseller}
+                    {order.seller}
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.createdAt &&
