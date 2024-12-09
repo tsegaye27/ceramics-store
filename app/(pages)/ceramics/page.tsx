@@ -3,35 +3,41 @@ import { useLanguage } from "@/app/_context/LanguageContext";
 import axiosInstance from "@/app/_lib/axios";
 import { ICeramic } from "@/app/_types/types";
 import { calculateArea } from "@/app/_utils/helperFunctions";
+import logger from "@/app/_utils/logger";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const languageContext = useLanguage();
-  const t = languageContext?.t;
-  const [ceramics, setCeramics] = useState<ICeramic[]>([]);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
+  const { t } = useLanguage();
+  const [ceramics, setCeramics] = useState<ICeramic[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchCeramics = async () => {
       setLoading(true);
+      setError(null);
       try {
-        if (searchQuery) {
-          const res = await axiosInstance.get(
-            `/ceramics/search?search=${searchQuery}`
-          );
-          setCeramics(res.data.data);
-          return;
-        }
-        const res = await axiosInstance.get("/ceramics/getAll");
-        setCeramics(res.data);
-      } catch (err: any) {
+        const res = debouncedSearchQuery
+          ? await axiosInstance.get("/ceramics/search", {
+              params: { search: debouncedSearchQuery },
+            })
+          : await axiosInstance.get("/ceramics/getAll");
+        setCeramics(res.data.data || []);
+        logger.info("Ceramics fetched successfully", res.data);
+      } catch (err) {
+        logger.error("Failed to fetch ceramics:", err);
+        setError("Failed to load ceramics. Please try again.");
+        setCeramics([]);
       } finally {
         setLoading(false);
       }
     };
     fetchCeramics();
-  }, [searchQuery]);
+  }, [debouncedSearchQuery]);
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -66,9 +72,15 @@ const CeramicsPage = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {ceramics && Array.isArray(ceramics) && ceramics.length > 0 ? (
-            ceramics.map((ceramic) => (
+        {loading ? (
+          <div className="flex justify-center items-center h-[50vh]">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+          </div>
+        ) : error ? (
+          <p className="text-red-500 text-center">{error}</p>
+        ) : ceramics && ceramics.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {ceramics.map((ceramic) => (
               <div
                 key={ceramic?._id}
                 className={`bg-white p-5 rounded-lg shadow-lg ${
@@ -118,17 +130,13 @@ const CeramicsPage = () => {
                   </Link>
                 </div>
               </div>
-            ))
-          ) : loading ? (
-            <div className="flex justify-center items-center w-[100%]">
-              Loading...
-            </div>
-          ) : (
-            <p className="col-span-3 text-center text-gray-500">
-              {t("noCeramicsFound")}
-            </p>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="col-span-3 text-center text-gray-500 mt-8">
+            {t("noCeramicsFound")}
+          </p>
+        )}
       </div>
     </div>
   );
