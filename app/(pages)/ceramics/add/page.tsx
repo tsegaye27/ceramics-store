@@ -57,7 +57,7 @@ const CeramicForm = () => {
       });
       router.push("/ceramics");
     } catch (err: any) {
-      setError(err.response.data.error || "Internal server error");
+      setError(err.response?.data.error || "Internal server error");
     } finally {
       setLoading(false);
       if (error) {
