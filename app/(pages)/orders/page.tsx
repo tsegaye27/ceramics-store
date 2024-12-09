@@ -90,7 +90,7 @@ const OrderList = () => {
                     {order.ceramicId?.size} ({order.ceramicId?.code})
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
-                    {order.seller}
+                    {orderseller}
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.createdAt &&
