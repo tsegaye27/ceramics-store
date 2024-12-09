@@ -7,27 +7,28 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
 
-    if (!search) {
-      return NextResponse.json(
-        { error: "Search query parameter is required" },
-        { status: 400 }
-      );
-    }
-
     await dbConnect();
 
-    const results = await Ceramic.find({
-      $or: [
-        { code: { $regex: search, $options: "i" } },
-        { size: { $regex: search, $options: "i" } },
-        { type: { $regex: search, $options: "i" } },
-        { manufacturer: { $regex: search, $options: "i" } },
-      ],
-    }).limit(100); // Limit for performance
+    let results;
+
+    if (search) {
+      results = await Ceramic.find({
+        $or: [
+          { code: { $regex: search, $options: "i" } },
+          { size: { $regex: search, $options: "i" } },
+          { type: { $regex: search, $options: "i" } },
+          { manufacturer: { $regex: search, $options: "i" } },
+        ],
+      }).limit(100);
+    } else {
+      results = await Ceramic.find({}).limit(100);
+    }
 
     return NextResponse.json(
       {
-        message: "Search completed successfully",
+        message: search
+          ? "Search completed successfully"
+          : "Fetched all ceramics successfully",
         data: results,
       },
       { status: 200 }
