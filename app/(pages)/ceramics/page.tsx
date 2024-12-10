@@ -72,8 +72,8 @@ const CeramicsPage = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-[50vh]">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+               <div className="flex justify-center items-center h-[50vh]">
+                   <div className="h-15 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : error ? (
           <p className="text-red-500 text-center">{error}</p>

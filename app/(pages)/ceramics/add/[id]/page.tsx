@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/app/_context/AuthContext";
 import Link from "next/link";
 import axiosInstance from "@/app/_lib/axios";
 
@@ -14,7 +15,8 @@ export default function AddCeramic({ params }: AddCeramicProps) {
   const [piecesToAdd, setPiecesToAdd] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+  const { token } = useAuth();
+  
   async function addCeramic(
     ceramicId: string,
     packetsAdded: number,
@@ -30,6 +32,16 @@ export default function AddCeramic({ params }: AddCeramicProps) {
       throw new Error(error.response.data.error);
     }
   }
+  useEffect(()=>{
+      async function checkUser(){
+          const response = await axiosInstance.get('/getUser', {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          })
+      }
+      checkUser()
+  },[token])
   const handleAdd = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
