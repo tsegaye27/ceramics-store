@@ -94,21 +94,21 @@ const CeramicForm = () => {
           size.toLowerCase().includes(value.toLowerCase())
         )
       );
-      setShowSizeDropdown(value.length > 0); // Show dropdown if input has text
+      setShowSizeDropdown(value.length > 0);
     } else if (type === "type") {
       setFilteredTypes(
         dummyTypes.filter((itemType) =>
           itemType.toLowerCase().includes(value.toLowerCase())
         )
       );
-      setShowTypeDropdown(value.length > 0); // Show dropdown if input has text
+      setShowTypeDropdown(value.length > 0);
     } else if (type === "manufacturer") {
       setFilteredManufacturers(
         dummyManufacturers.filter((manufacturer) =>
           manufacturer.toLowerCase().includes(value.toLowerCase())
         )
       );
-      setShowManufacturerDropdown(value.length > 0); // Show dropdown if input has text
+      setShowManufacturerDropdown(value.length > 0);
     }
   };
 
@@ -148,7 +148,6 @@ const CeramicForm = () => {
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {success && <p className="text-green-500 text-sm">{success}</p>}
 
-        {/* Dropdown for Size */}
         <div className="relative">
           <input
             type="text"
@@ -202,7 +201,6 @@ const CeramicForm = () => {
           )}
         </div>
 
-        {/* Dropdown for Manufacturer */}
         <div className="relative">
           <input
             type="text"
@@ -229,7 +227,6 @@ const CeramicForm = () => {
           )}
         </div>
 
-        {/* Other input fields */}
         <input
           type="text"
           name="code"

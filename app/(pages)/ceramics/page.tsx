@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/app/_context/AuthContext";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import axiosInstance from "@/app/_lib/axios";
 import { ICeramic } from "@/app/_types/types";
@@ -6,6 +7,8 @@ import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
+import Loading from "@/app/(pages)/ceramics/loading";
+import logger from "@/app/_utils/logger";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,6 +17,36 @@ const CeramicsPage = () => {
   const [ceramics, setCeramics] = useState<ICeramic[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const { token } = useAuth();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      if (!token) {
+        console.warn("No valid token found.");
+        setUser(null);
+        return;
+      }
+
+      try {
+        const response = await axiosInstance.get("/users/getUser", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        logger.info("User fetched successfully", response.data);
+        setUser(response.data);
+      } catch (err: any) {
+        console.error(
+          "Error fetching user:",
+          err.response?.data || err.message
+        );
+        setUser(null);
+      }
+    };
+
+    checkUser();
+  }, [token]);
 
   useEffect(() => {
     const fetchCeramics = async () => {
@@ -59,21 +92,27 @@ const CeramicsPage = () => {
         <div className="w-4xl flex justify-between">
           <Link
             href="/ceramics/add"
-            className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+            aria-disabled={!user}
+            className={`text-blue-600 hover:text-blue-800 mb-6 inline-block ${
+              !user ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             {t("addNewCeramic")}
           </Link>
           <Link
             href="/orders"
-            className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+            aria-disabled={!user}
+            className={`text-blue-600 hover:text-blue-800 mb-6 inline-block ${
+              !user ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             {t("orderList")}
           </Link>
         </div>
 
         {loading ? (
-               <div className="flex justify-center items-center h-[50vh]">
-                   <div className="h-15 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className=" inset-0 flex items-center  h-40 justify-center bg-gray-100 bg-opacity-75 z-50">
+            <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : error ? (
           <p className="text-red-500 text-center">{error}</p>
@@ -119,16 +158,22 @@ const CeramicsPage = () => {
                   </Link>
                   <div className="flex space-x-4 mt-4">
                     <Link
+                      aria-disabled={!user}
                       href={`/ceramics/add/${ceramic?._id}`}
                       aria-label={`${t("add")} ${ceramic?.code}`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
+                      className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200 ${
+                        !user ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       {t("add")}
                     </Link>
                     <Link
+                      aria-disabled={!user}
                       href={`/ceramics/sell/${ceramic?._id}`}
                       aria-label={`${t("sell")} ${ceramic?.code}`}
-                      className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                      className={`bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200 ${
+                        !user ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       {t("sell")}
                     </Link>

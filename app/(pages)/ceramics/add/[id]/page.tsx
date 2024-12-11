@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/app/_context/AuthContext";
 import Link from "next/link";
 import axiosInstance from "@/app/_lib/axios";
+import {useLanguage} from "@/app/_context/LanguageContext";
 
 type AddCeramicProps = {
   params: {
@@ -15,8 +15,7 @@ export default function AddCeramic({ params }: AddCeramicProps) {
   const [piecesToAdd, setPiecesToAdd] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const { token } = useAuth();
-  
+  const { t } = useLanguage();
   async function addCeramic(
     ceramicId: string,
     packetsAdded: number,
@@ -32,16 +31,6 @@ export default function AddCeramic({ params }: AddCeramicProps) {
       throw new Error(error.response.data.error);
     }
   }
-  useEffect(()=>{
-      async function checkUser(){
-          const response = await axiosInstance.get('/getUser', {
-              headers: {
-                  Authorization: `Bearer ${token}`
-              }
-          })
-      }
-      checkUser()
-  },[token])
   const handleAdd = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
@@ -66,54 +55,69 @@ export default function AddCeramic({ params }: AddCeramicProps) {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <Link
-          href={`/ceramics`}
-          className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
-        >
-          Back
-        </Link>
-        <h1 className="text-3xl font-semibold mb-6 text-center">Add Ceramic</h1>
-        <div className="space-y-4">
-          {errorMessage && (
-            <div className="text-red-600 text-center">{errorMessage}</div>
-          )}
-          {successMessage && (
-            <div className="text-green-600 text-center">{successMessage}</div>
-          )}
-          <form onSubmit={handleAdd}>
-            <div>
-              <label className="block font-medium mb-1">Packets to Add:</label>
-              <input
-                type="text"
-                name="packetsToAdd"
-                value={packetsToAdd}
-                onChange={(e) => setPacketsToAdd(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter packets"
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Pieces to Add:</label>
-              <input
-                type="text"
-                name="piecesToAdd"
-                value={piecesToAdd}
-                onChange={(e) => setPiecesToAdd(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter pieces"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
-            >
-              Add
-            </button>
-          </form>
+<div className="container mx-auto p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+  <div className="max-w-lg w-full bg-white p-8 rounded-xl shadow-md">
+    <Link
+      href="/ceramics"
+      className="text-blue-500 hover:text-blue-700 mb-6 inline-block font-medium"
+    >
+        {t('back')}
+    </Link>
+    <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
+        {t('addCeramic')}
+    </h1>
+    <div className="space-y-4">
+      {errorMessage && (
+        <div className="text-red-500 bg-red-100 border border-red-200 rounded-lg p-3 text-center">
+          {errorMessage}
         </div>
-      </div>
+      )}
+      {successMessage && (
+        <div className="text-green-500 bg-green-100 border border-green-200 rounded-lg p-3 text-center">
+          {successMessage}
+        </div>
+      )}
+      <form onSubmit={handleAdd} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('packetsToAdd')}
+          </label>
+          <input
+            type="text"
+            name='packetsToAdd'
+            value={packetsToAdd}
+            onChange={(e) => setPacketsToAdd(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder={t("enterPackets")}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('piecesToAdd')}
+          </label>
+          <input
+            type="text"
+            name="piecesToAdd"
+            value={piecesToAdd}
+            onChange={(e) => setPiecesToAdd(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder={t('enterPieces')}
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={!packetsToAdd || !piecesToAdd}
+          className={`w-full py-3 rounded-lg font-semibold text-white transition duration-300 ${
+            packetsToAdd && piecesToAdd
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-300 cursor-not-allowed"
+          }`}
+        >
+        {t('add')}          
+        </button>
+      </form>
     </div>
+  </div>
+</div>
   );
 }
