@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,10 +8,11 @@ import axiosInstance from "@/app/_lib/axios";
 import { IOrder } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import logger from "@/app/_utils/logger";
-
-const OrderList = () => {
+import Loading from "./loading";
+ const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Add loading state
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -25,11 +27,17 @@ const OrderList = () => {
         }
       } catch (err: any) {
         setError(err.message || "Failed to fetch orders");
+      } finally {
+        setLoading(false); // Stop loading after fetching
       }
     };
 
     fetchOrders();
   }, []);
+
+  if (loading) {
+    return <Loading />; // Show the loading spinner
+  }
 
   if (error) {
     return <p className="text-center text-red-500">Error: {error}</p>;

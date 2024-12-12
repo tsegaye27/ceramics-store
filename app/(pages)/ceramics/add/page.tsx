@@ -1,18 +1,19 @@
 "use client";
 
 import { useLanguage } from "@/app/_context/LanguageContext";
-import axiosInstance from "@/app/_lib/axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
+import axios from "axios";
+import axiosInstance from "@/app/_lib/axios";
 
 const dummySizes = ["60x60", "40x40", "30x60", "30x30", "Zekolo"];
 const dummyTypes = ["Polished", "Normal", "Digital"];
 const dummyManufacturers = ["Arerti", "Dukem", "China"];
 
 const CeramicForm = () => {
-  const languageContext = useLanguage();
-  const t = languageContext?.t;
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     size: "",
     type: "",
@@ -21,56 +22,12 @@ const CeramicForm = () => {
     piecesPerPacket: "",
     totalPackets: "",
     totalPiecesWithoutPacket: "",
+    imageUrl: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    try {
-      setLoading(true);
-      const res = await axiosInstance.post("/ceramics/addNew", {
-        ...formData,
-        piecesPerPacket: Number(formData.piecesPerPacket),
-        totalPackets: Number(formData.totalPackets),
-        totalPiecesWithoutPacket: Number(formData.totalPiecesWithoutPacket),
-      });
-      setSuccess("Ceramic added successfully");
-      setTimeout(() => {
-        setSuccess(null);
-      }, 3000);
-      setFormData({
-        size: "",
-        type: "",
-        manufacturer: "",
-        code: "",
-        piecesPerPacket: "",
-        totalPackets: "",
-        totalPiecesWithoutPacket: "",
-      });
-      router.push("/ceramics");
-    } catch (err: any) {
-      setError(err.response?.data.error || "Internal server error");
-    } finally {
-      setLoading(false);
-      if (error) {
-        setTimeout(() => {
-          setError(null);
-        }, 3000);
-      }
-    }
-  };
 
   const [filteredSizes, setFilteredSizes] = useState(dummySizes);
   const [filteredTypes, setFilteredTypes] = useState(dummyTypes);
@@ -80,6 +37,42 @@ const CeramicForm = () => {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showManufacturerDropdown, setShowManufacturerDropdown] =
     useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+      const imageFormData = new FormData();
+      imageFormData.append("file", file);
+      imageFormData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_PRESET as string
+      );
+
+      try {
+        setLoading(true);
+        const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/${
+            process.env.NEXT_PUBLIC_CLOUDINARY_NAME as string
+          }/image/upload`,
+          imageFormData
+        );
+        setFormData({ ...formData, imageUrl: response.data.secure_url });
+      } catch (err) {
+        setError(t("imageUploadFailed"));
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const handleDropdownChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -136,6 +129,45 @@ const CeramicForm = () => {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    try {
+      setLoading(true);
+      await axiosInstance.post("/ceramics/addNew", {
+        ...formData,
+        piecesPerPacket: Number(formData.piecesPerPacket),
+        totalPackets: Number(formData.totalPackets),
+        totalPiecesWithoutPacket: Number(formData.totalPiecesWithoutPacket),
+      });
+      setSuccess(t("ceramicAddedSuccessfully"));
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+      setFormData({
+        size: "",
+        type: "",
+        manufacturer: "",
+        code: "",
+        piecesPerPacket: "",
+        totalPackets: "",
+        totalPiecesWithoutPacket: "",
+        imageUrl: "",
+      });
+      router.push("/ceramics");
+    } catch (err: any) {
+      setError(err.response?.data.error || t("internalServerError"));
+    } finally {
+      setLoading(false);
+      if (error) {
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
+      }
+    }
+  };
+
   return (
     <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
       <Link href="/ceramics" className="text-blue-500">
@@ -174,7 +206,6 @@ const CeramicForm = () => {
           )}
         </div>
 
-        {/* Dropdown for Type */}
         <div className="relative">
           <input
             type="text"
@@ -264,6 +295,30 @@ const CeramicForm = () => {
           className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
+        <div className="relative">
+          <label className="block mb-2 text-gray-700">{t("uploadImage")}</label>
+          <div className="w-48 h-48 border-dashed border-2 border-gray-300 flex justify-center items-center rounded-md relative overflow-hidden">
+            {formData.imageUrl || imagePreview ? (
+              <Image
+                src={imagePreview || formData.imageUrl}
+                alt="Image Preview"
+                width={192}
+                height={192}
+                className="object-cover"
+              />
+            ) : (
+              <p className="text-gray-500">{t("selectImage")}</p>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={loading}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+          </div>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -273,7 +328,7 @@ const CeramicForm = () => {
               : "bg-blue-500 hover:bg-blue-600"
           } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
         >
-          {loading ? "Adding Ceramic..." : `${t("addNewCeramic")}`}
+          {loading ? t("addingCeramic") : t("addNewCeramic")}
         </button>
       </form>
     </div>

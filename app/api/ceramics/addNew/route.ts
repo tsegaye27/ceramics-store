@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } =
       ceramicData;
 
-    if (!totalPackets || !totalPiecesWithoutPacket || !piecesPerPacket) {
+    if (!totalPackets || !totalPiecesWithoutPacket || !piecesPerPacket ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
