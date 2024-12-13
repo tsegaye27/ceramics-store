@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import logger from "@/app/_utils/logger";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,7 +25,7 @@ const CeramicsPage = () => {
   useEffect(() => {
     const checkUser = async () => {
       if (!token) {
-        logger.warn("No valid token found.");
+        toast.error(t("notLoggedIn"));
         setUser(null);
         return;
       }
@@ -43,7 +44,7 @@ const CeramicsPage = () => {
     };
 
     checkUser();
-  }, [token]);
+  }, [token, t]);
 
   // Fetch ceramics based on search query
   useEffect(() => {
@@ -92,7 +93,7 @@ const CeramicsPage = () => {
 
         <div className="w-4xl flex justify-between">
           <Link
-            href="/ceramics/add"
+            href={!user ? "/login" : "/ceramics/add"}
             aria-disabled={!user}
             className={`text-blue-600 hover:text-blue-800 mb-6 inline-block ${
               !user ? "opacity-50 cursor-not-allowed" : ""
@@ -101,7 +102,7 @@ const CeramicsPage = () => {
             {t("addNewCeramic")}
           </Link>
           <Link
-            href="/orders"
+            href={!user ? "/login" : "/orders"}
             aria-disabled={!user}
             className={`text-blue-600 hover:text-blue-800 mb-6 inline-block ${
               !user ? "opacity-50 cursor-not-allowed" : ""
@@ -168,7 +169,7 @@ const CeramicsPage = () => {
                   <div className="flex space-x-4 mt-4">
                     <Link
                       aria-disabled={!user}
-                      href={`/ceramics/add/${ceramic._id}`}
+                      href={!user ? "/login" : `/ceramics/add/${ceramic._id}`}
                       aria-label={`${t("add")} ${ceramic.code}`}
                       className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200 ${
                         !user ? "opacity-50 cursor-not-allowed" : ""
@@ -178,7 +179,7 @@ const CeramicsPage = () => {
                     </Link>
                     <Link
                       aria-disabled={!user}
-                      href={`/ceramics/sell/${ceramic._id}`}
+                      href={!user ? "/login" : `/ceramics/sell/${ceramic._id}`}
                       aria-label={`${t("sell")} ${ceramic.code}`}
                       className={`bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200 ${
                         !user ? "opacity-50 cursor-not-allowed" : ""
