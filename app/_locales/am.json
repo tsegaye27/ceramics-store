@@ -43,5 +43,7 @@
   "totalPrice": "ዋጋ",
   "m": "ሜ",
   "adding": "በመጨመር ላይ",
-  "no": "ተቁ"
+  "no": "ተቁ",
+  "uploadImage": "ምስል አስገባ",
+  "selectImage": "ምስል ይምረጡ"
 }

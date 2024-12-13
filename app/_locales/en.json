@@ -43,5 +43,7 @@
   "totalPrice": "Total Price",
   "m": "m",
   "adding": "Adding",
-  "no": "No"
+  "no": "No",
+  "uploadImage": "Upload Image",
+  "selectImage": "Select Image"
 }
