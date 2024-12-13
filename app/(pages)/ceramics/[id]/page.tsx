@@ -46,7 +46,6 @@ export default function CeramicDetail({ params }: { params: { id: string } }) {
           {t("ceramicDetails")}
         </h1>
 
-        {/* Ceramic Image */}
         {ceramic.imageUrl && (
           <div className="mb-6 text-center">
             <Image
