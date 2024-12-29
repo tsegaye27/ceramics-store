@@ -1,4 +1,3 @@
-// import { ZodError, ZodIssue } from "zod";
 import logger from "./logger";
 
 export const formatDate = (unformattedDate: string): string => {
@@ -71,7 +70,3 @@ export const calculateArea = (
     totalPackets * piecesPerPacket * factor + totalPiecesWithoutPacket * factor;
   return totalArea.toFixed(2);
 };
-
-// export const formatZodErrors = (error: ZodError): string => {
-//   return error.issues[0].message;
-// };

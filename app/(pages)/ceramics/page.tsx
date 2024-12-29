@@ -21,7 +21,6 @@ const CeramicsPage = () => {
   const [user, setUser] = useState<any | null>(null);
   const { token } = useAuth();
 
-  // Fetch user details
   useEffect(() => {
     const checkUser = async () => {
       if (!token) {
@@ -46,7 +45,6 @@ const CeramicsPage = () => {
     checkUser();
   }, [token, t]);
 
-  // Fetch ceramics based on search query
   useEffect(() => {
     const fetchCeramics = async () => {
       setLoading(true);
