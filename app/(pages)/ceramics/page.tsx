@@ -34,7 +34,7 @@ const CeramicsPage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        logger.info("User fetched successfully", response.data);
+        // logger.info("User fetched successfully", response.data);
         setUser(response.data);
       } catch (err: any) {
         logger.error("Error fetching user:", err.response?.data || err.message);
@@ -54,7 +54,7 @@ const CeramicsPage = () => {
           params: { search: debouncedSearchQuery },
         });
         setCeramics(res.data.data || []);
-        logger.info("Ceramics fetched successfully", res.data.data);
+        // logger.info("Ceramics fetched successfully", res.data.data);
       } catch (err: any) {
         logger.error(
           "Failed to fetch ceramics:",

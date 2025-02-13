@@ -7,7 +7,7 @@ import Link from "next/link";
 import axiosInstance from "@/app/_lib/axios";
 import { IOrder } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
-import logger from "@/app/_utils/logger";
+// import logger from "@/app/_utils/logger";
 import Loading from "./loading";
 
 const OrderList = () => {
@@ -25,7 +25,7 @@ const OrderList = () => {
         if (Array.isArray(res.data)) {
           setOrders(res.data);
           setFilteredOrders(res.data);
-          logger.info("Orders fetched successfully", res.data);
+          // logger.info("Orders fetched successfully", res.data);
         } else {
           throw new Error("Unexpected API response format");
         }
