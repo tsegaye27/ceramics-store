@@ -7,7 +7,6 @@ import { useEffect } from "react";
 const AuthChecker = ({ children }: { children: React.ReactNode }) => {
   const { isTokenValid } = useAuth();
   const router = useRouter();
-
   useEffect(() => {
     if (isTokenValid && !isTokenValid()) {
       router.push("/login");
