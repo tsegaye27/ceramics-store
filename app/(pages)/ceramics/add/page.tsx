@@ -66,7 +66,7 @@ const CeramicForm = () => {
           }/image/upload`,
           imageFormData
         );
-        logger.info("Image uploaded successfully", response.data);
+        // logger.info("Image uploaded successfully", response.data);
         setFormData({ ...formData, imageUrl: response.data.secure_url });
       } catch (err) {
         setError(t("imageUploadFailed"));
