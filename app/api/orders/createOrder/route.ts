@@ -1,5 +1,5 @@
-import dbConnect from "@/app/_lib/mongoose";
-import { Order } from "@/app/_models/Orders";
+import dbConnect from "@/app/api/_lib/mongoose";
+import { Order } from "@/app/api/_models/Orders";
 import logger from "@/app/_utils/logger";
 import { jwtDecode } from "jwt-decode";
 import { NextResponse, NextRequest } from "next/server";

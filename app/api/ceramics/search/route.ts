@@ -1,5 +1,5 @@
-import dbConnect from "@/app/_lib/mongoose";
-import { Ceramic } from "@/app/_models/Ceramics";
+import dbConnect from "@/app/api/_lib/mongoose";
+import { Ceramic } from "@/app/api/_models/Ceramics";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {

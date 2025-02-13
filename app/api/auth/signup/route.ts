@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { User } from "@/app/_models/Users";
+import { User } from "@/app/api/_models/Users";
 import bcrypt from "bcryptjs";
-import dbConnect from "@/app/_lib/mongoose";
+import dbConnect from "@/app/api/_lib/mongoose";
+import logger from "@/app/_utils/logger";
 
 export async function POST(request: Request) {
   try {
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error during signup:", error);
+    logger.error("Error during signup:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 interface DecodedToken {
   id: string;
 }
-import { User } from "@/app/_models/Users";
+import { User } from "@/app/api/_models/Users";
 import logger from "@/app/_utils/logger";
 
 export async function GET(req: Request) {
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   }
   const token = authHeader.split(" ")[1];
   const decodedToken = jwtDecode<DecodedToken>(token);
-  logger.info("Decoded token", decodedToken);
+  // logger.info("Decoded token", decodedToken);
 
   try {
     const user = await User.findOne({ _id: decodedToken?.id });
