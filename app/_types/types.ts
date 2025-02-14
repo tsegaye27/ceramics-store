@@ -16,6 +16,7 @@ export type IUser = {
   _id?: string;
   email: string;
   name: string;
+  role: string;
   fullName: string;
   hashedPassword: string;
   createdAt?: string;
@@ -33,3 +34,7 @@ export type IOrder = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export interface DecodedToken {
+  id: string;
+}
