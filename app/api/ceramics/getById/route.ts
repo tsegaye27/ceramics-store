@@ -1,6 +1,7 @@
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,10 +9,7 @@ export async function GET(req: NextRequest) {
     const ceramicId = searchParams.get("ceramicId");
 
     if (!ceramicId) {
-      return NextResponse.json(
-        { error: "ceramicId query parameter is required" },
-        { status: 400 }
-      );
+      return errorResponse("Ceramic ID is required", 400);
     }
 
     await dbConnect();
@@ -19,20 +17,11 @@ export async function GET(req: NextRequest) {
     const ceramic = await Ceramic.findById(ceramicId);
 
     if (!ceramic) {
-      return NextResponse.json({ error: "Ceramic not found" }, { status: 404 });
+      return errorResponse("Ceramic not found", 404);
     }
 
-    return NextResponse.json(
-      {
-        message: "Successfully retrieved the ceramic",
-        data: ceramic,
-      },
-      { status: 200 }
-    );
+    return successResponse(ceramic, "Ceramic fetched successfully");
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "An unknown error occurred" },
-      { status: 500 }
-    );
+    return errorResponse(error.message, 500);
   }
 }

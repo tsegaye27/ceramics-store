@@ -2,8 +2,8 @@ import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
 import { ICeramic } from "@/app/_types/types";
 import { formatPieces } from "@/app/_utils/helperFunctions";
-import { NextRequest, NextResponse } from "next/server";
-
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
@@ -13,10 +13,7 @@ export async function POST(req: NextRequest) {
       ceramicData;
 
     if (!totalPackets || !totalPiecesWithoutPacket || !piecesPerPacket ) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return errorResponse("All fields are required", 400);
     }
 
     const { packets, pieces } = formatPieces(
@@ -33,8 +30,8 @@ export async function POST(req: NextRequest) {
 
     const savedCeramic = await newCeramic.save();
 
-    return NextResponse.json(savedCeramic, { status: 201 });
+    return successResponse(savedCeramic, "Ceramic created successfully");
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return errorResponse(error.message, 500);
   }
 }

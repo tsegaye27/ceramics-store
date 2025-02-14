@@ -1,6 +1,6 @@
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
-import { NextResponse } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
 export async function GET(req: Request) {
   try {
@@ -24,19 +24,8 @@ export async function GET(req: Request) {
       results = await Ceramic.find({}).limit(100);
     }
 
-    return NextResponse.json(
-      {
-        message: search
-          ? "Search completed successfully"
-          : "Fetched all ceramics successfully",
-        data: results,
-      },
-      { status: 200 }
-    );
+    return successResponse(results, `${results ? "Ceramics fetched successfully" : "No ceramics found"}`);
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "An unknown error occurred" },
-      { status: 500 }
-    );
+    return errorResponse(error.message, 500);
   }
 }

@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import { User } from "@/app/api/_models/Users";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/app/_utils/logger";
+import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_EXPIRATION = process.env.TOKEN_EXPIRATION!;
@@ -13,28 +13,17 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      );
-    }
+      return errorResponse("All fields are required", 400);}
 
     await dbConnect();
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
+      return errorResponse("Invalid email or password", 401);}
 
     const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
     if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
+      return errorResponse("Invalid email or password", 401);
     }
 
     const token = jwt.sign(
@@ -43,15 +32,9 @@ export async function POST(request: Request) {
       { expiresIn: JWT_EXPIRATION }
     );
 
-    return NextResponse.json(
-      { message: "Login successful", token },
-      { status: 200 }
-    );
+    return successResponse({ token }, "Login successful");
   } catch (error) {
     logger.error("Error during login:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }

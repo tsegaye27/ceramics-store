@@ -1,9 +1,10 @@
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Order } from "@/app/api/_models/Orders";
 import logger from "@/app/_utils/logger";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     await dbConnect();
 
@@ -17,12 +18,9 @@ export async function GET(req: NextRequest) {
         select: "name",
       },
     ]);
-    return NextResponse.json(orders, { status: 200 });
+    return successResponse(orders, "Orders fetched successfully");
   } catch (error) {
     logger.error(`Error in GET /api/orders/getOrders: ${error}`);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }

@@ -1,13 +1,13 @@
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
-import { NextResponse } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
 export async function GET() {
   try {
     await dbConnect();
     const ceramics = await Ceramic.find({}).limit(100);
-    return NextResponse.json(ceramics, { status: 200 });
+    return successResponse(ceramics, "Ceramics fetched successfully");
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return errorResponse(error.message, 500);
   }
 }

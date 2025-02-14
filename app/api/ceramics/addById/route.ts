@@ -1,23 +1,21 @@
 import { Ceramic } from "@/app/api/_models/Ceramics";
 import dbConnect from "@/app/api/_lib/mongoose";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
 export async function PATCH(req: NextRequest) {
   try {
     const { ceramicId, packetsAdded, piecesAdded } = await req.json();
 
     if (!ceramicId || packetsAdded == null || piecesAdded == null) {
-      return NextResponse.json(
-        { error: "ceramicId, packetsAdded, and piecesAdded are required" },
-        { status: 400 }
-      );
+      return errorResponse("All fields are required", 400);
     }
 
     await dbConnect();
 
     const ceramic = await Ceramic.findById(ceramicId);
     if (!ceramic) {
-      return NextResponse.json({ error: "Ceramic not found" }, { status: 404 });
+      return errorResponse("Ceramic not found", 404);
     }
 
     let packets = ceramic.totalPackets + packetsAdded;
@@ -31,19 +29,10 @@ export async function PATCH(req: NextRequest) {
     ceramic.totalPackets = packets;
     ceramic.totalPiecesWithoutPacket = pieces;
 
-    await ceramic.save();
+    const saved = await ceramic.save();
 
-    return NextResponse.json(
-      {
-        message: "Ceramic updated successfully",
-        data: ceramic,
-      },
-      { status: 200 }
-    );
+    return successResponse(saved, "Ceramic stock updated successfully");
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "An unknown error occurred" },
-      { status: 500 }
-    );
+    return errorResponse(err.message, 500);
   }
 }

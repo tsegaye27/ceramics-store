@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { User } from "@/app/api/_models/Users";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/app/_utils/logger";
+import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
 
 export async function POST(request: Request) {
   try {
@@ -11,18 +11,12 @@ export async function POST(request: Request) {
     const { name, email, password, role } = await request.json();
 
     if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
+      return errorResponse("All fields are required", 400);
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Email already in use" },
-        { status: 400 }
-      );
+      return errorResponse("User already exists", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,15 +30,9 @@ export async function POST(request: Request) {
 
     await newUser.save();
 
-    return NextResponse.json(
-      { message: "User created successfully" },
-      { status: 201 }
-    );
+    return successResponse({ newUser }, "User created successfully");
   } catch (error) {
     logger.error("Error during signup:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }

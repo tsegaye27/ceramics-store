@@ -1,22 +1,26 @@
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
     const token = req.headers.get("Authorization");
     const { ceramicId, packetsSold, piecesSold } = await req.json();
+    
+    if(!token || !token.includes("Bearer")) {
+      return errorResponse("Unauthorized", 401);
+    }
 
     if (!ceramicId || !packetsSold || !piecesSold) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
+      return errorResponse("All fields are required", 400);
     }
 
     const ceramic = await Ceramic.findById(ceramicId);
-    if (!ceramic) throw new Error("Ceramic not found");
+    if (!ceramic) {
+      return errorResponse("Ceramic not found", 404);
+    }
 
     let { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } = ceramic;
 
@@ -29,11 +33,11 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (packets > totalPackets) {
-      return NextResponse.json({ error: "Not enough stock" }, { status: 400 });
+      return errorResponse("Not enough stock", 400);
     }
 
     if (pieces > totalPiecesWithoutPacket && totalPackets - packets <= 0) {
-      return NextResponse.json({ error: "Not enough stock" }, { status: 400 });
+      return errorResponse("Not enough stock", 400);
     }
 
     if (pieces > totalPiecesWithoutPacket && totalPackets - packets > 0) {
@@ -49,14 +53,8 @@ export async function PATCH(req: NextRequest) {
 
     await ceramic.save();
 
-    return NextResponse.json(
-      { message: "Ceramic stock updated successfully" },
-      { status: 200 }
-    );
+    return successResponse(ceramic, "Ceramic stock updated successfully");
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse(error.message, 500);
   }
 }
