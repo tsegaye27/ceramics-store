@@ -3,14 +3,25 @@ import { IUser } from "../_types/types";
 
 interface UserState {
   user: IUser | {};
+  isLoading: boolean;
 }
 
 const initialState: UserState = {
-  user: {},
+  user: {
+ _id: "",
+  email: "",
+  name: "",
+  role: "",
+  fullName: "",
+  hashedPassword: "",
+  createdAt: "",
+  updatedAt: ""
+  },
+  isLoading: false,
 };
 
 const userSlice = createSlice({
-  name: "global",
+  name: "user",
   initialState,
   reducers: {
     login: (state, action: PayloadAction<UserState["user"]>) => {
@@ -19,8 +30,11 @@ const userSlice = createSlice({
     logout: (state) => {
       state.user = {};
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    }
   },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, setLoading } = userSlice.actions;
 export default userSlice.reducer;
