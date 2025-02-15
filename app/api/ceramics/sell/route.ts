@@ -2,20 +2,24 @@ import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
+import { soldCeramicSchema } from "../../_validators/ceramicSchema";
 
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
     const token = req.headers.get("Authorization");
-    const { ceramicId, packetsSold, piecesSold } = await req.json();
-    
-    if(!token || !token.includes("Bearer")) {
+    const soldCeramicData = await req.json();
+    const validation = soldCeramicSchema.safeParse(soldCeramicData);
+
+    if (!token || !token.includes("Bearer")) {
       return errorResponse("Unauthorized", 401);
     }
 
-    if (!ceramicId || !packetsSold || !piecesSold) {
-      return errorResponse("All fields are required", 400);
+    if (!validation.success) {
+      return errorResponse(validation.error.errors[0].message, 400);
     }
+
+    const { ceramicId, packetsSold, piecesSold } = soldCeramicData;
 
     const ceramic = await Ceramic.findById(ceramicId);
     if (!ceramic) {

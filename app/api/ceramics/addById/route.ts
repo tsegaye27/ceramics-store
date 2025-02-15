@@ -2,14 +2,18 @@ import { Ceramic } from "@/app/api/_models/Ceramics";
 import dbConnect from "@/app/api/_lib/mongoose";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
+import { updateCeramicSchema } from "../../_validators/ceramicSchema";
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { ceramicId, packetsAdded, piecesAdded } = await req.json();
+    const addCeramicData = await req.json();
+    const validation = updateCeramicSchema.safeParse(addCeramicData);
 
-    if (!ceramicId || packetsAdded == null || piecesAdded == null) {
-      return errorResponse("All fields are required", 400);
+    if (!validation.success) {
+      return errorResponse(validation.error.errors[0].message, 400);
     }
+
+    const { ceramicId, packetsAdded, piecesAdded } = addCeramicData;
 
     await dbConnect();
 

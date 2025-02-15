@@ -3,16 +3,20 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
+import { signupSchema } from "../../_validators/userSchema";
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
 
-    const { name, email, password, role } = await request.json();
+    const signupData = await request.json();
+    const validation = signupSchema.safeParse(signupData);
 
-    if (!name || !email || !password) {
-      return errorResponse("All fields are required", 400);
+    if (!validation.success) {
+      return errorResponse(validation.error.errors[0].message, 400);
     }
+
+    const { name, email, password, role } = signupData;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -24,7 +28,7 @@ export async function POST(request: Request) {
     const newUser = new User({
       name,
       email,
-      hashedPassword,
+      password: hashedPassword,
       role,
     });
 

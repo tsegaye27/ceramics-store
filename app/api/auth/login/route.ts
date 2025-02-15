@@ -4,24 +4,30 @@ import jwt from "jsonwebtoken";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
+import { loginSchema } from "../../_validators/userSchema";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_EXPIRATION = process.env.TOKEN_EXPIRATION!;
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const loginData = await request.json();
+    const validation = loginSchema.safeParse(loginData);
 
-    if (!email || !password) {
-      return errorResponse("All fields are required", 400);}
+    if (!validation.success) {
+      return errorResponse(validation.error.errors[0].message, 400);
+    }
+
+    const { email, password } = loginData;
 
     await dbConnect();
 
     const user = await User.findOne({ email });
     if (!user) {
-      return errorResponse("Invalid email or password", 401);}
+      return errorResponse("Invalid email or password", 401);
+    }
 
-    const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return errorResponse("Invalid email or password", 401);
     }
@@ -29,7 +35,7 @@ export async function POST(request: Request) {
     const token = jwt.sign(
       { id: user._id, email: user.email, name: user.name },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRATION }
+      { expiresIn: JWT_EXPIRATION },
     );
 
     return successResponse({ token }, "Login successful");
