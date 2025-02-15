@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import logger from "../../_utils/logger";
+import logger from "@/services/logger"
 
 const dbConnect = async () => {
   if (mongoose.connection.readyState >= 1) return;

@@ -1,5 +1,3 @@
-import logger from "./logger";
-
 export const formatDate = (unformattedDate: string): string => {
   const date = new Date(unformattedDate).toLocaleDateString("en-US", {
     year: "numeric",
@@ -31,7 +29,7 @@ export const validateInput = (
   totalPiecesWithoutPacket: number
 ): boolean => {
   const isValid = totalPackets >= 0 && totalPiecesWithoutPacket >= 0;
-  if (!isValid) logger.warn("Invalid Data: Negative values are not allowed.");
+  if (!isValid) console.log("Invalid Data: Negative values are not allowed.");
   return isValid;
 };
 
@@ -42,11 +40,11 @@ export const checkSufficiency = (
   piecesToSell: number
 ): boolean => {
   if (packetsAvailable < packetsToSell) {
-    logger.warn("Insufficient packets.");
+    console.log("Insufficient packets.");
     return false;
   }
   if (packetsAvailable === packetsToSell && piecesAvailable < piecesToSell) {
-    logger.warn("Insufficient pieces.");
+    console.log("Insufficient pieces.");
     return false;
   }
   return true;

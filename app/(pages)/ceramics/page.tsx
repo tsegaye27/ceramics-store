@@ -7,7 +7,7 @@ import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
-import logger from "@/app/_utils/logger";
+// import nextLogger from "@/app/_utils/logger";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 
@@ -37,7 +37,7 @@ const CeramicsPage = () => {
         // logger.info("User fetched successfully", response.data);
         setUser(response.data);
       } catch (err: any) {
-        logger.error("Error fetching user:", err.response?.data || err.message);
+        // nextLogger.error("Error fetching user:", err.response?.data || err.message);
         setUser(null);
       }
     };
@@ -56,10 +56,10 @@ const CeramicsPage = () => {
         setCeramics(res.data.data || []);
         // logger.info("Ceramics fetched successfully", res.data.data);
       } catch (err: any) {
-        logger.error(
-          "Failed to fetch ceramics:",
-          err.response?.data || err.message
-        );
+        // nextLogger.error(
+        //   "Failed to fetch ceramics:",
+        //   err.response?.data || err.message
+        // );
         setError(t("fetchError"));
         setCeramics([]);
       } finally {

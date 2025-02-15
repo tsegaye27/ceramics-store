@@ -7,7 +7,7 @@ import { useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import axiosInstance from "@/app/_lib/axios";
-import logger from "@/app/_utils/logger";
+// import logger from "@/services/logger";
 
 const dummySizes = ["60x60", "40x40", "30x60", "30x30", "Zekolo"];
 const dummyTypes = ["Polished", "Normal", "Digital"];
