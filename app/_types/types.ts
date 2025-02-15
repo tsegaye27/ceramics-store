@@ -18,7 +18,7 @@ export type IUser = {
   name: string;
   role: string;
   fullName: string;
-  hashedPassword: string;
+  password: string;
   createdAt?: string;
   updatedAt?: string;
 };

@@ -8,14 +8,14 @@ interface UserState {
 
 const initialState: UserState = {
   user: {
- _id: "",
-  email: "",
-  name: "",
-  role: "",
-  fullName: "",
-  hashedPassword: "",
-  createdAt: "",
-  updatedAt: ""
+    _id: "",
+    email: "",
+    name: "",
+    role: "",
+    fullName: "",
+    password: "",
+    createdAt: "",
+    updatedAt: "",
   },
   isLoading: false,
 };
@@ -32,7 +32,7 @@ const userSlice = createSlice({
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
-    }
+    },
   },
 });
 

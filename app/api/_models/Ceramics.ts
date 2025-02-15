@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { ICeramic } from "../_types/types";
+import mongoose, { Schema } from "mongoose";
+import { ICeramic } from "../../_types/types";
 
 const ceramicSchema = new Schema<ICeramic>(
   {
