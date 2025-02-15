@@ -2,7 +2,7 @@ import { User } from "@/app/api/_models/Users";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/app/api/_lib/mongoose";
-import logger from "@/app/_utils/logger";
+import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
 
 const JWT_SECRET = process.env.JWT_SECRET!;

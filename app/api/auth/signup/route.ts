@@ -1,7 +1,7 @@
 import { User } from "@/app/api/_models/Users";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/app/api/_lib/mongoose";
-import logger from "@/app/_utils/logger";
+import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
 
 export async function POST(request: Request) {
