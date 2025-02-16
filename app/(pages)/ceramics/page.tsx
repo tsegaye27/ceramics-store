@@ -7,7 +7,6 @@ import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
-// import nextLogger from "@/app/_utils/logger";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 
@@ -15,61 +14,38 @@ const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   const { t } = useLanguage();
-  const [ceramics, setCeramics] = useState<ICeramic[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [ceramics, setCeramics] = useState<ICeramic[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any | null>(null);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   useEffect(() => {
-    const checkUser = async () => {
-      if (!token) {
-        toast.error(t("notLoggedIn"));
-        setUser(null);
-        return;
-      }
-      try {
-        const response = await axiosInstance.get("/users/getUser", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        // logger.info("User fetched successfully", response.data);
-        setUser(response.data);
-      } catch (err: any) {
-        // nextLogger.error("Error fetching user:", err.response?.data || err.message);
-        setUser(null);
-      }
-    };
-
-    checkUser();
+    if (!token) {
+      toast.error(t("notLoggedIn"));
+      return;
+    }
   }, [token, t]);
 
   useEffect(() => {
     const fetchCeramics = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const res = await axiosInstance.get("/ceramics/search", {
           params: { search: debouncedSearchQuery },
         });
         setCeramics(res.data.data || []);
-        // logger.info("Ceramics fetched successfully", res.data.data);
       } catch (err: any) {
-        // nextLogger.error(
-        //   "Failed to fetch ceramics:",
-        //   err.response?.data || err.message
-        // );
-        setError(t("fetchError"));
+        setError(err.response?.data?.error || t("fetchError"));
         setCeramics([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchCeramics();
   }, [debouncedSearchQuery, t]);
-
-  const noCeramicsFound = ceramics && ceramics.length === 0;
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -116,78 +92,77 @@ const CeramicsPage = () => {
           </div>
         ) : error ? (
           <p className="text-red-500 text-center">{error}</p>
-        ) : noCeramicsFound ? (
+        ) : ceramics.length === 0 ? (
           <p className="col-span-3 text-center text-gray-500 mt-8">
             {t("noCeramicsFound")}
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {ceramics &&
-              ceramics.map((ceramic) => (
-                <div
-                  key={ceramic._id}
-                  className={`bg-white p-5 rounded-lg shadow-lg ${
-                    ceramic.totalPackets <= 10 ? "border-2 border-red-600" : ""
-                  } hover:transition-shadow duration-300`}
+            {ceramics.map((ceramic) => (
+              <div
+                key={ceramic._id}
+                className={`bg-white p-5 rounded-lg shadow-lg ${
+                  ceramic.totalPackets <= 10 ? "border-2 border-red-600" : ""
+                } hover:transition-shadow duration-300`}
+              >
+                <Image
+                  src={ceramic.imageUrl || ""}
+                  alt={ceramic?.code || "Ceramic Image"}
+                  width={200}
+                  height={200}
+                  priority
+                  className="rounded-lg object-cover"
+                />
+                <h2 className="font-bold text-xl text-blue-800 mb-2">
+                  {t("code")}: {ceramic.code || "N/A"}
+                </h2>
+                <p>
+                  {t("size")}: {ceramic.size || "N/A"}
+                </p>
+                <p>
+                  {t("type")}: {ceramic.type || "N/A"}
+                </p>
+                <p className="mb-4">
+                  {t("totalArea")}:{" "}
+                  {calculateArea(
+                    ceramic.totalPackets || 0,
+                    ceramic.totalPiecesWithoutPacket || 0,
+                    ceramic.piecesPerPacket || 0,
+                    ceramic.size || "",
+                  )}{" "}
+                  {ceramic.size === "zekolo" ? "m" : "m²"}
+                </p>
+                <Link
+                  href={`/ceramics/${ceramic._id}`}
+                  aria-label={`${t("viewDetails")} ${ceramic.code}`}
+                  className="text-blue-500 hover:text-blue-600"
                 >
-                  <Image
-                    src={ceramic.imageUrl ? ceramic.imageUrl : ""}
-                    alt={ceramic?.code || "Ceramic Image"}
-                    width={200}
-                    height={200}
-                    priority
-                    className="rounded-lg object-cover"
-                  />
-                  <h2 className="font-bold text-xl text-blue-800 mb-2">
-                    {t("code")}: {ceramic.code || "N/A"}
-                  </h2>
-                  <p>
-                    {t("size")}: {ceramic.size || "N/A"}
-                  </p>
-                  <p>
-                    {t("type")}: {ceramic.type || "N/A"}
-                  </p>
-                  <p className="mb-4">
-                    {t("totalArea")}:{" "}
-                    {calculateArea(
-                      ceramic.totalPackets || 0,
-                      ceramic.totalPiecesWithoutPacket || 0,
-                      ceramic.piecesPerPacket || 0,
-                      ceramic.size || ""
-                    )}{" "}
-                    {ceramic.size === "zekolo" ? "m" : "m²"}
-                  </p>
+                  {t("viewDetails")}
+                </Link>
+                <div className="flex space-x-4 mt-4">
                   <Link
-                    href={`/ceramics/${ceramic._id}`}
-                    aria-label={`${t("viewDetails")} ${ceramic.code}`}
-                    className="text-blue-500 hover:text-blue-600"
+                    aria-disabled={!user}
+                    href={!user ? "/login" : `/ceramics/add/${ceramic._id}`}
+                    aria-label={`${t("add")} ${ceramic.code}`}
+                    className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200 ${
+                      !user ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
-                    {t("viewDetails")}
+                    {t("add")}
                   </Link>
-                  <div className="flex space-x-4 mt-4">
-                    <Link
-                      aria-disabled={!user}
-                      href={!user ? "/login" : `/ceramics/add/${ceramic._id}`}
-                      aria-label={`${t("add")} ${ceramic.code}`}
-                      className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200 ${
-                        !user ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {t("add")}
-                    </Link>
-                    <Link
-                      aria-disabled={!user}
-                      href={!user ? "/login" : `/ceramics/sell/${ceramic._id}`}
-                      aria-label={`${t("sell")} ${ceramic.code}`}
-                      className={`bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200 ${
-                        !user ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {t("sell")}
-                    </Link>
-                  </div>
+                  <Link
+                    aria-disabled={!user}
+                    href={!user ? "/login" : `/ceramics/sell/${ceramic._id}`}
+                    aria-label={`${t("sell")} ${ceramic.code}`}
+                    className={`bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200 ${
+                      !user ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {t("sell")}
+                  </Link>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         )}
       </div>

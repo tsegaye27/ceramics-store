@@ -1,22 +1,12 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useMemo } from "react";
 import { useCookies } from "react-cookie";
 
 interface AuthContextType {
   token: string | null;
   login: (token: string) => void;
   logout: () => void;
-  cookies: { token?: string; expirationTime?: string };
-  setCookie: (
-    name: string,
-    value: string,
-    options?: { path?: string; maxAge?: number; secure?: boolean }
-  ) => void;
-  removeCookie: (
-    name: "token" | "expirationTime",
-    options?: { path?: string }
-  ) => void;
   isTokenValid: () => boolean;
 }
 
@@ -37,11 +27,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const newExpirationTime = Date.now() + 60 * 60 * 24 * 1000; // 24 hours
     setCookie("token", newToken, {
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 60 * 24, // 24 hours
     });
     setCookie("expirationTime", newExpirationTime.toString(), {
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 60 * 24, // 24 hours
     });
   };
 
@@ -54,20 +44,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return Boolean(token && expirationTime && Date.now() < expirationTime);
   };
 
+  // Memoize the context value to avoid unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({
+      token,
+      login,
+      logout,
+      isTokenValid,
+    }),
+    [token, login, logout, isTokenValid],
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        token,
-        login,
-        logout,
-        cookies,
-        setCookie,
-        removeCookie,
-        isTokenValid,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
