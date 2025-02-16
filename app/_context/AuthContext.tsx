@@ -1,66 +1,60 @@
 "use client";
-
-import { createContext, useContext, ReactNode, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { useCookies } from "react-cookie";
+import { useSelector } from "react-redux";
+import { RootState } from "../_features/store/store";
 
 interface AuthContextType {
-  token: string | null;
-  login: (token: string) => void;
+  isAuthenticated: boolean;
+  login: () => Promise<void>;
   logout: () => void;
-  isTokenValid: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [cookies, setCookie, removeCookie] = useCookies<string>([
-    "token",
-    "expirationTime",
-  ]);
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt"]);
+  const { user, token } = useSelector((state: RootState) => state.auth);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!cookies.jwt);
 
-  const token = cookies.token || null;
-  const expirationTime = cookies.expirationTime
-    ? Number(cookies.expirationTime)
-    : null;
+  useEffect(() => {
+    if (cookies.jwt) {
+      setIsAuthenticated(true);
+    }
+  }, [cookies.jwt]);
 
-  const login = (newToken: string) => {
-    const newExpirationTime = Date.now() + 60 * 60 * 24 * 1000; // 24 hours
-    setCookie("token", newToken, {
-      path: "/",
-      maxAge: 60 * 60 * 24, // 24 hours
-    });
-    setCookie("expirationTime", newExpirationTime.toString(), {
-      path: "/",
-      maxAge: 60 * 60 * 24, // 24 hours
-    });
+  const login = async () => {
+    localStorage.setItem("user", JSON.stringify(user));
+    setCookie("jwt", token, { path: "/" });
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
-    removeCookie("token", { path: "/" });
-    removeCookie("expirationTime", { path: "/" });
+    localStorage.removeItem("user");
+    removeCookie("jwt");
+    setIsAuthenticated(false);
   };
-
-  const isTokenValid = () => {
-    return Boolean(token && expirationTime && Date.now() < expirationTime);
-  };
-
-  // Memoize the context value to avoid unnecessary re-renders
-  const contextValue = useMemo(
-    () => ({
-      token,
-      login,
-      logout,
-      isTokenValid,
-    }),
-    [token, login, logout, isTokenValid],
-  );
 
   return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
