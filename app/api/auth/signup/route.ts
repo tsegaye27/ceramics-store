@@ -4,6 +4,10 @@ import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
 import { signupSchema } from "../../_validators/userSchema";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_EXPIRATION = process.env.TOKEN_EXPIRATION!;
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +38,11 @@ export async function POST(request: Request) {
 
     await user.save();
 
+    const token = jwt.sign(
+      { id: user._id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRATION },
+    );
     return successResponse(
       {
         user: {
@@ -42,6 +51,7 @@ export async function POST(request: Request) {
           email: user.email,
           role: user.role,
         },
+        token,
       },
       "Signed up successfully",
     );

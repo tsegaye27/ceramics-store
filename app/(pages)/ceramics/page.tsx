@@ -21,7 +21,7 @@ const CeramicsPage = () => {
 
   useEffect(() => {
     if (!token) {
-      toast.error(t("notLoggedIn"));
+      toast.error(t("Not Logged In"));
       return;
     }
   }, [token, t]);
@@ -100,7 +100,7 @@ const CeramicsPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {ceramics.map((ceramic) => (
               <div
-                key={ceramic._id}
+                key={ceramic.id}
                 className={`bg-white p-5 rounded-lg shadow-lg ${
                   ceramic.totalPackets <= 10 ? "border-2 border-red-600" : ""
                 } hover:transition-shadow duration-300`}
@@ -133,7 +133,7 @@ const CeramicsPage = () => {
                   {ceramic.size === "zekolo" ? "m" : "m²"}
                 </p>
                 <Link
-                  href={`/ceramics/${ceramic._id}`}
+                  href={`/ceramics/${ceramic.id}`}
                   aria-label={`${t("viewDetails")} ${ceramic.code}`}
                   className="text-blue-500 hover:text-blue-600"
                 >
@@ -142,7 +142,7 @@ const CeramicsPage = () => {
                 <div className="flex space-x-4 mt-4">
                   <Link
                     aria-disabled={!user}
-                    href={!user ? "/login" : `/ceramics/add/${ceramic._id}`}
+                    href={!user ? "/login" : `/ceramics/add/${ceramic.id}`}
                     aria-label={`${t("add")} ${ceramic.code}`}
                     className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200 ${
                       !user ? "opacity-50 cursor-not-allowed" : ""
@@ -152,7 +152,7 @@ const CeramicsPage = () => {
                   </Link>
                   <Link
                     aria-disabled={!user}
-                    href={!user ? "/login" : `/ceramics/sell/${ceramic._id}`}
+                    href={!user ? "/login" : `/ceramics/sell/${ceramic.id}`}
                     aria-label={`${t("sell")} ${ceramic.code}`}
                     className={`bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200 ${
                       !user ? "opacity-50 cursor-not-allowed" : ""

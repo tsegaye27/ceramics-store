@@ -7,11 +7,13 @@ import {
   useState,
 } from "react";
 import { useCookies } from "react-cookie";
-import { useSelector } from "react-redux";
-import { RootState } from "../_features/store/store";
+import { RootState, useAppSelector } from "../_features/store/store";
+import { IUser } from "../_types/types";
 
 interface AuthContextType {
+  user: IUser | null;
   isAuthenticated: boolean;
+  token: string | null;
   login: () => Promise<void>;
   logout: () => void;
 }
@@ -20,9 +22,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [cookies, setCookie, removeCookie] = useCookies(["jwt"]);
-  const { user, token } = useSelector((state: RootState) => state.auth);
+  const { user, token } = useAppSelector((state: RootState) => state.auth);
   const [isAuthenticated, setIsAuthenticated] = useState(!!cookies.jwt);
-
   useEffect(() => {
     if (cookies.jwt) {
       setIsAuthenticated(true);
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [cookies.jwt]);
 
   const login = async () => {
+    console.log(user, token);
     localStorage.setItem("user", JSON.stringify(user));
     setCookie("jwt", token, { path: "/" });
     setIsAuthenticated(true);
@@ -44,6 +46,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        user,
+        token,
         isAuthenticated,
         login,
         logout,

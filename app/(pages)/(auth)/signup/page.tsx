@@ -1,50 +1,57 @@
 "use client";
-import axiosInstance from "@/app/_lib/axios";
+import {
+  RootState,
+  useAppDispatch,
+  useAppSelector,
+} from "@/app/_features/store/store";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
+import { signup } from "@/app/_features/auth/slice";
+import { useRouter } from "next/navigation";
+import { setCookie } from "@/app/_lib/cookie";
 
 const SignUpPage: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const { loading, error } = useAppSelector((state: RootState) => state.auth);
+  const [signupData, setSignupData] = useState<{
+    name: string;
+    email: string;
+    password: string;
+  }>({
     name: "",
     email: "",
     password: "",
-    passwordConfirm: "",
   });
-  const { loading, error, user, token } = useSelector((state) => state.auth);
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const dispatch = useAppDispatch();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setSignupData({ ...signupData, [e.target.name]: e.target.value });
   };
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.passwordConfirm) {
-      setError("Passwords do not match.");
+
+    if (signupData.password !== passwordConfirm) {
+      toast.error("Passwords do not match!");
       return;
     }
 
-    setLoading(true);
-
     try {
-      await axiosInstance.post("/auth/signup", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        passwordConfirm: "",
-      });
-
-      setError(null);
-      alert("Account created successfully! Please log in.");
+      const response = await dispatch(
+        signup({
+          name: signupData.name,
+          email: signupData.email,
+          password: signupData.password,
+        }),
+      ).unwrap();
+      setCookie("jwt", response.data.token, 1);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      toast.success("Signup successful!");
+      router.push("/ceramics");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Signup failed. Please try again.");
-    } finally {
-      setLoading(false);
+      toast.error(err || "Signup failed!");
     }
   };
 
@@ -64,7 +71,7 @@ const SignUpPage: React.FC = () => {
           type="text"
           name="name"
           placeholder="Full Name"
-          value={formData.name}
+          value={signupData.name}
           onChange={handleChange}
           className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
           disabled={loading}
@@ -73,7 +80,7 @@ const SignUpPage: React.FC = () => {
           type="email"
           name="email"
           placeholder="Email"
-          value={formData.email}
+          value={signupData.email}
           onChange={handleChange}
           className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
           disabled={loading}
@@ -82,7 +89,7 @@ const SignUpPage: React.FC = () => {
           type="password"
           name="password"
           placeholder="Password"
-          value={formData.password}
+          value={signupData.password}
           onChange={handleChange}
           className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
           disabled={loading}
@@ -91,8 +98,8 @@ const SignUpPage: React.FC = () => {
           type="password"
           name="passwordConfirm"
           placeholder="Confirm Password"
-          value={formData.passwordConfirm}
-          onChange={handleChange}
+          value={passwordConfirm}
+          onChange={(e) => setPasswordConfirm(e.target.value)}
           className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
           disabled={loading}
         />

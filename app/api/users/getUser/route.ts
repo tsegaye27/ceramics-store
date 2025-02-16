@@ -1,7 +1,10 @@
 import { jwtDecode } from "jwt-decode";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
-import { DecodedToken } from "@/app/_types/types";
 import { User } from "@/app/api/_models/Users";
+
+type DecodedToken = {
+  id: string;
+}
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");

@@ -24,7 +24,7 @@ const initialState: UserState = {
 export const fetchUser = createAsyncThunk(
   "users/fetchUser",
   async (userId: string) => {
-    const response = await axiosInstance.get(`/users/${userId}`);
+    const response = await axiosInstance.get(`/users/getUser`);
     return response.data;
   },
 );

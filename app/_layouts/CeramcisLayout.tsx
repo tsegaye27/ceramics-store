@@ -1,49 +1,19 @@
 "use client";
 
 import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
-import { useAuth } from "@/app/_context/AuthContext";
 import { useLanguage } from "../_context/LanguageContext";
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
-import axiosInstance from "../_lib/axios";
-import { login } from "@/app/_store/userSlice";
+import { useAuth } from "../_context/AuthContext";
 
 export default function CeramicsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { token, logout, isTokenValid } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const { t } = useLanguage();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const dispatch = useDispatch();
-  const [name, setName] = useState<string>("");
-
-  useEffect(() => {
-    async function fetchUser() {
-      if (!token || !isTokenValid || !isTokenValid()) {
-        setIsAuthenticated(false);
-        return;
-      }
-
-      setIsAuthenticated(true);
-
-      try {
-        const res = await axiosInstance.get("/users/getUser", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        dispatch(login(res.data));
-        setName(res.data.user.name);
-      } catch (err: any) {
-        setIsAuthenticated(false);
-      }
-    }
-
-    fetchUser();
-  }, [token, isTokenValid, dispatch]);
+  const user = isAuthenticated ? JSON.parse(localStorage.getItem("user")!) : {};
+  const { name } = user;
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
