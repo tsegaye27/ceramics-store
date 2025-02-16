@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { IOrder } from "../_types/types";
+import mongoose, { Schema } from "mongoose";
+import { IOrder } from "@/app/_types/types";
 const orderSchema = new Schema<IOrder>(
   {
     ceramicId: {
@@ -17,7 +17,7 @@ const orderSchema = new Schema<IOrder>(
     price: { type: Number, required: true },
     seller: { type: String, required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
