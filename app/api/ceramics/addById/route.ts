@@ -13,7 +13,7 @@ export async function PATCH(req: NextRequest) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    const { ceramicId, packetsAdded, piecesAdded } = addCeramicData;
+    const { ceramicId, packetsAdded, piecesAdded } = validation.data;
 
     await dbConnect();
 

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    const { name, email, password, role } = signupData;
+    const { name, email, password, role } = validation.data;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -25,16 +25,26 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const user = new User({
       name,
       email,
       password: hashedPassword,
       role,
     });
 
-    await newUser.save();
+    await user.save();
 
-    return successResponse({ newUser }, "User created successfully");
+    return successResponse(
+      {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
+      "Signed up successfully",
+    );
   } catch (error) {
     logger.error("Error during signup:", error);
     return errorResponse("Internal server error", 500);

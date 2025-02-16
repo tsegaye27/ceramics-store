@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } =
-      createCeramicData;
+      validation.data;
 
     const { packets, pieces } = formatPieces(
       totalPackets,

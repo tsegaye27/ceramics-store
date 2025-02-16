@@ -19,7 +19,7 @@ export async function PATCH(req: NextRequest) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    const { ceramicId, packetsSold, piecesSold } = soldCeramicData;
+    const { ceramicId, packetsSold, piecesSold } = validation.data;
 
     const ceramic = await Ceramic.findById(ceramicId);
     if (!ceramic) {

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    const { email, password } = loginData;
+    const { email, password } = validation.data;
 
     await dbConnect();
 
@@ -37,8 +37,19 @@ export async function POST(request: Request) {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRATION },
     );
-
-    return successResponse({ token }, "Login successful");
+    logger.info(`User ${user.email} logged in`);
+    return successResponse(
+      {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          token,
+        },
+      },
+      "Login successful",
+    );
   } catch (error) {
     logger.error("Error during login:", error);
     return errorResponse("Internal server error", 500);
