@@ -9,8 +9,7 @@ import { useAuth } from "@/app/_context/AuthContext";
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -21,22 +20,22 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
+    setLoading(true);
 
     try {
-      setLoading(true);
       const { data } = await axiosInstance.post("/auth/login", formData);
       const { token } = data;
 
       if (token && login) {
         login(token);
-        setSuccess("Logged in successfully!");
-        setTimeout(() => router.push("/ceramics"), 1000);
+        router.push("/ceramics"); // Redirect after successful login
       } else {
         throw new Error("No token received from server.");
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "An error occurred.");
+      setError(
+        err.response?.data?.error?.message || "Login failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -52,11 +51,6 @@ const LoginPage: React.FC = () => {
         {error && (
           <p className="text-red-500 bg-red-100 p-2 rounded-lg w-full text-center">
             {error}
-          </p>
-        )}
-        {success && (
-          <p className="text-green-500 bg-green-100 p-2 rounded-lg w-full text-center">
-            {success}
           </p>
         )}
         <input

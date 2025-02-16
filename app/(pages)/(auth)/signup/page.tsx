@@ -2,6 +2,7 @@
 import axiosInstance from "@/app/_lib/axios";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 const SignUpPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -10,36 +11,27 @@ const SignUpPage: React.FC = () => {
     password: "",
     passwordConfirm: "",
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
+  const { loading, error, user, token } = useSelector((state) => state.auth);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
     if (formData.password !== formData.passwordConfirm) {
       setError("Passwords do not match.");
       return;
     }
 
+    setLoading(true);
+
     try {
-      setLoading(true);
-      const response = await axiosInstance.post("/auth/signup", {
+      await axiosInstance.post("/auth/signup", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
 
-      setSuccess("Account created successfully! Please log in.");
       setFormData({
         name: "",
         email: "",
@@ -47,19 +39,12 @@ const SignUpPage: React.FC = () => {
         passwordConfirm: "",
       });
 
-      setTimeout(() => {
-        setSuccess(null);
-      }, 3000);
+      setError(null);
+      alert("Account created successfully! Please log in.");
     } catch (err: any) {
-      setError(err.response.data.error || "Internal server error");
+      setError(err.response?.data?.error || "Signup failed. Please try again.");
     } finally {
       setLoading(false);
-
-      if (error) {
-        setTimeout(() => {
-          setError(null);
-        }, 3000);
-      }
     }
   };
 
@@ -70,71 +55,59 @@ const SignUpPage: React.FC = () => {
         className="bg-white shadow-lg ring-1 ring-blue-500 flex flex-col items-center gap-6 py-8 px-6 rounded-2xl w-full max-w-md"
       >
         <h2 className="text-3xl font-semibold text-blue-600">Sign up</h2>
-
         {error && (
           <p className="text-red-500 bg-red-100 p-2 rounded-lg w-full text-center">
             {error}
           </p>
         )}
-        {success && (
-          <p className="text-green-500 bg-green-100 p-2 rounded-lg w-full text-center">
-            {success}
-          </p>
-        )}
-
-        <div className="w-full">
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
-            disabled={loading}
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
-            disabled={loading}
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
-            disabled={loading}
-          />
-          <input
-            type="password"
-            name="passwordConfirm"
-            placeholder="Confirm Password"
-            value={formData.passwordConfirm}
-            onChange={handleChange}
-            className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 transition-all duration-200 ease-in-out bg-blue-50"
-            disabled={loading}
-          />
-        </div>
-
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          value={formData.name}
+          onChange={handleChange}
+          className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
+          disabled={loading}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
+          disabled={loading}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
+          disabled={loading}
+        />
+        <input
+          type="password"
+          name="passwordConfirm"
+          placeholder="Confirm Password"
+          value={formData.passwordConfirm}
+          onChange={handleChange}
+          className="block w-full p-3 ring-1 ring-blue-300 focus:ring-2 focus:ring-blue-500 outline-none rounded-lg mb-4 bg-blue-50"
+          disabled={loading}
+        />
         <button
           type="submit"
           className={`w-full py-3 ${
-            loading
-              ? "bg-blue-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
+            loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-500"
+          } text-white rounded-lg`}
           disabled={loading}
         >
-          <Link href="/login">{loading ? "Signing up..." : "Sign up"}</Link>
+          {loading ? "Signing up..." : "Sign up"}
         </button>
         <p className="text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href={"/login"} className="text-blue-500 hover:underline">
+          <Link href="/login" className="text-blue-500 hover:underline">
             Login
           </Link>
         </p>
