@@ -6,8 +6,13 @@ import { updateCeramicSchema } from "../../_validators/ceramicSchema";
 
 export async function PATCH(req: NextRequest) {
   try {
+    const authHeader = req.headers.get("authorization");
     const addCeramicData = await req.json();
     const validation = updateCeramicSchema.safeParse(addCeramicData);
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return errorResponse("Unauthorized: No token provided", 401);
+    }
 
     if (!validation.success) {
       return errorResponse(validation.error.errors[0].message, 400);

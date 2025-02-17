@@ -7,12 +7,21 @@ import { soldCeramicSchema } from "../../_validators/ceramicSchema";
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
-    const token = req.headers.get("Authorization");
     const soldCeramicData = await req.json();
     const validation = soldCeramicSchema.safeParse(soldCeramicData);
 
-    if (!token || !token.includes("Bearer")) {
-      return errorResponse("Unauthorized", 401);
+    let token = req.headers.get("authorization")?.split(" ")[1] || "";
+
+    if (!token) {
+      const cookieHeader = req.headers.get("cookie") || "";
+      const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map((c) => c.split("=")),
+      );
+      token = cookies["jwt"];
+    }
+
+    if (!token) {
+      return errorResponse("Unauthorized: No token provided", 401);
     }
 
     if (!validation.success) {

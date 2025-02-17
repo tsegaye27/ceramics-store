@@ -8,6 +8,20 @@ export async function GET(req: NextRequest) {
     const searchParams = new URL(req.url).searchParams;
     const ceramicId = searchParams.get("ceramicId");
 
+    let token = req.headers.get("authorization")?.split(" ")[1] || "";
+
+    if (!token) {
+      const cookieHeader = req.headers.get("cookie") || "";
+      const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map((c) => c.split("=")),
+      );
+      token = cookies["jwt"];
+    }
+
+    if (!token) {
+      return errorResponse("Unauthorized: No token provided", 401);
+    }
+
     if (!ceramicId) {
       return errorResponse("Ceramic ID is required", 400);
     }

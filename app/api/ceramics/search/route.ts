@@ -7,6 +7,19 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
 
+    let token = req.headers.get("authorization")?.split(" ")[1] || "";
+
+    if (!token) {
+      const cookieHeader = req.headers.get("cookie") || "";
+      const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map((c) => c.split("=")),
+      );
+      token = cookies["jwt"];
+    }
+
+    if (!token) {
+      return errorResponse("Unauthorized: No token provided", 401);
+    }
     await dbConnect();
 
     let results;
@@ -24,7 +37,10 @@ export async function GET(req: Request) {
       results = await Ceramic.find({}).limit(100);
     }
 
-    return successResponse(results, `${results ? "Ceramics fetched successfully" : "No ceramics found"}`);
+    return successResponse(
+      results,
+      `${results ? "Ceramics fetched successfully" : "No ceramics found"}`,
+    );
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }
