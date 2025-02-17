@@ -2,17 +2,25 @@ import { jwtDecode } from "jwt-decode";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { User } from "@/app/api/_models/Users";
 
-type DecodedToken = {
+export type DecodedToken = {
   id: string;
-}
+  role: string;
+};
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization");
+  let token = req.headers.get("authorization")?.split(" ")[1] || "";
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return errorResponse("Unauthorized", 401);
+  if (!token) {
+    const cookieHeader = req.headers.get("cookie") || "";
+    const cookies = Object.fromEntries(
+      cookieHeader.split("; ").map((c) => c.split("=")),
+    );
+    token = cookies["jwt"];
   }
-  const token = authHeader.split(" ")[1];
+
+  if (!token) {
+    return errorResponse("Unauthorized: No token provided", 401);
+  }
   const decodedToken = jwtDecode<DecodedToken>(token);
 
   try {
