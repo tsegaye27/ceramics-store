@@ -30,6 +30,21 @@ export const fetchCeramics = createAsyncThunk(
   },
 );
 
+export const ceramicDetails = createAsyncThunk(
+  "ceramics/ceramicDetails",
+  async (ceramicId: string, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+
+    const response = await axiosInstance.get(`/ceramics/getById/${ceramicId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+);
+
 export const searchCeramics = createAsyncThunk(
   "ceramics/searchCeramics",
   async (query: string, { getState }) => {
@@ -38,6 +53,55 @@ export const searchCeramics = createAsyncThunk(
 
     const response = await axiosInstance.get("/ceramics/search", {
       params: { search: query },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+);
+
+export const addCeramic = createAsyncThunk(
+  "ceramics/addCeramic",
+  async (ceramicData: ICeramic, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+
+    const response = await axiosInstance.post("/ceramics/addNew", ceramicData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+);
+
+export const updateCeramic = createAsyncThunk(
+  "ceramics/updateCeramic",
+  async (ceramicData: ICeramic, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+
+    const response = await axiosInstance.post(
+      "/ceramics/addById",
+      ceramicData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  },
+);
+
+export const sellCeramic = createAsyncThunk(
+  "ceramics/sellCeramic",
+  async (ceramicData: ICeramic, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+
+    const response = await axiosInstance.post("/ceramics/sell", ceramicData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -76,6 +140,46 @@ const ceramicsSlice = createSlice({
       .addCase(searchCeramics.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to search ceramics";
+      })
+      .addCase(addCeramic.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addCeramic.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ceramics.push(action.payload.data);
+      })
+      .addCase(addCeramic.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to add ceramic";
+      })
+      .addCase(updateCeramic.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCeramic.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ceramics = state.ceramics.map((ceramic) =>
+          ceramic.id === action.payload.data.id ? action.payload.data : ceramic,
+        );
+      })
+      .addCase(updateCeramic.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to update ceramic";
+      })
+      .addCase(sellCeramic.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sellCeramic.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ceramics = state.ceramics.map((ceramic) =>
+          ceramic.id === action.payload.data.id ? action.payload.data : ceramic,
+        );
+      })
+      .addCase(sellCeramic.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to sell ceramic";
       });
   },
 });
