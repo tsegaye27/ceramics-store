@@ -1,51 +1,38 @@
 "use client";
-import { useAuth } from "@/app/_context/AuthContext";
+import { useAppDispatch, useAppSelector } from "@/app/_features/store/store";
 import { useLanguage } from "@/app/_context/LanguageContext";
-import axiosInstance from "@/app/_lib/axios";
-import { ICeramic } from "@/app/_types/types";
 import { calculateArea } from "@/app/_utils/helperFunctions";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import { fetchCeramics, searchCeramics } from "@/app/_features/ceramics/slice";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   const { t } = useLanguage();
-  const [ceramics, setCeramics] = useState<ICeramic[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { token, user } = useAuth();
+  const dispatch = useAppDispatch();
+  const { ceramics, loading, error } = useAppSelector(
+    (state) => state.ceramics,
+  );
+  const { token, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (!token) {
-      toast.error(t("Not Logged In"));
+      toast.error("Not Logged In");
       return;
     }
-  }, [token, t]);
+  }, [token]);
 
   useEffect(() => {
-    const fetchCeramics = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const res = await axiosInstance.get("/ceramics/search", {
-          params: { search: debouncedSearchQuery },
-        });
-        setCeramics(res.data.data || []);
-      } catch (err: any) {
-        setError(err.response?.data?.error || t("fetchError"));
-        setCeramics([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCeramics();
-  }, [debouncedSearchQuery, t]);
+    if (debouncedSearchQuery) {
+      dispatch(searchCeramics(debouncedSearchQuery));
+    } else {
+      dispatch(fetchCeramics());
+    }
+  }, [debouncedSearchQuery, dispatch]);
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
