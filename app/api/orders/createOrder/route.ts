@@ -9,12 +9,20 @@ import { orderSchema } from "../../_validators/orderSchema";
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    const token = req.headers.get("Authorization");
     const createOrderData = await req.json();
     const validation = orderSchema.safeParse(createOrderData);
+    let token = req.headers.get("authorization")?.split(" ")[1] || "";
 
     if (!token) {
-      return errorResponse("Unauthorized", 401);
+      const cookieHeader = req.headers.get("cookie") || "";
+      const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map((c) => c.split("=")),
+      );
+      token = cookies["jwt"];
+    }
+
+    if (!token) {
+      return errorResponse("Unauthorized: No token provided", 401);
     }
     if (!validation.success) {
       return errorResponse(validation.error.errors[0].message, 400);

@@ -1,11 +1,25 @@
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Order } from "@/app/api/_models/Orders";
-import logger from "@/app/_utils/logger";
+import logger from "@/services/logger";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
+    let token = req.headers.get("authorization")?.split(" ")[1] || "";
+
+    if (!token) {
+      const cookieHeader = req.headers.get("cookie") || "";
+      const cookies = Object.fromEntries(
+        cookieHeader.split("; ").map((c) => c.split("=")),
+      );
+      token = cookies["jwt"];
+    }
+
+    if (!token) {
+      return errorResponse("Unauthorized: No token provided", 401);
+    }
+
     await dbConnect();
 
     const orders = await Order.find().populate([
