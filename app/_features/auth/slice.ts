@@ -1,4 +1,5 @@
 import axiosInstance from "@/app/_lib/axios";
+import { removeCookie } from "@/app/_lib/cookie";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 type AuthState = {
@@ -14,6 +15,7 @@ type AuthState = {
   error: string | null;
   token: string;
 };
+
 const initialState: AuthState = {
   user: {
     id: "",
@@ -85,6 +87,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.error =
           action.error.message || "Signup failed. Please try again.";
+      })
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.token;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Login failed. Please try again.";
       });
   },
 });

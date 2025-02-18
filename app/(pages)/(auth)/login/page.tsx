@@ -1,43 +1,44 @@
 "use client";
-
-import axiosInstance from "@/app/_lib/axios";
+import { login } from "@/app/_features/auth/slice";
+import {
+  RootState,
+  useAppDispatch,
+  useAppSelector,
+} from "@/app/_features/store/store";
+import { setCookie } from "@/app/_lib/cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { useAuth } from "@/app/_context/AuthContext";
+import toast from "react-hot-toast";
 
 const LoginPage: React.FC = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useAppSelector((state: RootState) => state.auth);
+  const [loginData, setLoginData] = useState<{
+    email: string;
+    password: string;
+  }>({ email: "", password: "" });
   const router = useRouter();
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-
     try {
-      const { data } = await axiosInstance.post("/auth/login", formData);
-      const { token } = data;
-
-      if (token && login) {
-        login(token);
-        router.push("/ceramics"); // Redirect after successful login
-      } else {
-        throw new Error("No token received from server.");
-      }
+      const response = await dispatch(
+        login({
+          email: loginData.email,
+          password: loginData.password,
+        }),
+      ).unwrap();
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      setCookie("jwt", response.data.token, 1);
+      toast.success("Login successful!");
+      router.push("/ceramics");
     } catch (err: any) {
-      setError(
-        err.response?.data?.error?.message || "Login failed. Please try again.",
-      );
-    } finally {
-      setLoading(false);
+      toast.error(err || "Login failed!");
     }
   };
 
@@ -56,7 +57,7 @@ const LoginPage: React.FC = () => {
         <input
           type="email"
           name="email"
-          value={formData.email}
+          value={loginData.email}
           onChange={handleChange}
           placeholder="Email"
           disabled={loading}
@@ -65,7 +66,7 @@ const LoginPage: React.FC = () => {
         <input
           type="password"
           name="password"
-          value={formData.password}
+          value={loginData.password}
           onChange={handleChange}
           placeholder="Password"
           disabled={loading}

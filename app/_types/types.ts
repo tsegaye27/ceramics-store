@@ -1,5 +1,5 @@
 export type ICeramic = {
-  id: string;
+  id?: string;
   imageUrl?: string;
   size: string;
   type: string;
@@ -8,8 +8,8 @@ export type ICeramic = {
   totalPackets: number;
   totalPiecesWithoutPacket: number;
   piecesPerPacket: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type IUser = {
