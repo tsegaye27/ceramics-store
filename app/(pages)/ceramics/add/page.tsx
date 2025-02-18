@@ -5,35 +5,37 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
-import axios from "axios";
-import axiosInstance from "@/app/_lib/axios";
-// import logger from "@/services/logger";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/_features/store/store";
+import { uploadImage, addCeramic } from "@/app/_features/ceramics/slice";
+import { ICeramic } from "@/app/_types/types";
+import { toast } from "react-hot-toast";
 
-const dummySizes = ["60x60", "40x40", "30x60", "30x30", "Zekolo"];
-const dummyTypes = ["Polished", "Normal", "Digital"];
-const dummyManufacturers = ["Arerti", "Dukem", "China"];
+const sizes = ["60x60", "40x40", "30x60", "30x30", "Zekolo"];
+const types = ["Polished", "Normal", "Digital"];
+const manufacturers = ["Arerti", "Dukem", "China"];
 
 const CeramicForm = () => {
   const { t } = useLanguage();
-  const [formData, setFormData] = useState({
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.ceramics);
+  const router = useRouter();
+
+  const [formData, setFormData] = useState<ICeramic>({
     size: "",
     type: "",
     manufacturer: "",
     code: "",
-    piecesPerPacket: "",
-    totalPackets: "",
-    totalPiecesWithoutPacket: "",
+    piecesPerPacket: 0,
+    totalPackets: 0,
+    totalPiecesWithoutPacket: 0,
     imageUrl: "",
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter();
 
-  const [filteredSizes, setFilteredSizes] = useState(dummySizes);
-  const [filteredTypes, setFilteredTypes] = useState(dummyTypes);
+  const [filteredSizes, setFilteredSizes] = useState(sizes);
+  const [filteredTypes, setFilteredTypes] = useState(types);
   const [filteredManufacturers, setFilteredManufacturers] =
-    useState(dummyManufacturers);
+    useState(manufacturers);
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showManufacturerDropdown, setShowManufacturerDropdown] =
@@ -48,60 +50,42 @@ const CeramicForm = () => {
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+    const file = e.target.files?.[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      const imageFormData = new FormData();
-      imageFormData.append("file", file);
-      imageFormData.append(
-        "upload_preset",
-        process.env.NEXT_PUBLIC_CLOUDINARY_PRESET as string
-      );
-
-      try {
-        setLoading(true);
-        const response = await axios.post(
-          `https://api.cloudinary.com/v1_1/${
-            process.env.NEXT_PUBLIC_CLOUDINARY_NAME as string
-          }/image/upload`,
-          imageFormData
-        );
-        // logger.info("Image uploaded successfully", response.data);
-        setFormData({ ...formData, imageUrl: response.data.secure_url });
-      } catch (err) {
-        setError(t("imageUploadFailed"));
-      } finally {
-        setLoading(false);
+      const result = await dispatch(uploadImage(file));
+      if (uploadImage.fulfilled.match(result)) {
+        setFormData({ ...formData, imageUrl: result.payload });
       }
     }
   };
 
   const handleDropdownChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "size" | "type" | "manufacturer"
+    type: "size" | "type" | "manufacturer",
   ) => {
     const value = e.target.value;
     setFormData({ ...formData, [type]: value });
 
     if (type === "size") {
       setFilteredSizes(
-        dummySizes.filter((size) =>
-          size.toLowerCase().includes(value.toLowerCase())
-        )
+        sizes.filter((size) =>
+          size.toLowerCase().includes(value.toLowerCase()),
+        ),
       );
       setShowSizeDropdown(value.length > 0);
     } else if (type === "type") {
       setFilteredTypes(
-        dummyTypes.filter((itemType) =>
-          itemType.toLowerCase().includes(value.toLowerCase())
-        )
+        types.filter((itemType) =>
+          itemType.toLowerCase().includes(value.toLowerCase()),
+        ),
       );
       setShowTypeDropdown(value.length > 0);
     } else if (type === "manufacturer") {
       setFilteredManufacturers(
-        dummyManufacturers.filter((manufacturer) =>
-          manufacturer.toLowerCase().includes(value.toLowerCase())
-        )
+        manufacturers.filter((manufacturer) =>
+          manufacturer.toLowerCase().includes(value.toLowerCase()),
+        ),
       );
       setShowManufacturerDropdown(value.length > 0);
     }
@@ -119,7 +103,7 @@ const CeramicForm = () => {
 
   const handleSelect = (
     value: string,
-    type: "size" | "type" | "manufacturer"
+    type: "size" | "type" | "manufacturer",
   ) => {
     setFormData({ ...formData, [type]: value });
     if (type === "size") {
@@ -133,40 +117,22 @@ const CeramicForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
+    const ceramicData = {
+      ...formData,
+      piecesPerPacket: Number(formData.piecesPerPacket),
+      totalPackets: Number(formData.totalPackets),
+      totalPiecesWithoutPacket: Number(formData.totalPiecesWithoutPacket),
+    };
     try {
-      setLoading(true);
-      await axiosInstance.post("/ceramics/addNew", {
-        ...formData,
-        piecesPerPacket: Number(formData.piecesPerPacket),
-        totalPackets: Number(formData.totalPackets),
-        totalPiecesWithoutPacket: Number(formData.totalPiecesWithoutPacket),
-      });
-      setSuccess(t("ceramicAddedSuccessfully"));
-      setTimeout(() => {
-        setSuccess(null);
-      }, 3000);
-      setFormData({
-        size: "",
-        type: "",
-        manufacturer: "",
-        code: "",
-        piecesPerPacket: "",
-        totalPackets: "",
-        totalPiecesWithoutPacket: "",
-        imageUrl: "",
-      });
-      router.push("/ceramics");
-    } catch (err: any) {
-      setError(err.response?.data.error || t("internalServerError"));
-    } finally {
-      setLoading(false);
-      if (error) {
-        setTimeout(() => {
-          setError(null);
-        }, 3000);
+      const result = await dispatch(addCeramic(ceramicData));
+      if (addCeramic.fulfilled.match(result)) {
+        toast.success("Ceramic added successfully");
+        router.push("/ceramics");
+      } else if (addCeramic.rejected.match(result)) {
+        toast.error((result.payload as string) || "Failed to add ceramic");
       }
+    } catch (err: any) {
+      toast.error(err.message || "unexpected error occured");
     }
   };
 
@@ -179,10 +145,10 @@ const CeramicForm = () => {
         {t("addCeramic")}
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {success && <p className="text-green-500 text-sm">{success}</p>}
-
         <div className="relative">
+          <label htmlFor="size" className="block mb-2 text-gray-700">
+            {t("size")}
+          </label>
           <input
             type="text"
             name="size"
@@ -209,6 +175,9 @@ const CeramicForm = () => {
         </div>
 
         <div className="relative">
+          <label htmlFor="type" className="block mb-2 text-gray-700">
+            {t("type")}
+          </label>
           <input
             type="text"
             name="type"
@@ -235,6 +204,9 @@ const CeramicForm = () => {
         </div>
 
         <div className="relative">
+          <label htmlFor="manufacturer" className="block mb-2 text-gray-700">
+            {t("manufacturer")}
+          </label>
           <input
             type="text"
             name="manufacturer"
@@ -260,49 +232,75 @@ const CeramicForm = () => {
           )}
         </div>
 
-        <input
-          type="text"
-          name="code"
-          onChange={handleChange}
-          value={formData.code}
-          disabled={loading}
-          placeholder={t("code")}
-          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="piecesPerPacket"
-          onChange={handleChange}
-          value={formData.piecesPerPacket}
-          disabled={loading}
-          placeholder={t("piecesPerPacket")}
-          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="totalPackets"
-          onChange={handleChange}
-          value={formData.totalPackets}
-          disabled={loading}
-          placeholder={t("totalPackets")}
-          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="totalPiecesWithoutPacket"
-          onChange={handleChange}
-          value={formData.totalPiecesWithoutPacket}
-          disabled={loading}
-          placeholder={t("totalPiecesWithoutPacket")}
-          className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div>
+          <label htmlFor="code" className="block mb-2 text-gray-700">
+            {t("code")}
+          </label>
+          <input
+            type="text"
+            name="code"
+            onChange={handleChange}
+            value={formData.code}
+            disabled={loading}
+            placeholder={t("code")}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="piecesPerPacket" className="block mb-2 text-gray-700">
+            {t("piecesPerPacket")}
+          </label>
+          <input
+            type="text"
+            name="piecesPerPacket"
+            onChange={handleChange}
+            value={formData.piecesPerPacket}
+            disabled={loading}
+            placeholder={t("piecesPerPacket")}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="totalPackets" className="block mb-2 text-gray-700">
+            {t("totalPackets")}
+          </label>
+          <input
+            type="text"
+            name="totalPackets"
+            onChange={handleChange}
+            value={formData.totalPackets}
+            disabled={loading}
+            placeholder={t("totalPackets")}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="totalPiecesWithoutPacket"
+            className="block mb-2 text-gray-700"
+          >
+            {t("totalPiecesWithoutPacket")}
+          </label>
+          <input
+            type="text"
+            name="totalPiecesWithoutPacket"
+            onChange={handleChange}
+            value={formData.totalPiecesWithoutPacket}
+            disabled={loading}
+            placeholder={t("totalPiecesWithoutPacket")}
+            className="border border-gray-300 rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
         <div className="relative">
           <label className="block mb-2 text-gray-700">{t("uploadImage")}</label>
           <div className="w-48 h-48 border-dashed border-2 border-gray-300 flex justify-center items-center rounded-md relative overflow-hidden">
             {formData.imageUrl || imagePreview ? (
               <Image
-                src={imagePreview || formData.imageUrl}
+                src={imagePreview || formData.imageUrl || "/placeholder.png"}
                 alt="Image Preview"
                 width={192}
                 height={192}

@@ -2,7 +2,7 @@ import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
-import { soldCeramicSchema } from "../../_validators/ceramicSchema";
+import { soldCeramicSchema } from "@/app/_validators/ceramicSchema";
 
 export async function PATCH(req: NextRequest) {
   try {

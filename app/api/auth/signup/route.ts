@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
-import { signupSchema } from "../../_validators/userSchema";
+import { signupSchema } from "@/app/_validators/userSchema";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET!;

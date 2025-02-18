@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/services/logger";
 import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
-import { loginSchema } from "../../_validators/userSchema";
+import { loginSchema } from "@/app/_validators/userSchema";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_EXPIRATION = process.env.TOKEN_EXPIRATION!;

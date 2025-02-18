@@ -4,7 +4,7 @@ import logger from "@/services/logger";
 import { jwtDecode } from "jwt-decode";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
-import { orderSchema } from "../../_validators/orderSchema";
+import { orderSchema } from "@/app/_validators/orderSchema";
 
 export async function POST(req: NextRequest) {
   try {

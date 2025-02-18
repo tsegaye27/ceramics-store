@@ -2,6 +2,7 @@ import axiosInstance from "@/app/_lib/axios";
 import { ICeramic } from "@/app/_types/types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "@/app/_features/store/store";
+import axios from "axios";
 
 type CeramicsState = {
   ceramics: ICeramic[];
@@ -214,6 +215,16 @@ const ceramicsSlice = createSlice({
       .addCase(sellCeramic.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to sell ceramic";
+      })
+      .addCase(uploadImage.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(uploadImage.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(uploadImage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to upload image";
       });
   },
 });

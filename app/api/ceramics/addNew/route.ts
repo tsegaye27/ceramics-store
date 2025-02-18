@@ -4,7 +4,7 @@ import { ICeramic } from "@/app/_types/types";
 import { formatPieces } from "@/app/_utils/helperFunctions";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
-import { createCeramicSchema } from "../../_validators/ceramicSchema";
+import { createCeramicSchema } from "@/app/_validators/ceramicSchema";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { DecodedToken } from "../../users/getUser/route";
 
