@@ -61,18 +61,52 @@ export const searchCeramics = createAsyncThunk(
   },
 );
 
+export const uploadImage = createAsyncThunk(
+  "ceramics/uploadImage",
+  async (file: File, { rejectWithValue }) => {
+    const imageFormData = new FormData();
+    imageFormData.append("file", file);
+    imageFormData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_PRESET as string,
+    );
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${
+          process.env.NEXT_PUBLIC_CLOUDINARY_NAME as string
+        }/image/upload`,
+        imageFormData,
+      );
+      return response.data.secure_url;
+    } catch (err) {
+      return rejectWithValue("Image upload failed");
+    }
+  },
+);
+
 export const addCeramic = createAsyncThunk(
   "ceramics/addCeramic",
-  async (ceramicData: ICeramic, { getState }) => {
+  async (ceramicData: ICeramic, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const token = state.auth.token;
 
-    const response = await axiosInstance.post("/ceramics/addNew", ceramicData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
+    try {
+      const response = await axiosInstance.post(
+        "/ceramics/addNew",
+        ceramicData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data.error || "Failed to add ceramic",
+      );
+    }
   },
 );
 
@@ -92,6 +126,30 @@ export const updateCeramic = createAsyncThunk(
       },
     );
     return response.data;
+  },
+);
+
+export const uploadImage = createAsyncThunk(
+  "ceramics/uploadImage",
+  async (file: File, { rejectWithValue }) => {
+    const imageFormData = new FormData();
+    imageFormData.append("file", file);
+    imageFormData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_PRESET as string,
+    );
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${
+          process.env.NEXT_PUBLIC_CLOUDINARY_NAME as string
+        }/image/upload`,
+        imageFormData,
+      );
+      return response.data.secure_url;
+    } catch (err) {
+      return rejectWithValue("Image upload failed");
+    }
   },
 );
 
