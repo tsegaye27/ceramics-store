@@ -1,41 +1,25 @@
+import { ICeramic } from "@/app/_types/types";
+import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
+import { formatPieces } from "@/app/_utils/helperFunctions";
+import { createCeramicSchema } from "@/app/_validators/ceramicSchema";
 import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
-import { ICeramic } from "@/app/_types/types";
-import { formatPieces } from "@/app/_utils/helperFunctions";
 import { NextRequest } from "next/server";
-import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
-import { createCeramicSchema } from "@/app/_validators/ceramicSchema";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { DecodedToken } from "../../users/getUser/route";
+import { checkPermission } from "../../_utils/checkPermission";
+import { decodeToken } from "../../_utils/decodeToken";
 
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
 
-    let token = req.headers.get("authorization")?.split(" ")[1] || "";
+    const decodedToken = decodeToken(req);
 
-    if (!token) {
-      const cookieHeader = req.headers.get("cookie") || "";
-      const cookies = Object.fromEntries(
-        cookieHeader.split("; ").map((c) => c.split("=")),
-      );
-      token = cookies["jwt"];
-    }
-
-    if (!token) {
+    if (!decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
-    let decodedToken: JwtPayload | DecodedToken;
-    try {
-      decodedToken = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload &
-        DecodedToken;
-    } catch (err) {
-      return errorResponse("Unauthorized: Invalid token", 401);
-    }
 
-    const userRole = decodedToken.role; // Ensure token includes 'role'
-    if (userRole !== "admin") {
-      return errorResponse("Forbidden: Admin access required", 403);
+    if (checkPermission(decodedToken, "admin")) {
+      return errorResponse("You don't have permission to create ceramic", 403);
     }
 
     // Parse and validate request body

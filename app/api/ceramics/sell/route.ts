@@ -3,25 +3,22 @@ import { Ceramic } from "@/app/api/_models/Ceramics";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { soldCeramicSchema } from "@/app/_validators/ceramicSchema";
+import { decodeToken } from "../../_utils/decodeToken";
+import { checkPermission } from "../../_utils/checkPermission";
 
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
     const soldCeramicData = await req.json();
     const validation = soldCeramicSchema.safeParse(soldCeramicData);
+    const decodedToken = decodeToken(req);
 
-    let token = req.headers.get("authorization")?.split(" ")[1] || "";
-
-    if (!token) {
-      const cookieHeader = req.headers.get("cookie") || "";
-      const cookies = Object.fromEntries(
-        cookieHeader.split("; ").map((c) => c.split("=")),
-      );
-      token = cookies["jwt"];
+    if (!decodedToken) {
+      return errorResponse("Unauthorized: No token provided", 401);
     }
 
-    if (!token) {
-      return errorResponse("Unauthorized: No token provided", 401);
+    if (checkPermission(decodedToken, "admin")) {
+      return errorResponse("You don't have permission to update ceramic", 403);
     }
 
     if (!validation.success) {

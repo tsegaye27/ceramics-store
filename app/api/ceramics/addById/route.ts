@@ -3,15 +3,21 @@ import dbConnect from "@/app/api/_lib/mongoose";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { updateCeramicSchema } from "@/app/_validators/ceramicSchema";
+import { decodeToken } from "../../_utils/decodeToken";
+import { checkPermission } from "../../_utils/checkPermission";
 
 export async function PATCH(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
     const addCeramicData = await req.json();
     const validation = updateCeramicSchema.safeParse(addCeramicData);
+    const decodedToken = decodeToken(req);
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
+    }
+
+    if (checkPermission(decodedToken, "admin")) {
+      return errorResponse("You don't have permission to update ceramic", 403);
     }
 
     if (!validation.success) {
