@@ -61,6 +61,11 @@ const CeramicForm = () => {
         toast.success("Ceramic added successfully");
         reset();
         router.push("/ceramics");
+      } else if (addCeramic.rejected.match(result)) {
+        console.log(result);
+        toast.error(
+          (result.payload as string) || "An unexpected error occurred",
+        );
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred");
