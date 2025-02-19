@@ -104,9 +104,7 @@ export const addCeramic = createAsyncThunk(
       );
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data.error || "Failed to add ceramic",
-      );
+      return rejectWithValue(err.response?.data?.message);
     }
   },
 );
