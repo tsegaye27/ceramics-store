@@ -10,7 +10,7 @@ export default function CeramicsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { logout, token, user } = useAuth();
   const { t } = useLanguage();
   const name = user?.name;
 
@@ -19,7 +19,7 @@ export default function CeramicsLayout({
       <header className="flex justify-between items-center mb-6">
         <LanguageSwitcher />
         <div>
-          {isAuthenticated ? (
+          {token && user ? (
             <button
               onClick={logout}
               className="text-red-500 hover:text-red-700 font-bold"

@@ -3,16 +3,23 @@
 import { useAuth } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import axiosInstance from "../_lib/axios";
 
 const AuthChecker = ({ children }: { children: React.ReactNode }) => {
-  const { isTokenValid } = useAuth();
+  const { token } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (isTokenValid && !isTokenValid()) {
-      router.push("/login");
+    async function isTokenValid() {
+      try {
+        await axiosInstance.get("/auth/verify");
+      } catch (error) {
+        router.push("/login");
+      }
     }
-  }, [isTokenValid, router]);
-
+    if (token) {
+      isTokenValid();
+    }
+  }, [token, router]);
   return <>{children}</>;
 };
 

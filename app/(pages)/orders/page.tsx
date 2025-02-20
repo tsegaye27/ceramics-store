@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,13 +7,13 @@ import axiosInstance from "@/app/_lib/axios";
 import { IOrder } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
 // import logger from "@/app/_utils/logger";
-import Loading from "./loading";
+// import Loading from "./loading";
 
 const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<IOrder[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  // const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { t } = useLanguage();
 
@@ -32,7 +31,7 @@ const OrderList = () => {
       } catch (err: any) {
         setError(err.message || "Failed to fetch orders");
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
@@ -54,32 +53,31 @@ const OrderList = () => {
 
   const calculateTotalPrice = () => {
     return filteredOrders.reduce((total, order) => {
-        const area:string | any  = calculateArea(
+      const area: string | any = calculateArea(
         order.packets,
         order.pieces,
         order.ceramicId?.piecesPerPacket ?? 0,
-        order.ceramicId?.size ?? 0
+        order.ceramicId?.size ?? 0,
       );
       return total + order.price * area;
     }, 0);
   };
 
   const calculateTotalArea = () => {
-      return filteredOrders.reduce((total, orders)=> {
-          const area:string | any = calculateArea(
-              orders.packets,
-              orders.pieces,
-              orders.ceramicId?.piecesPerPacket ?? 0,
-              orders.ceramicId?.size ?? 0,
-          )
-          return total + (Number(area)|| 0);
-      }, 0) 
-  }
+    return filteredOrders.reduce((total, orders) => {
+      const area: string | any = calculateArea(
+        orders.packets,
+        orders.pieces,
+        orders.ceramicId?.piecesPerPacket ?? 0,
+        orders.ceramicId?.size ?? 0,
+      );
+      return total + (Number(area) || 0);
+    }, 0);
+  };
 
-
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
   if (error) {
     return <p className="text-center text-red-500">Error: {error}</p>;
@@ -113,26 +111,42 @@ const OrderList = () => {
           <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
             <thead>
               <tr className="bg-gray-100 text-left">
-                <th className="py-3 px-4 border-b border-r-2 font-medium">No</th>
-                <th className="py-3 px-4 border-b border-r-2 font-medium">Ceramic</th>
-                <th className="py-3 px-4 border-b border-r-2 font-medium">Seller</th>
-                <th className="py-3 px-4 border-b border-r-2 font-medium">Time</th>
-                <th className="py-3 px-4 border-b border-r-2 font-medium">Total Area</th>
-                <th className="py-3 px-4 border-b border-r-2 font-medium">Total Price</th>
-                <th className="py-3 px-4 border-b border-r-2 font-medium">User</th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  No
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  Ceramic
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  Seller
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  Time
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  Total Area
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  Total Price
+                </th>
+                <th className="py-3 px-4 border-b border-r-2 font-medium">
+                  User
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.map((order, index) => (
                 <tr
-                  key={order._id}
+                  key={order.id}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                 >
                   <td className="py-3 px-4 border-b border-r-2">{index + 1}</td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.ceramicId?.size} ({order.ceramicId?.code})
                   </td>
-                  <td className="py-3 px-4 border-b border-r-2">{order.seller}</td>
+                  <td className="py-3 px-4 border-b border-r-2">
+                    {order.seller}
+                  </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.createdAt &&
                       new Date(order.createdAt).toLocaleString()}
@@ -142,8 +156,9 @@ const OrderList = () => {
                       order.packets,
                       order.pieces,
                       order.ceramicId?.piecesPerPacket ?? 0,
-                      order.ceramicId?.size ?? 0
-                    )} m²
+                      order.ceramicId?.size ?? 0,
+                    )}{" "}
+                    m²
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {(
@@ -153,10 +168,11 @@ const OrderList = () => {
                           order.packets,
                           order.pieces,
                           order.ceramicId?.piecesPerPacket ?? 0,
-                          order.ceramicId?.size ?? 0
-                        )
+                          order.ceramicId?.size ?? 0,
+                        ),
                       )
-                    ).toFixed(2)} birr
+                    ).toFixed(2)}{" "}
+                    birr
                   </td>
                   <td className="py-3 px-4 border-b border-r-2">
                     {order.userId.name}
@@ -167,11 +183,11 @@ const OrderList = () => {
                 <td colSpan={4} className="py-3 px-4 border-t text-right">
                   Total:
                 </td>
-                  <td className="py-3 px-4 border-t">
-                    {calculateTotalArea()} m2
-                  </td>
-                  
-            <td className="py-3 px-4 border-t">
+                <td className="py-3 px-4 border-t">
+                  {calculateTotalArea()} m2
+                </td>
+
+                <td className="py-3 px-4 border-t">
                   {calculateTotalPrice().toFixed(2)} birr
                 </td>
                 <td className="border-t"></td>

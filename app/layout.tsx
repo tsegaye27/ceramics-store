@@ -4,7 +4,7 @@ import RLayout from "@/app/_layouts/RLayout";
 
 export const metadata: Metadata = {
   title: "Ceramics Store",
-  description: "Explore unique ceramics crafted with care.",
+  description: "Manage you ceramics on a higher level.",
 };
 
 export default function RootLayout({
