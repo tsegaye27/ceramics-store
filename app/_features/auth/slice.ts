@@ -1,6 +1,6 @@
 import axiosInstance from "@/app/_lib/axios";
 import { removeCookie } from "@/app/_lib/cookie";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type AuthState = {
   user: {
@@ -10,10 +10,10 @@ type AuthState = {
     role: string;
     createdAt: string;
     updatedAt: string;
-  };
+  } | null;
   loading: boolean;
   error: string | null;
-  token: string;
+  token: string | null;
 };
 
 const initialState: AuthState = {
@@ -64,12 +64,17 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    setToken: (state, action: PayloadAction<string>) => {
+      state.token = action.payload;
+    },
+    setUser: (state, action: PayloadAction<AuthState["user"]>) => {
+      state.user = action.payload;
+    },
     logout: (state) => {
-      state.user = initialState.user;
-      state.token = initialState.token;
+      state.user = null;
+      state.token = null;
       state.error = null;
       state.loading = false;
-      removeCookie("jwt");
     },
   },
   extraReducers: (builder) => {
@@ -104,5 +109,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { setToken, setUser, logout } = authSlice.actions;
 export default authSlice.reducer;
