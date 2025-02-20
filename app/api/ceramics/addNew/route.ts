@@ -22,14 +22,12 @@ export async function POST(req: NextRequest) {
       return errorResponse("You don't have permission to create ceramic", 403);
     }
 
-    // Parse and validate request body
     const ceramicData: ICeramic = await req.json();
     const validation = createCeramicSchema.safeParse(ceramicData);
     if (!validation.success) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    // Format ceramic data
     const { totalPackets, totalPiecesWithoutPacket, piecesPerPacket } =
       validation.data;
     const { packets, pieces } = formatPieces(
@@ -38,7 +36,6 @@ export async function POST(req: NextRequest) {
       piecesPerPacket,
     );
 
-    // Save new ceramic entry
     const newCeramic = new Ceramic({
       ...ceramicData,
       totalPackets: packets,
@@ -48,6 +45,9 @@ export async function POST(req: NextRequest) {
     const savedCeramic = await newCeramic.save();
     return successResponse(savedCeramic, "Ceramic created successfully");
   } catch (error: any) {
+    if (error.code === 11000) {
+      return errorResponse("Ceramic already exists", 400);
+    }
     return errorResponse(error.message, 500);
   }
 }

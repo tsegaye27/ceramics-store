@@ -10,6 +10,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const addCeramicData = await req.json();
     const validation = updateCeramicSchema.safeParse(addCeramicData);
+    const ceramicId = new URL(req.url).searchParams.get("ceramicId");
     const decodedToken = decodeToken(req);
 
     if (!decodedToken) {
@@ -24,7 +25,7 @@ export async function PATCH(req: NextRequest) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    const { ceramicId, packetsAdded, piecesAdded } = validation.data;
+    const { packetsAdded, piecesAdded } = validation.data;
 
     await dbConnect();
 
