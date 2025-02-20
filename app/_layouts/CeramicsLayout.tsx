@@ -10,10 +10,9 @@ export default function CeramicsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { t } = useLanguage();
-  const user = isAuthenticated ? JSON.parse(localStorage.getItem("user")!) : {};
-  const { name } = user;
+  const name = user?.name;
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">

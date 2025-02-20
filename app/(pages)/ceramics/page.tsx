@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
-import { toast } from "react-hot-toast";
 import { fetchCeramics, searchCeramics } from "@/app/_features/ceramics/slice";
+import { useAuth } from "@/app/_context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,11 +18,14 @@ const CeramicsPage = () => {
   const { ceramics, loading, error } = useAppSelector(
     (state) => state.ceramics,
   );
-  const { token, user } = useAppSelector((state) => state.auth);
+  const { token, user } = useAuth();
+  const router = useRouter();
+
+  console.log(ceramics);
 
   useEffect(() => {
     if (!token) {
-      toast.error("Not Logged In");
+      router.push("/login");
       return;
     }
   }, [token]);
@@ -33,6 +37,11 @@ const CeramicsPage = () => {
       dispatch(fetchCeramics());
     }
   }, [debouncedSearchQuery, dispatch]);
+
+  // Check if the user is an admin
+  const isAdmin = user?.role
+    ? user?.role === "admin"
+    : JSON.parse(localStorage.getItem("user")!)?.role === "admin";
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -52,26 +61,23 @@ const CeramicsPage = () => {
           />
         </form>
 
-        <div className="w-4xl flex justify-between">
-          <Link
-            href={!user ? "/login" : "/ceramics/add"}
-            aria-disabled={!user}
-            className={`text-blue-600 hover:text-blue-800 mb-6 inline-block ${
-              !user ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {t("addNewCeramic")}
-          </Link>
-          <Link
-            href={!user ? "/login" : "/orders"}
-            aria-disabled={!user}
-            className={`text-blue-600 hover:text-blue-800 mb-6 inline-block ${
-              !user ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {t("orderList")}
-          </Link>
-        </div>
+        {/* Conditionally render buttons based on user role */}
+        {isAdmin && (
+          <div className="w-4xl flex justify-between">
+            <Link
+              href="/ceramics/add"
+              className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+            >
+              {t("addNewCeramic")}
+            </Link>
+            <Link
+              href="/orders"
+              className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+            >
+              {t("orderList")}
+            </Link>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center h-40">
@@ -87,19 +93,21 @@ const CeramicsPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {ceramics.map((ceramic) => (
               <div
-                key={ceramic.id}
+                key={ceramic._id}
                 className={`bg-white p-5 rounded-lg shadow-lg ${
                   ceramic.totalPackets <= 10 ? "border-2 border-red-600" : ""
                 } hover:transition-shadow duration-300`}
               >
-                <Image
-                  src={ceramic.imageUrl || ""}
-                  alt={ceramic?.code || "Ceramic Image"}
-                  width={200}
-                  height={200}
-                  priority
-                  className="rounded-lg object-cover"
-                />
+                {ceramic.imageUrl && (
+                  <Image
+                    src={ceramic.imageUrl || ""}
+                    alt={ceramic?.code || "Ceramic Image"}
+                    width={200}
+                    height={200}
+                    priority
+                    className="rounded-lg object-cover"
+                  />
+                )}
                 <h2 className="font-bold text-xl text-blue-800 mb-2">
                   {t("code")}: {ceramic.code || "N/A"}
                 </h2>
@@ -120,34 +128,31 @@ const CeramicsPage = () => {
                   {ceramic.size === "zekolo" ? "m" : "m²"}
                 </p>
                 <Link
-                  href={`/ceramics/${ceramic.id}`}
+                  href={`/ceramics/${ceramic._id}`}
                   aria-label={`${t("viewDetails")} ${ceramic.code}`}
                   className="text-blue-500 hover:text-blue-600"
                 >
                   {t("viewDetails")}
                 </Link>
-                <div className="flex space-x-4 mt-4">
-                  <Link
-                    aria-disabled={!user}
-                    href={!user ? "/login" : `/ceramics/add/${ceramic.id}`}
-                    aria-label={`${t("add")} ${ceramic.code}`}
-                    className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200 ${
-                      !user ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {t("add")}
-                  </Link>
-                  <Link
-                    aria-disabled={!user}
-                    href={!user ? "/login" : `/ceramics/sell/${ceramic.id}`}
-                    aria-label={`${t("sell")} ${ceramic.code}`}
-                    className={`bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200 ${
-                      !user ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {t("sell")}
-                  </Link>
-                </div>
+                {/* Conditionally render Sell and Add buttons for admins */}
+                {isAdmin && (
+                  <div className="flex space-x-4 mt-4">
+                    <Link
+                      href={`/ceramics/add/${ceramic._id}`}
+                      aria-label={`${t("add")} ${ceramic.code}`}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
+                    >
+                      {t("add")}
+                    </Link>
+                    <Link
+                      href={`/ceramics/sell/${ceramic._id}`}
+                      aria-label={`${t("sell")} ${ceramic.code}`}
+                      className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                    >
+                      {t("sell")}
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
           </div>

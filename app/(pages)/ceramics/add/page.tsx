@@ -55,6 +55,7 @@ const CeramicForm = () => {
   };
 
   const onSubmit = async (data: CeramicFormData) => {
+    console.log("form data", data);
     try {
       const result = await dispatch(addCeramic(data));
       if (addCeramic.fulfilled.match(result)) {
@@ -62,7 +63,6 @@ const CeramicForm = () => {
         reset();
         router.push("/ceramics");
       } else if (addCeramic.rejected.match(result)) {
-        console.log(result);
         toast.error(
           (result.payload as string) || "An unexpected error occurred",
         );

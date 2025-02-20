@@ -1,5 +1,5 @@
 export type ICeramic = {
-  id?: string;
+  _id?: string;
   imageUrl?: string;
   size: string;
   type: string;
