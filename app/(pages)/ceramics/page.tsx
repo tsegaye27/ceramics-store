@@ -9,6 +9,7 @@ import Image from "next/image";
 import { fetchCeramics, searchCeramics } from "@/app/_features/ceramics/slice";
 import { useAuth } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,8 +21,31 @@ const CeramicsPage = () => {
   );
   const { token, user } = useAuth();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  console.log(ceramics);
+  const handleAddNewCeramic = () => {
+    startTransition(() => {
+      router.push("/ceramics/add");
+    });
+  };
+
+  const handleViewOrders = () => {
+    startTransition(() => {
+      router.push("/orders");
+    });
+  };
+
+  const handleAddCeramic = (ceramicId: string) => {
+    startTransition(() => {
+      router.push(`/ceramics/add/${ceramicId}`);
+    });
+  };
+
+  const handleSellCeramic = (ceramicId: string) => {
+    startTransition(() => {
+      router.push(`/ceramics/sell/${ceramicId}`);
+    });
+  };
 
   useEffect(() => {
     if (!token) {
@@ -38,10 +62,7 @@ const CeramicsPage = () => {
     }
   }, [debouncedSearchQuery, dispatch]);
 
-  // Check if the user is an admin
-  const isAdmin = user?.role
-    ? user?.role === "admin"
-    : JSON.parse(localStorage.getItem("user")!)?.role === "admin";
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
@@ -61,25 +82,35 @@ const CeramicsPage = () => {
           />
         </form>
 
-        {/* Conditionally render buttons based on user role */}
         {isAdmin && (
           <div className="w-4xl flex justify-between">
-            <Link
-              href="/ceramics/add"
-              className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+            <button
+              onClick={handleAddNewCeramic}
+              disabled={isPending}
+              className={`bg-transparent mb-6 text-blue-500 rounded-md ${
+                isPending
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:text-blue-600"
+              }`}
             >
               {t("addNewCeramic")}
-            </Link>
-            <Link
-              href="/orders"
-              className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+            </button>
+
+            <button
+              onClick={handleViewOrders}
+              disabled={isPending}
+              className={`bg-transparent mb-6 text-blue-500 rounded-md ${
+                isPending
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:text-blue-600"
+              }`}
             >
               {t("orderList")}
-            </Link>
+            </button>
           </div>
         )}
 
-        {loading ? (
+        {loading || isPending ? (
           <div className="flex items-center justify-center h-40">
             <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
@@ -94,19 +125,26 @@ const CeramicsPage = () => {
             {ceramics.map((ceramic) => (
               <div
                 key={ceramic._id}
-                className={`bg-white p-5 rounded-lg shadow-lg ${
+                className={`bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ${
                   ceramic.totalPackets <= 10 ? "border-2 border-red-600" : ""
-                } hover:transition-shadow duration-300`}
+                }`}
               >
                 {ceramic.imageUrl && (
-                  <Image
-                    src={ceramic.imageUrl || ""}
-                    alt={ceramic?.code || "Ceramic Image"}
-                    width={200}
-                    height={200}
-                    priority
-                    className="rounded-lg object-cover"
-                  />
+                  <div className="relative -m-5 mb-4 rounded-t-lg overflow-hidden">
+                    <Image
+                      src={ceramic.imageUrl || ""}
+                      alt={ceramic?.code || "Ceramic Image"}
+                      width={500}
+                      height={300}
+                      priority
+                      className="rounded-t-lg h-48 w-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                      <span className="text-white font-semibold text-lg">
+                        {ceramic.code || "N/A"}
+                      </span>
+                    </div>
+                  </div>
                 )}
                 <h2 className="font-bold text-xl text-blue-800 mb-2">
                   {t("code")}: {ceramic.code || "N/A"}
@@ -134,23 +172,33 @@ const CeramicsPage = () => {
                 >
                   {t("viewDetails")}
                 </Link>
-                {/* Conditionally render Sell and Add buttons for admins */}
+
                 {isAdmin && (
                   <div className="flex space-x-4 mt-4">
-                    <Link
-                      href={`/ceramics/add/${ceramic._id}`}
+                    <button
+                      onClick={() => handleAddCeramic(ceramic._id as string)}
                       aria-label={`${t("add")} ${ceramic.code}`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors duration-200"
+                      disabled={isPending}
+                      className={`bg-white py-2 px-4 mb-6 text-blue-500 rounded-md ${
+                        isPending
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:text-white hover:bg-blue-500"
+                      }`}
                     >
                       {t("add")}
-                    </Link>
-                    <Link
-                      href={`/ceramics/sell/${ceramic._id}`}
+                    </button>
+                    <button
+                      onClick={() => handleSellCeramic(ceramic._id as string)}
                       aria-label={`${t("sell")} ${ceramic.code}`}
-                      className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                      disabled={isPending}
+                      className={`text-white py-2 px-4 mb-6 bg-blue-500 rounded-md ${
+                        isPending
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-blue-400"
+                      }`}
                     >
                       {t("sell")}
-                    </Link>
+                    </button>
                   </div>
                 )}
               </div>
