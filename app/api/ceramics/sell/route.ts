@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (checkPermission(decodedToken, "admin")) {
-      return errorResponse("You don't have permission to update ceramic", 403);
+      return errorResponse("You don't have permission to sell ceramic", 403);
     }
 
     if (!validation.success) {
