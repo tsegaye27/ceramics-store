@@ -1,64 +1,62 @@
 "use client";
-import {
-  createContext,
-  useContext,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
-import { useCookies } from "react-cookie";
-import { RootState, useAppSelector } from "../_features/store/store";
-import { IUser } from "../_types/types";
 
-interface AuthContextType {
-  user: IUser | null;
-  isAuthenticated: boolean;
+import React, { createContext, useContext, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setUser,
+  setToken,
+  logout as clearAuth,
+} from "@/app/_features/auth/slice";
+import { RootState } from "../_features/store/store";
+import { useCookies } from "react-cookie";
+
+type AuthContextType = {
   token: string | null;
-  login: () => Promise<void>;
+  user: any | null;
+  login: (user: any, token: string) => void;
   logout: () => void;
-}
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const dispatch = useDispatch();
+  const { token, user } = useSelector((state: RootState) => state.auth);
   const [cookies, setCookie, removeCookie] = useCookies(["jwt"]);
-  const { user, token } = useAppSelector((state: RootState) => state.auth);
-  const [isAuthenticated, setIsAuthenticated] = useState(!!cookies.jwt);
-  useEffect(() => {
-    if (cookies.jwt) {
-      setIsAuthenticated(true);
-    }
-  }, [cookies.jwt]);
 
-  const login = async () => {
-    console.log(user, token);
+  useEffect(() => {
+    const storedToken = cookies.jwt;
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken && storedUser) {
+      dispatch(setToken(storedToken));
+      dispatch(setUser(JSON.parse(storedUser)));
+    }
+  }, [cookies, dispatch]);
+
+  const login = (user: any, token: string) => {
+    setCookie("jwt", token, { path: "/", secure: true, sameSite: "strict" });
     localStorage.setItem("user", JSON.stringify(user));
-    setCookie("jwt", token, { path: "/" });
-    setIsAuthenticated(true);
+    dispatch(setToken(token));
+    dispatch(setUser(user));
   };
 
   const logout = () => {
-    localStorage.removeItem("user");
     removeCookie("jwt");
-    setIsAuthenticated(false);
+    localStorage.removeItem("user");
+    dispatch(clearAuth());
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
