@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { signup } from "@/app/_features/auth/slice";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/_lib/cookie";
+import { useAuth } from "@/app/_context/AuthContext";
 
 const SignUpPage: React.FC = () => {
   const { loading, error } = useAppSelector((state: RootState) => state.auth);
@@ -24,7 +25,7 @@ const SignUpPage: React.FC = () => {
   });
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const dispatch = useAppDispatch();
-
+  const { login } = useAuth()
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSignupData({ ...signupData, [e.target.name]: e.target.value });
   };
@@ -46,8 +47,7 @@ const SignUpPage: React.FC = () => {
           password: signupData.password,
         }),
       ).unwrap();
-      setCookie("jwt", response.data.token, 1);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      login(response.data.user, response.data.token)
       toast.success("Signup successful!");
       router.push("/ceramics");
     } catch (err: any) {

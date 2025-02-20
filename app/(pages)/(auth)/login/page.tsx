@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/app/_context/AuthContext";
 import { login } from "@/app/_features/auth/slice";
 import {
   RootState,
@@ -19,7 +20,7 @@ const LoginPage: React.FC = () => {
   }>({ email: "", password: "" });
   const router = useRouter();
   const dispatch = useAppDispatch();
-
+  const { login: loginContext } = useAuth();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
@@ -33,8 +34,7 @@ const LoginPage: React.FC = () => {
           password: loginData.password,
         }),
       ).unwrap();
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      setCookie("jwt", response.data.token, 1);
+      loginContext(response.data.user, response.data.token);
       toast.success("Login successful!");
       router.push("/ceramics");
     } catch (err: any) {

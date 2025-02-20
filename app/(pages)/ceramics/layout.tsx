@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const CeramicsLayout = dynamic(() => import("@/app/_layouts/CeramcisLayout"), {
+const CeramicsLayout = dynamic(() => import("@/app/_layouts/CeramicsLayout"), {
   ssr: false,
 });
 
