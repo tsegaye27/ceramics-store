@@ -5,11 +5,10 @@ import {
   useAppSelector,
 } from "@/app/_features/store/store";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { toast } from "react-hot-toast";
 import { signup } from "@/app/_features/auth/slice";
 import { useRouter } from "next/navigation";
-import { setCookie } from "@/app/_lib/cookie";
 import { useAuth } from "@/app/_context/AuthContext";
 
 const SignUpPage: React.FC = () => {
@@ -25,11 +24,18 @@ const SignUpPage: React.FC = () => {
   });
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const dispatch = useAppDispatch();
-  const { login } = useAuth()
+  const { login } = useAuth();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSignupData({ ...signupData, [e.target.name]: e.target.value });
   };
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleNavigate = () => {
+    startTransition(() => {
+      router.push("/ceramics");
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,9 +53,9 @@ const SignUpPage: React.FC = () => {
           password: signupData.password,
         }),
       ).unwrap();
-      login(response.data.user, response.data.token)
+      login(response.data.user, response.data.token);
       toast.success("Signup successful!");
-      router.push("/ceramics");
+      handleNavigate();
     } catch (err: any) {
       toast.error(err || "Signup failed!");
     }
@@ -110,7 +116,7 @@ const SignUpPage: React.FC = () => {
           } text-white rounded-lg`}
           disabled={loading}
         >
-          {loading ? "Signing up..." : "Sign up"}
+          {loading || isPending ? "Signing up..." : "Sign up"}
         </button>
         <p className="text-sm text-gray-500">
           Already have an account?{" "}
