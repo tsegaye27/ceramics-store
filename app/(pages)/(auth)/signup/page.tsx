@@ -4,7 +4,6 @@ import {
   useAppDispatch,
   useAppSelector,
 } from "@/app/_features/store/store";
-import Link from "next/link";
 import React, { useState, useTransition } from "react";
 import { toast } from "react-hot-toast";
 import { signup } from "@/app/_features/auth/slice";
@@ -37,6 +36,12 @@ const SignUpPage: React.FC = () => {
     });
   };
 
+  const handleLogin = () => {
+    startTransition(() => {
+      router.push("/login");
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -60,6 +65,17 @@ const SignUpPage: React.FC = () => {
       toast.error(err || "Signup failed!");
     }
   };
+
+
+if (isPending) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+      <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+}
+
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
@@ -116,13 +132,16 @@ const SignUpPage: React.FC = () => {
           } text-white rounded-lg`}
           disabled={loading}
         >
-          {loading || isPending ? "Signing up..." : "Sign up"}
+          {loading ? "Signing up..." : "Sign up"}
         </button>
         <p className="text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 hover:underline">
+          <button
+            onClick={handleLogin}
+            className="text-blue-500 bg-transparent hover:underline"
+          >
             Login
-          </Link>
+          </button>
         </p>
       </form>
     </div>

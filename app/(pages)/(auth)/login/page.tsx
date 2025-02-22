@@ -6,10 +6,8 @@ import {
   useAppDispatch,
   useAppSelector,
 } from "@/app/_features/store/store";
-import { setCookie } from "@/app/_lib/cookie";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import toast from "react-hot-toast";
 
 const LoginPage: React.FC = () => {
@@ -21,8 +19,22 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { login: loginContext } = useAuth();
+  const [isPending, startTransition] = useTransition();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
+  };
+
+  const handleNavigation = () => {
+    startTransition(() => {
+      router.push("/ceramics");
+    });
+  };
+
+  const handleRegister = () => {
+    startTransition(() => {
+      router.push("/signup");
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,14 +48,20 @@ const LoginPage: React.FC = () => {
       ).unwrap();
       loginContext(response.data.user, response.data.token);
       toast.success("Login successful!");
-      router.push("/ceramics");
+      handleNavigation();
     } catch (err: any) {
       toast.error(err || "Login failed!");
     }
   };
 
+     
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+      {isPending ? <>
+ <div className="flex items-center justify-center h-40">
+        <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+      </>:
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-lg ring-1 ring-blue-500 flex flex-col items-center gap-6 py-8 px-6 rounded-2xl w-full max-w-md"
@@ -83,11 +101,15 @@ const LoginPage: React.FC = () => {
         </button>
         <p className="text-sm text-gray-500">
           Don’t have an account?{" "}
-          <Link href="/signup" className="text-blue-500 hover:underline">
+          <button
+            onClick={handleRegister}
+            className="text-blue-500 bg-transparent hover:underline"
+          >
             Sign up
-          </Link>
+          </button>
         </p>
       </form>
+      }
     </div>
   );
 };
