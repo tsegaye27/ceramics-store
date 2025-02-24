@@ -12,13 +12,13 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
 
-    const decodedToken = decodeToken(req);
+    const tokenResult = decodeToken(req);
 
-    if (!decodedToken) {
+    if (!tokenResult?.decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
 
-    if (checkPermission(decodedToken, "admin")) {
+    if (!checkPermission(tokenResult?.decodedToken, "admin")) {
       return errorResponse("You don't have permission to create ceramic", 403);
     }
 
