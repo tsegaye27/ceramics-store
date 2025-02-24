@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
 
-    if (checkPermission(decodedToken, "admin")) {
+    if (!checkPermission(decodedToken, "admin")) {
       return errorResponse("You don't have permission to update ceramic", 403);
     }
 
