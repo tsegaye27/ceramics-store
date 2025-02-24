@@ -149,16 +149,37 @@ export const updateCeramic = createAsyncThunk(
 
 export const sellCeramic = createAsyncThunk(
   "ceramics/sellCeramic",
-  async (ceramicData: ICeramic, { getState }) => {
-    const state = getState() as RootState;
-    const token = state.auth.token;
-
-    const response = await axiosInstance.post("/ceramics/sell", ceramicData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
+  async (
+    ceramicData: {
+      ceramicId: string;
+      packetsSold: number;
+      piecesSold: number;
+      seller: string;
+      pricePerArea: number;
+    },
+    { getState, rejectWithValue },
+  ) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+      const response = await axiosInstance.post(
+        `/ceramics/sell?ceramicId=${ceramicData.ceramicId}`,
+        {
+          packetsSold: ceramicData.packetsSold,
+          piecesSold: ceramicData.piecesSold,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to sell ceramic",
+      );
+    }
   },
 );
 
