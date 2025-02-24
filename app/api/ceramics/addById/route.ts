@@ -11,13 +11,13 @@ export async function PATCH(req: NextRequest) {
     const addCeramicData = await req.json();
     const validation = updateCeramicSchema.safeParse(addCeramicData);
     const ceramicId = new URL(req.url).searchParams.get("ceramicId");
-    const decodedToken = decodeToken(req);
+    const tokenResult = decodeToken(req);
 
-    if (!decodedToken) {
+    if (!tokenResult?.decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
 
-    if (!checkPermission(decodedToken, "admin")) {
+    if (!checkPermission(tokenResult?.decodedToken, "admin")) {
       return errorResponse("You don't have permission to update ceramic", 403);
     }
 
