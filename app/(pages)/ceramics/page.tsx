@@ -86,11 +86,11 @@ const CeramicsPage = () => {
         </form>
 
         {isAdmin && (
-          <div className="w-4xl flex justify-between">
+          <div className="max-w-4xl flex justify-between mb-6">
             <button
               onClick={handleAddNewCeramic}
               disabled={isPending}
-              className={`bg-transparent mb-6 text-blue-500 rounded-md ${
+              className={`bg-transparent text-blue-500 rounded-md ${
                 isPending
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:text-blue-600"
@@ -102,7 +102,7 @@ const CeramicsPage = () => {
             <button
               onClick={handleViewOrders}
               disabled={isPending}
-              className={`bg-transparent mb-6 text-blue-500 rounded-md ${
+              className={`bg-transparent text-blue-500 rounded-md ${
                 isPending
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:text-blue-600"
@@ -118,7 +118,7 @@ const CeramicsPage = () => {
             <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : ceramics.length === 0 ? (
-          <p className="col-span-3 text-center text-gray-500 mt-8">
+          <p className="text-center text-gray-500 mt-8">
             {t("noCeramicsFound")}
           </p>
         ) : (
@@ -131,7 +131,7 @@ const CeramicsPage = () => {
                 }`}
               >
                 {ceramic.imageUrl && (
-                  <div className="relative -m-5 mb-4 rounded-t-lg overflow-hidden">
+                  <div className="relative mb-4 rounded-t-lg overflow-hidden">
                     <Image
                       src={ceramic.imageUrl || ""}
                       alt={ceramic?.code || "Ceramic Image"}
@@ -142,21 +142,53 @@ const CeramicsPage = () => {
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                       <span className="text-white font-semibold text-lg">
-                        {ceramic.code || "N/A"}
+                        {ceramic.code}
                       </span>
                     </div>
+                    {isAdmin && (
+                      <div className="absolute top-2 right-2 flex flex-col space-y-2">
+                        <button
+                          onClick={() =>
+                            handleAddCeramic(ceramic._id as string)
+                          }
+                          aria-label={`${t("add")} ${ceramic.code}`}
+                          disabled={isPending}
+                          className={`bg-white/90 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all ${
+                            isPending
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:scale-105"
+                          }`}
+                        >
+                          +
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleSellCeramic(ceramic._id as string)
+                          }
+                          aria-label={`${t("sell")} ${ceramic.code}`}
+                          disabled={isPending}
+                          className={`bg-white/90 text-red-600 w-8 h-8 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all ${
+                            isPending
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:scale-105"
+                          }`}
+                        >
+                          -
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
-                <h2 className="font-bold text-xl text-blue-800 mb-2">
-                  {t("code")}: {ceramic.code || "N/A"}
+                <h2 className="font-semibold text-lg text-blue-800 mb-2">
+                  {t("code")}: {ceramic.code}
                 </h2>
-                <p>
-                  {t("size")}: {ceramic.size || "N/A"}
+                <p className="text-gray-700">
+                  {t("size")}: {ceramic.size}
                 </p>
-                <p>
-                  {t("type")}: {ceramic.type || "N/A"}
+                <p className="text-gray-700">
+                  {t("type")}: {ceramic.type}
                 </p>
-                <p className="mb-4">
+                <p className="mb-4 text-gray-700">
                   {t("totalArea")}:{" "}
                   {calculateArea(
                     ceramic.totalPackets || 0,
@@ -169,39 +201,10 @@ const CeramicsPage = () => {
                 <button
                   onClick={() => handleViewDetails(ceramic._id as string)}
                   aria-label={`${t("viewDetails")} ${ceramic.code}`}
-                  className="text-blue-500 hover:text-blue-600"
+                  className="text-blue-600 hover:text-blue-800 underline"
                 >
                   {t("viewDetails")}
                 </button>
-
-                {isAdmin && (
-                  <div className="flex space-x-4 mt-4">
-                    <button
-                      onClick={() => handleAddCeramic(ceramic._id as string)}
-                      aria-label={`${t("add")} ${ceramic.code}`}
-                      disabled={isPending}
-                      className={`bg-white py-2 px-4 mb-6 text-blue-500 rounded-md ${
-                        isPending
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:text-white hover:bg-blue-500"
-                      }`}
-                    >
-                      {t("add")}
-                    </button>
-                    <button
-                      onClick={() => handleSellCeramic(ceramic._id as string)}
-                      aria-label={`${t("sell")} ${ceramic.code}`}
-                      disabled={isPending}
-                      className={`text-white py-2 px-4 mb-6 bg-blue-500 rounded-md ${
-                        isPending
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-blue-400"
-                      }`}
-                    >
-                      {t("sell")}
-                    </button>
-                  </div>
-                )}
               </div>
             ))}
           </div>
