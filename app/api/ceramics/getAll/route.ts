@@ -7,8 +7,8 @@ import { decodeToken } from "../../_utils/decodeToken";
 export async function GET(req: Request) {
   try {
     await dbConnect();
-    const decodedToken = decodeToken(req);
-    if (!decodedToken) {
+    const tokenResult = decodeToken(req);
+    if (!tokenResult?.decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
     const ceramics = await Ceramic.find({}).limit(100);
