@@ -5,33 +5,31 @@ import { jwtDecode } from "jwt-decode";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { orderSchema } from "@/app/_validators/orderSchema";
+import { decodeToken } from "../../_utils/decodeToken";
+import { checkPermission } from "../../_utils/checkPermission";
 
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const createOrderData = await req.json();
     const validation = orderSchema.safeParse(createOrderData);
-    let token = req.headers.get("authorization")?.split(" ")[1] || "";
+    const tokenResult = decodeToken(req);
 
-    if (!token) {
-      const cookieHeader = req.headers.get("cookie") || "";
-      const cookies = Object.fromEntries(
-        cookieHeader.split("; ").map((c) => c.split("=")),
-      );
-      token = cookies["jwt"];
-    }
-
-    if (!token) {
+    if (!tokenResult?.decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
+
+    if (!checkPermission(tokenResult?.decodedToken, "admin")) {
+      return errorResponse("You don't have permission to create order", 403);
+    }
+
     if (!validation.success) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
     const { ceramicId, packets, pieces, price, seller } = createOrderData;
 
-    const decoded = jwtDecode<{ id: string }>(token.split(" ")[1]);
-    const userId = decoded.id;
+    const userId = tokenResult?.decodedToken?.id;
 
     const order = await Order.create({
       ceramicId,
@@ -44,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     return successResponse({ order }, "Your order was successfully Created");
   } catch (error) {
-    logger.error(`${error}`);
+    logger.error(`Error in POST /api/orders/createOrder: ${error}`);
     return errorResponse("Internal server error", 500);
   }
 }
