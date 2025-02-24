@@ -37,11 +37,14 @@ export const ceramicDetails = createAsyncThunk(
     const state = getState() as RootState;
     const token = state.auth.token;
 
-    const response = await axiosInstance.get(`/ceramics/getById/${ceramicId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axiosInstance.get(
+      `/ceramics/getById?ceramicId=${ceramicId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     return response.data;
   },
 );
@@ -111,20 +114,36 @@ export const addCeramic = createAsyncThunk(
 
 export const updateCeramic = createAsyncThunk(
   "ceramics/updateCeramic",
-  async (ceramicData: ICeramic, { getState }) => {
-    const state = getState() as RootState;
-    const token = state.auth.token;
+  async (
+    ceramicData: {
+      ceramicId: string;
+      packetsAdded: number;
+      piecesAdded: number;
+    },
+    { getState, rejectWithValue },
+  ) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
 
-    const response = await axiosInstance.post(
-      "/ceramics/addById",
-      ceramicData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axiosInstance.patch(
+        `/ceramics/addById?ceramicId=${ceramicData.ceramicId}`,
+        {
+          packetsAdded: ceramicData.packetsAdded,
+          piecesAdded: ceramicData.piecesAdded,
         },
-      },
-    );
-    return response.data;
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update ceramic",
+      );
+    }
   },
 );
 
@@ -193,7 +212,9 @@ const ceramicsSlice = createSlice({
       .addCase(updateCeramic.fulfilled, (state, action) => {
         state.loading = false;
         state.ceramics = state.ceramics.map((ceramic) =>
-          ceramic.id === action.payload.data.id ? action.payload.data : ceramic,
+          ceramic._id === action.payload.data.id
+            ? action.payload.data
+            : ceramic,
         );
       })
       .addCase(updateCeramic.rejected, (state, action) => {
@@ -207,7 +228,9 @@ const ceramicsSlice = createSlice({
       .addCase(sellCeramic.fulfilled, (state, action) => {
         state.loading = false;
         state.ceramics = state.ceramics.map((ceramic) =>
-          ceramic.id === action.payload.data.id ? action.payload.data : ceramic,
+          ceramic._id === action.payload.data.id
+            ? action.payload.data
+            : ceramic,
         );
       })
       .addCase(sellCeramic.rejected, (state, action) => {
