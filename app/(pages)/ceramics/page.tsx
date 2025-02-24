@@ -2,7 +2,6 @@
 import { useAppDispatch, useAppSelector } from "@/app/_features/store/store";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import { calculateArea } from "@/app/_utils/helperFunctions";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
@@ -16,9 +15,7 @@ const CeramicsPage = () => {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   const { t } = useLanguage();
   const dispatch = useAppDispatch();
-  const { ceramics, loading, error } = useAppSelector(
-    (state) => state.ceramics,
-  );
+  const { ceramics, loading } = useAppSelector((state) => state.ceramics);
   const { token, user } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -32,6 +29,12 @@ const CeramicsPage = () => {
   const handleViewOrders = () => {
     startTransition(() => {
       router.push("/orders");
+    });
+  };
+
+  const handleViewDetails = (ceramicId: string) => {
+    startTransition(() => {
+      router.push(`/ceramics/${ceramicId}`);
     });
   };
 
@@ -114,8 +117,6 @@ const CeramicsPage = () => {
           <div className="flex items-center justify-center h-40">
             <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : error ? (
-          <p className="text-red-500 text-center">{error}</p>
         ) : ceramics.length === 0 ? (
           <p className="col-span-3 text-center text-gray-500 mt-8">
             {t("noCeramicsFound")}
@@ -165,13 +166,13 @@ const CeramicsPage = () => {
                   )}{" "}
                   {ceramic.size === "zekolo" ? "m" : "m²"}
                 </p>
-                <Link
-                  href={`/ceramics/${ceramic._id}`}
+                <button
+                  onClick={() => handleViewDetails(ceramic._id as string)}
                   aria-label={`${t("viewDetails")} ${ceramic.code}`}
                   className="text-blue-500 hover:text-blue-600"
                 >
                   {t("viewDetails")}
-                </Link>
+                </button>
 
                 {isAdmin && (
                   <div className="flex space-x-4 mt-4">
