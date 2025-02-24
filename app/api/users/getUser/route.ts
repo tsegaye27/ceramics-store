@@ -1,6 +1,6 @@
-import { jwtDecode } from "jwt-decode";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { User } from "@/app/api/_models/Users";
+import { decodeToken } from "../../_utils/decodeToken";
 
 export type DecodedToken = {
   id: string;
@@ -8,27 +8,16 @@ export type DecodedToken = {
 };
 
 export async function GET(req: Request) {
-  let token = req.headers.get("authorization")?.split(" ")[1] || "";
+  const tokenResult = decodeToken(req);
 
-  if (!token) {
-    const cookieHeader = req.headers.get("cookie") || "";
-    const cookies = Object.fromEntries(
-      cookieHeader.split("; ").map((c) => c.split("=")),
-    );
-    token = cookies["jwt"];
-  }
-
-  if (!token) {
+  if (!tokenResult?.decodedToken) {
     return errorResponse("Unauthorized: No token provided", 401);
   }
-  const decodedToken = jwtDecode<DecodedToken>(token);
-
   try {
-    const user = await User.findOne({ _id: decodedToken?.id });
+    const user = await User.findOne({ _id: tokenResult?.decodedToken?.id });
     if (!user) {
       return errorResponse("User not found", 404);
     }
-
     return successResponse(user, "User fetched successfully");
   } catch (error: any) {
     return errorResponse(error.message, 500);
