@@ -2,23 +2,15 @@ import dbConnect from "@/app/api/_lib/mongoose";
 import { Ceramic } from "@/app/api/_models/Ceramics";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
+import { decodeToken } from "../../_utils/decodeToken";
 
 export async function GET(req: NextRequest) {
   try {
     const searchParams = new URL(req.url).searchParams;
     const ceramicId = searchParams.get("ceramicId");
+    const tokenResult = decodeToken(req);
 
-    let token = req.headers.get("authorization")?.split(" ")[1] || "";
-
-    if (!token) {
-      const cookieHeader = req.headers.get("cookie") || "";
-      const cookies = Object.fromEntries(
-        cookieHeader.split("; ").map((c) => c.split("=")),
-      );
-      token = cookies["jwt"];
-    }
-
-    if (!token) {
+    if (!tokenResult?.decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
 
