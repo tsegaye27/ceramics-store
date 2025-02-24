@@ -3,10 +3,17 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 interface DecodedToken extends JwtPayload {
   role?: string;
+  name?: string;
+  id?: string;
+}
+
+interface TokenResult {
+  decodedToken: DecodedToken;
+  token: string;
 }
 
 // Function to extract and decode the token
-export const decodeToken = (req: Request): DecodedToken | null => {
+export const decodeToken = (req: Request): TokenResult | null => {
   let token = req.headers.get("authorization")?.split(" ")[1] || "";
 
   if (!token) {
@@ -25,7 +32,7 @@ export const decodeToken = (req: Request): DecodedToken | null => {
       process.env.JWT_SECRET!,
     ) as DecodedToken;
     /*     logger.info(JSON.stringify(decodedToken, null, 2)); */
-    return decodedToken;
+    return { decodedToken, token };
   } catch (err) {
     return null;
   }
