@@ -3,21 +3,23 @@ import { Ceramic } from "@/app/api/_models/Ceramics";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { soldCeramicSchema } from "@/app/_validators/ceramicSchema";
-import { decodeToken } from "../../_utils/decodeToken";
-import { checkPermission } from "../../_utils/checkPermission";
+import { decodeToken } from "@/app/api/_utils/decodeToken";
+import { checkPermission } from "@/app/api/_utils/checkPermission";
+import { Order } from "../../_models/Orders";
 
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnect();
     const soldCeramicData = await req.json();
+    const ceramicId = new URL(req.url).searchParams.get("ceramicId");
     const validation = soldCeramicSchema.safeParse(soldCeramicData);
-    const decodedToken = decodeToken(req);
+    const tokenResult = decodeToken(req);
 
-    if (!decodedToken) {
+    if (!tokenResult?.decodedToken) {
       return errorResponse("Unauthorized: No token provided", 401);
     }
 
-    if (checkPermission(decodedToken, "admin")) {
+    if (!checkPermission(tokenResult?.decodedToken, "admin")) {
       return errorResponse("You don't have permission to sell ceramic", 403);
     }
 
@@ -25,7 +27,7 @@ export async function PATCH(req: NextRequest) {
       return errorResponse(validation.error.errors[0].message, 400);
     }
 
-    const { ceramicId, packetsSold, piecesSold } = validation.data;
+    const { packetsSold, piecesSold, pricePerArea, seller } = validation.data;
 
     const ceramic = await Ceramic.findById(ceramicId);
     if (!ceramic) {
@@ -63,7 +65,19 @@ export async function PATCH(req: NextRequest) {
 
     await ceramic.save();
 
-    return successResponse(ceramic, "Ceramic stock updated successfully");
+    let price = pricePerArea;
+    let userId = tokenResult?.decodedToken?.id;
+
+    await Order.create({
+      ceramicId,
+      userId,
+      packets,
+      pieces,
+      price,
+      seller,
+    });
+
+    return successResponse(ceramic, "Ceramic sold successfully");
   } catch (error: any) {
     return errorResponse(error.message, 500);
   }
