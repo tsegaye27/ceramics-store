@@ -1,34 +1,68 @@
 import { z } from "zod";
 
-const ceramicId = z.string().uuid("Invalid ceramic ID");
 const totalPackets = z.coerce
-  .number()
+  .number({
+    required_error: "Total packets is required",
+    invalid_type_error: "Total packets must be a number",
+  })
   .min(0, "Total packets cannot be negative");
 const totalPiecesWithoutPacket = z.coerce
-  .number()
+  .number({
+    required_error: "Total pieces without packet is required",
+    invalid_type_error: "Total pieces without packet must be a number",
+  })
   .min(0, "Total pieces without packet cannot be negative");
 const piecesPerPacket = z.coerce
-  .number()
+  .number({
+    required_error: "Pieces per packet is required",
+    invalid_type_error: "Pieces per packet must be a number",
+  })
   .min(1, "Pieces per packet must be at least 1");
 const packetsSold = z
-  .number()
+  .number({
+    required_error: "Packets sold is required",
+    invalid_type_error: "Packets sold must be a number",
+  })
   .int()
-  .positive("Packets sold must be a positive integer");
+  .min(0, "packets sold can't be a negative number")
+  .default(0);
 const piecesSold = z
-  .number()
+  .number({
+    required_error: "Pieces sold is required",
+    invalid_type_error: "Pieces sold must be a number",
+  })
   .int()
-  .positive("Pieces sold must be a positive integer");
+  .min(0, "Pieces sold can't be a negative number")
+  .default(0);
+const pricePerArea = z
+  .number({
+    required_error: "Price per area is required",
+    invalid_type_error: "Price per area must be a number",
+  })
+  .positive("Price per area must be greater than zero");
+const seller = z
+  .string({
+    required_error: "Seller is required",
+    invalid_type_error: "Seller must be a string",
+  })
+  .min(1, "Seller is required");
 
 export const updateCeramicSchema = z.object({
   packetsAdded: z
-    .number()
+    .number({
+      required_error: "Packets added is required",
+      invalid_type_error: "Packets added must be a number",
+    })
     .int()
-    .positive("Packets added must be a positive integer")
+    .min(0, "Packets added can't be a negative number")
     .default(0),
   piecesAdded: z
-    .number()
+    .number({
+      required_error: "Pieces added is required",
+      invalid_type_error: "Pieces added must be a number",
+    })
     .int()
-    .positive("Pieces added must be a positive integer")
+    .min(0, "Pieces added can't be a negative number")
     .default(0),
 });
 
@@ -44,9 +78,10 @@ export const createCeramicSchema = z.object({
 });
 
 export const soldCeramicSchema = z.object({
-  ceramicId,
   packetsSold,
   piecesSold,
+  pricePerArea,
+  seller,
 });
 
 export type CeramicFormData = z.infer<typeof createCeramicSchema>;
