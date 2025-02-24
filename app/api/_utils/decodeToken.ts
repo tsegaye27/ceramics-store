@@ -1,3 +1,4 @@
+// import logger from "@/services/logger";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 interface DecodedToken extends JwtPayload {
@@ -19,7 +20,12 @@ export const decodeToken = (req: Request): DecodedToken | null => {
   if (!token) return null;
 
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+    const decodedToken = jwt.verify(
+      token,
+      process.env.JWT_SECRET!,
+    ) as DecodedToken;
+    /*     logger.info(JSON.stringify(decodedToken, null, 2)); */
+    return decodedToken;
   } catch (err) {
     return null;
   }

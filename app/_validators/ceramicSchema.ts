@@ -1,14 +1,6 @@
 import { z } from "zod";
 
 const ceramicId = z.string().uuid("Invalid ceramic ID");
-const packetsAdded = z
-  .number()
-  .int()
-  .positive("Packets added must be a positive integer");
-const piecesAdded = z
-  .number()
-  .int()
-  .positive("Pieces added must be a positive integer");
 const totalPackets = z.coerce
   .number()
   .min(0, "Total packets cannot be negative");
@@ -28,9 +20,16 @@ const piecesSold = z
   .positive("Pieces sold must be a positive integer");
 
 export const updateCeramicSchema = z.object({
-  ceramicId,
-  packetsAdded,
-  piecesAdded,
+  packetsAdded: z
+    .number()
+    .int()
+    .positive("Packets added must be a positive integer")
+    .default(0),
+  piecesAdded: z
+    .number()
+    .int()
+    .positive("Pieces added must be a positive integer")
+    .default(0),
 });
 
 export const createCeramicSchema = z.object({
