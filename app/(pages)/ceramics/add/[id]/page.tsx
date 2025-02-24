@@ -57,7 +57,6 @@ export default function AddCeramic({ params }: AddCeramicProps) {
           piecesAdded: pieces,
         }),
       ).unwrap();
-      console.log("Result:", result);
 
       if (result?.message) {
         toast.success(result.message);
@@ -72,18 +71,19 @@ export default function AddCeramic({ params }: AddCeramicProps) {
   return (
     <div className="container mx-auto p-6 bg-transparent min-h-screen flex items-center justify-center">
       <div className="max-w-lg w-full bg-white p-8 rounded-xl shadow-md">
-        <button
-          onClick={handleBack}
-          className="text-blue-500 hover:text-blue-700 mb-6 inline-block font-medium"
-        >
-          {t("back")}
-        </button>
         {isPending ? (
           <div className="flex items-center justify-center h-40">
             <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           <>
+            <button
+              onClick={handleBack}
+              className="text-blue-500 hover:text-blue-700 mb-6 inline-block font-medium"
+            >
+              {t("back")}
+            </button>
+
             <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
               {t("addCeramic")}
             </h1>
@@ -124,7 +124,7 @@ export default function AddCeramic({ params }: AddCeramicProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full py-3 rounded-lg font-semibold text-white transition duration-300 bg-blue-600 hover:bg-blue-700`}
+                  className={`w-full py-3 rounded-lg font-semibold text-white transition duration-300  ${loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
                 >
                   {loading ? t("updating") : t("add")}
                 </button>
