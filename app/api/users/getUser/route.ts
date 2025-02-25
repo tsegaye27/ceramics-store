@@ -1,5 +1,5 @@
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
-import { User } from "@/app/api/_models/Users";
+import { User } from "@/app/api/_models";
 import { decodeToken } from "../../_utils/decodeToken";
 
 export type DecodedToken = {

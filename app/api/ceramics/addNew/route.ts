@@ -3,7 +3,7 @@ import { errorResponse, successResponse } from "@/app/_utils/apiResponse";
 import { formatPieces } from "@/app/_utils/helperFunctions";
 import { createCeramicSchema } from "@/app/_validators/ceramicSchema";
 import dbConnect from "@/app/api/_lib/mongoose";
-import { Ceramic } from "@/app/api/_models/Ceramics";
+import { Ceramic } from "@/app/api/_models";
 import { NextRequest } from "next/server";
 import { checkPermission } from "../../_utils/checkPermission";
 import { decodeToken } from "../../_utils/decodeToken";

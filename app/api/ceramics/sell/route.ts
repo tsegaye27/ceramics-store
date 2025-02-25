@@ -1,11 +1,11 @@
 import dbConnect from "@/app/api/_lib/mongoose";
-import { Ceramic } from "@/app/api/_models/Ceramics";
+import { Ceramic } from "@/app/api/_models";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { soldCeramicSchema } from "@/app/_validators/ceramicSchema";
 import { decodeToken } from "@/app/api/_utils/decodeToken";
 import { checkPermission } from "@/app/api/_utils/checkPermission";
-import { Order } from "../../_models/Orders";
+import { Order } from "@/app/api/_models";
 
 export async function PATCH(req: NextRequest) {
   try {

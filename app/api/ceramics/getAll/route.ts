@@ -1,5 +1,5 @@
 import dbConnect from "@/app/api/_lib/mongoose";
-import { Ceramic } from "@/app/api/_models/Ceramics";
+import { Ceramic } from "@/app/api/_models";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import logger from "@/services/logger";
 import { decodeToken } from "../../_utils/decodeToken";

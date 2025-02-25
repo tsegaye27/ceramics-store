@@ -1,4 +1,4 @@
-import { User } from "@/app/api/_models/Users";
+import { User } from "@/app/api/_models";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/app/api/_lib/mongoose";
 import logger from "@/services/logger";

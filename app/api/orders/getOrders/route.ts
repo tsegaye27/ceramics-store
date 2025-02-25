@@ -1,5 +1,5 @@
 import dbConnect from "@/app/api/_lib/mongoose";
-import { Order } from "@/app/api/_models/Orders";
+import { Order } from "@/app/api/_models";
 import logger from "@/services/logger";
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
