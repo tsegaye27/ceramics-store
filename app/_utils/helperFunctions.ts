@@ -15,7 +15,7 @@ export const formatDate = (unformattedDate: string): string => {
 export const formatPieces = (
   totalPackets: number,
   totalPiecesWithoutPacket: number,
-  piecesPerPacket: number
+  piecesPerPacket: number,
 ): { packets: number; pieces: number } => {
   if (totalPiecesWithoutPacket >= piecesPerPacket) {
     totalPackets += Math.floor(totalPiecesWithoutPacket / piecesPerPacket);
@@ -26,7 +26,7 @@ export const formatPieces = (
 
 export const validateInput = (
   totalPackets: number,
-  totalPiecesWithoutPacket: number
+  totalPiecesWithoutPacket: number,
 ): boolean => {
   const isValid = totalPackets >= 0 && totalPiecesWithoutPacket >= 0;
   if (!isValid) console.log("Invalid Data: Negative values are not allowed.");
@@ -37,7 +37,7 @@ export const checkSufficiency = (
   packetsAvailable: number,
   packetsToSell: number,
   piecesAvailable: number,
-  piecesToSell: number
+  piecesToSell: number,
 ): boolean => {
   if (packetsAvailable < packetsToSell) {
     console.log("Insufficient packets.");
@@ -54,7 +54,7 @@ export const calculateArea = (
   totalPackets: number,
   totalPiecesWithoutPacket: number,
   piecesPerPacket: number,
-  size: string
+  size: string,
 ): string => {
   const sizeToAreaFactor: Record<string, number> = {
     "60x60": 0.36,
@@ -67,4 +67,38 @@ export const calculateArea = (
   const totalArea =
     totalPackets * piecesPerPacket * factor + totalPiecesWithoutPacket * factor;
   return totalArea.toFixed(2);
+};
+
+interface Order {
+  packets: number;
+  pieces: number;
+  price: number;
+  ceramicId?: {
+    piecesPerPacket?: number;
+    size?: string;
+  };
+}
+
+export const calculateTotalPrice = (orders: Order[]): number => {
+  return orders.reduce((total, order) => {
+    const area = calculateArea(
+      order.packets,
+      order.pieces,
+      order.ceramicId?.piecesPerPacket ?? 0,
+      order.ceramicId?.size ?? "",
+    );
+    return total + order.price * (Number(area) || 0);
+  }, 0);
+};
+
+export const calculateTotalArea = (orders: Order[]): number => {
+  return orders.reduce((total, order) => {
+    const area = calculateArea(
+      order.packets,
+      order.pieces,
+      order.ceramicId?.piecesPerPacket ?? 0,
+      order.ceramicId?.size ?? "",
+    );
+    return total + (Number(area) || 0);
+  }, 0);
 };
