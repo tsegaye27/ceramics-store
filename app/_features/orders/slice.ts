@@ -1,6 +1,7 @@
 import axiosInstance from "@/app/_lib/axios";
 import { IOrder } from "@/app/_types/types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { RootState } from "../store/store";
 
 type OrderState = {
   orders: IOrder[];
@@ -14,10 +15,21 @@ const initialState: OrderState = {
   error: null,
 };
 
-export const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
-  const response = await axiosInstance.get("/orders");
-  return response.data;
-});
+export const fetchOrders = createAsyncThunk(
+  "orders/fetchOrders",
+  async (_, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+
+    const response = await axiosInstance.get("/orders/getOrders", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  },
+);
 
 const ordersSlice = createSlice({
   name: "orders",

@@ -162,11 +162,13 @@ export const sellCeramic = createAsyncThunk(
     try {
       const state = getState() as RootState;
       const token = state.auth.token;
-      const response = await axiosInstance.post(
+      const response = await axiosInstance.patch(
         `/ceramics/sell?ceramicId=${ceramicData.ceramicId}`,
         {
           packetsSold: ceramicData.packetsSold,
           piecesSold: ceramicData.piecesSold,
+          pricePerArea: ceramicData.pricePerArea,
+          seller: ceramicData.seller,
         },
         {
           headers: {
