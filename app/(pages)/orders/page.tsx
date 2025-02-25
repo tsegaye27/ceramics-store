@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useTransition } from "react";
 import {
   calculateArea,
@@ -32,8 +31,8 @@ const OrderList = () => {
     async function fetchData() {
       try {
         const result = await dispatch(fetchOrders()).unwrap();
-        setOrders(result);
-        setFilteredOrders(result);
+        setOrders(result.data);
+        setFilteredOrders(result.data);
       } catch (err: any) {
         toast.error(err.message);
       }
@@ -54,13 +53,15 @@ const OrderList = () => {
     setFilteredOrders(filtered);
   };
 
-  const calculateTotalPrice = totalPrice(filteredOrders);
-  const calculateTotalArea = totalArea(filteredOrders);
+  const calculateTotalPriceMemo = totalPrice(filteredOrders);
+  const calculateTotalAreaMemo = totalArea(filteredOrders);
 
   return (
     <div className="container mx-auto p-4">
       {isPending ? (
-        <div>Loading...</div>
+        <div className="flex items-center justify-center h-40">
+          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       ) : (
         <>
           <button
@@ -117,62 +118,63 @@ const OrderList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredOrders.map((order, index) => (
-                    <tr
-                      key={order.id}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                    >
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {index + 1}
-                      </td>
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {order.ceramicId?.size} ({order.ceramicId?.code})
-                      </td>
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {order.seller}
-                      </td>
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {order.createdAt &&
-                          new Date(order.createdAt).toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {calculateArea(
-                          order.packets,
-                          order.pieces,
-                          order.ceramicId?.piecesPerPacket ?? 0,
-                          order.ceramicId?.size ?? 0,
-                        )}{" "}
-                        m²
-                      </td>
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {(
-                          order.price *
-                          Number(
-                            calculateArea(
-                              order.packets,
-                              order.pieces,
-                              order.ceramicId?.piecesPerPacket ?? 0,
-                              order.ceramicId?.size ?? 0,
-                            ),
-                          )
-                        ).toFixed(2)}{" "}
-                        birr
-                      </td>
-                      <td className="py-3 px-4 border-b border-r-2">
-                        {order.userId.name}
-                      </td>
-                    </tr>
-                  ))}
+                  {Array.isArray(filteredOrders) &&
+                    filteredOrders.map((order, index) => (
+                      <tr
+                        key={order.id}
+                        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      >
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {index + 1}
+                        </td>
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {order.ceramicId?.size} ({order.ceramicId?.code})
+                        </td>
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {order.seller}
+                        </td>
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {order.createdAt &&
+                            new Date(order.createdAt).toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {calculateArea(
+                            order.packets,
+                            order.pieces,
+                            order.ceramicId?.piecesPerPacket ?? 0,
+                            order.ceramicId?.size ?? 0,
+                          )}{" "}
+                          m²
+                        </td>
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {(
+                            order.price *
+                            Number(
+                              calculateArea(
+                                order.packets,
+                                order.pieces,
+                                order.ceramicId?.piecesPerPacket ?? 0,
+                                order.ceramicId?.size ?? 0,
+                              ),
+                            )
+                          ).toFixed(2)}{" "}
+                          birr
+                        </td>
+                        <td className="py-3 px-4 border-b border-r-2">
+                          {order.userId.name}
+                        </td>
+                      </tr>
+                    ))}
                   <tr className="bg-gray-200 font-bold">
                     <td colSpan={4} className="py-3 px-4 border-t text-right">
                       Total:
                     </td>
                     <td className="py-3 px-4 border-t">
-                      {calculateTotalArea} m2
+                      {calculateTotalAreaMemo} m²
                     </td>
 
                     <td className="py-3 px-4 border-t">
-                      {calculateTotalPrice.toFixed(2)} birr
+                      {calculateTotalPriceMemo.toFixed(2)} birr
                     </td>
                     <td className="border-t"></td>
                   </tr>
