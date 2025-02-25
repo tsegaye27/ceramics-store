@@ -1,8 +1,16 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+const isProduction = process.env.NODE_ENV === "production";
+
+const baseURL = isProduction
+  ? "https://production-api.com"
+  : typeof window !== "undefined"
+    ? `http://${window.location.hostname}:3000/api`
+    : "http://localhost:3000/api";
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
