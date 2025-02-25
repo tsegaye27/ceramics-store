@@ -37,7 +37,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [cookies, dispatch]);
 
   const login = (user: any, token: string) => {
-    setCookie("jwt", token, { path: "/", secure: true, sameSite: "strict" });
+    setCookie("jwt", token, {
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
     localStorage.setItem("user", JSON.stringify(user));
     dispatch(setToken(token));
     dispatch(setUser(user));
