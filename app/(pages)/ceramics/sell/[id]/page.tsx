@@ -72,7 +72,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
+    <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
       <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         {isPending ? (
           <div className="flex items-center justify-center h-40">
@@ -108,7 +108,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
                   )}
                 </div>
                 <div>
-                  <label className="block font-medium mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("piecesToSell")}:
                   </label>
                   <input
@@ -124,7 +124,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
                   )}
                 </div>
                 <div>
-                  <label className="block font-medium mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("pricePerArea")}:
                   </label>
                   <input
@@ -140,7 +140,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
                   )}
                 </div>
                 <div>
-                  <label className="block font-medium mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t("seller")}:
                   </label>
                   <input
@@ -158,7 +158,7 @@ export default function SellCeramic({ params }: SellCeramicProps) {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition duration-300"
+                  className={`w-full text-white py-3 rounded-lg mt-4 ${loading ? "bg-blue-300 hover:bg-blue-100" : "bg-blue-600 hover:bg-blue-700"} transition duration-300`}
                 >
                   {loading ? t("selling...") : t("sell")}
                 </button>

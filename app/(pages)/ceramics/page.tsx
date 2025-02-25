@@ -60,10 +60,10 @@ const CeramicsPage = () => {
   useEffect(() => {
     if (debouncedSearchQuery) {
       dispatch(searchCeramics(debouncedSearchQuery));
-    } else {
+    } else if (!debouncedSearchQuery && ceramics.length === 0) {
       dispatch(fetchCeramics());
     }
-  }, [debouncedSearchQuery, dispatch]);
+  }, [debouncedSearchQuery, dispatch, ceramics.length]);
 
   const isAdmin = user?.role === "admin";
 
@@ -201,7 +201,7 @@ const CeramicsPage = () => {
                 <button
                   onClick={() => handleViewDetails(ceramic._id as string)}
                   aria-label={`${t("viewDetails")} ${ceramic.code}`}
-                  className="text-blue-600 hover:text-blue-800 underline"
+                  className="text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   {t("viewDetails")}
                 </button>
