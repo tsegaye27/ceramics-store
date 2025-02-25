@@ -80,6 +80,9 @@ interface Order {
 }
 
 export const calculateTotalPrice = (orders: Order[]): number => {
+  if (!Array.isArray(orders)) {
+    return 0;
+  }
   return orders.reduce((total, order) => {
     const area = calculateArea(
       order.packets,
@@ -92,6 +95,9 @@ export const calculateTotalPrice = (orders: Order[]): number => {
 };
 
 export const calculateTotalArea = (orders: Order[]): number => {
+  if (!Array.isArray(orders)) {
+    return 0;
+  }
   return orders.reduce((total, order) => {
     const area = calculateArea(
       order.packets,
