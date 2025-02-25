@@ -1,24 +1,8 @@
-import { Schema } from "mongoose";
+import mongoose from "mongoose";
+import orderSchema from "./schema";
 import { IOrder } from "./types";
 
-const orderSchema = new Schema<IOrder>(
-  {
-    ceramicId: {
-      type: Schema.Types.ObjectId,
-      ref: "Ceramic",
-      required: true,
-    },
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    packets: { type: Number, required: true, min: 1 },
-    pieces: { type: Number, required: true, min: 1 },
-    price: { type: Number, required: true },
-    seller: { type: String, required: true },
-  },
-  { timestamps: true },
-);
+const Order =
+  mongoose.models.Order || mongoose.model<IOrder>("Order", orderSchema);
 
-export default orderSchema;
+export default Order;
