@@ -25,6 +25,7 @@ const CeramicForm = () => {
   const { loading } = useSelector((state: RootState) => state.ceramics);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isUploading, setIsUploading] = useState(false); // Track upload status
 
   const {
     register,
@@ -47,9 +48,19 @@ const CeramicForm = () => {
     const file = e.target.files?.[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      const result = await dispatch(uploadImage(file));
-      if (uploadImage.fulfilled.match(result)) {
-        setValue("imageUrl", result.payload);
+      setIsUploading(true); // Start upload
+      try {
+        const result = await dispatch(uploadImage(file));
+        if (uploadImage.fulfilled.match(result)) {
+          setValue("imageUrl", result.payload);
+          toast.success("Image uploaded successfully");
+        } else if (uploadImage.rejected.match(result)) {
+          toast.error("Failed to upload image: " + (result.payload || "Unknown error"));
+        }
+      } catch (err) {
+        toast.error("An unexpected error occurred during upload");
+      } finally {
+        setIsUploading(false); // End upload
       }
     }
   };
@@ -61,6 +72,11 @@ const CeramicForm = () => {
   };
 
   const onSubmit = async (data: CeramicFormData) => {
+    if (!data.imageUrl) {
+      toast.error("Please upload an image before submitting");
+      return;
+    }
+
     console.log("form data", data);
     try {
       const result = await dispatch(addCeramic(data));
@@ -69,9 +85,7 @@ const CeramicForm = () => {
         reset();
         router.push("/ceramics");
       } else if (addCeramic.rejected.match(result)) {
-        toast.error(
-          (result.payload as string) || "An unexpected error occurred",
-        );
+        toast.error((result.payload as string) || "An unexpected error occurred");
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred");
@@ -344,13 +358,20 @@ const CeramicForm = () => {
               </label>
               <div className="w-full h-48 md:h-64 border-dashed border-2 border-gray-300 flex justify-center items-center rounded-md relative overflow-hidden">
                 {imagePreview ? (
-                  <Image
-                    src={imagePreview}
-                    alt="Image Preview"
-                    width={256}
-                    height={256}
-                    className="object-cover w-full h-full"
-                  />
+                  <>
+                    <Image
+                      src={imagePreview}
+                      alt="Image Preview"
+                      width={256}
+                      height={256}
+                      className="object-cover w-full h-full"
+                    />
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="h-8 w-8 border-4 border-t-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <p className="text-gray-500">{t("selectImage")}</p>
                 )}
@@ -359,7 +380,7 @@ const CeramicForm = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  disabled={loading}
+                  disabled={loading || isUploading}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
               </div>
@@ -372,14 +393,14 @@ const CeramicForm = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isUploading} // Disable during upload
               className={`w-full py-2 md:py-3 ${
-                loading
+                loading || isUploading
                   ? "bg-blue-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
             >
-              {loading ? t("addingCeramic") : t("addNewCeramic")}
+              {loading || isUploading ? t("addingCeramic") : t("addNewCeramic")}
             </button>
           </>
         )}
