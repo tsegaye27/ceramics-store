@@ -1,14 +1,15 @@
-import mongoose, { Schema } from "mongoose";
-import { IOrder } from "@/app/_types/types";
+import { Schema } from "mongoose";
+import { IOrder } from "./types";
+
 const orderSchema = new Schema<IOrder>(
   {
     ceramicId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Ceramic",
       required: true,
     },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -20,6 +21,4 @@ const orderSchema = new Schema<IOrder>(
   { timestamps: true },
 );
 
-const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
-
-export { Order };
+export default orderSchema;

@@ -1,5 +1,5 @@
-import mongoose, { Schema } from "mongoose";
-import { ICeramic } from "../../_types/types";
+import { Schema } from "mongoose";
+import { ICeramic } from "./types";
 
 const ceramicSchema = new Schema<ICeramic>(
   {
@@ -12,12 +12,9 @@ const ceramicSchema = new Schema<ICeramic>(
     totalPiecesWithoutPacket: { type: Number, required: true },
     piecesPerPacket: { type: Number, required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 ceramicSchema.index({ code: 1, size: 1, manufacturer: 1 }, { unique: true });
 
-const Ceramic =
-  mongoose.models.Ceramic || mongoose.model("Ceramic", ceramicSchema);
-
-export { Ceramic };
+export default ceramicSchema;
