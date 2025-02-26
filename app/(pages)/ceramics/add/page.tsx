@@ -393,7 +393,7 @@ const CeramicForm = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || isUploading} // Disable during upload
+              disabled={loading || isUploading}
               className={`w-full py-2 md:py-3 ${
                 loading || isUploading
                   ? "bg-blue-300 cursor-not-allowed"
