@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import {
   calculateArea,
   calculateTotalPrice as totalPrice,
@@ -23,6 +23,7 @@ const OrderList = () => {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSeller, setSelectedSeller] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleBack = () => {
     startTransition(() => {
@@ -38,43 +39,62 @@ const OrderList = () => {
         setFilteredOrders(result.data);
       } catch (err: any) {
         toast.error(err.message);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchData();
   }, [dispatch]);
 
-  const handleSearch = (term: string) => {
-    setSearchOrderQuery(term);
-    const lowerCaseTerm = term.toLowerCase();
-    const filtered = orders.filter((order) => {
-      const matchesSearch =
-        order.seller?.toLowerCase().includes(lowerCaseTerm) ||
-        order.userId.name?.toLowerCase().includes(lowerCaseTerm) ||
-        order.ceramicId?.code?.toLowerCase().includes(lowerCaseTerm);
-      const matchesSize = selectedSize
-        ? order.ceramicId?.size === selectedSize
-        : true;
-      const matchesDate = selectedDate
-        ? new Date(order.createdAt).toLocaleDateString() ===
-          new Date(selectedDate).toLocaleString()
-        : true;
-      const matchesSeller = selectedSeller
-        ? order.seller === selectedSeller
-        : true;
-      return matchesSearch && matchesSize && matchesDate && matchesSeller;
-    });
-    setFilteredOrders(filtered);
-  };
+  const handleSearch = useCallback(
+    (term: string) => {
+      setSearchOrderQuery(term);
+      const lowerCaseTerm = term.toLowerCase();
+      const filtered = orders.filter((order) => {
+        const matchesSearch =
+          order.seller?.toLowerCase().includes(lowerCaseTerm) ||
+          order.userId.name?.toLowerCase().includes(lowerCaseTerm) ||
+          order.ceramicId?.code?.toLowerCase().includes(lowerCaseTerm);
+        const matchesSize = selectedSize
+          ? order.ceramicId?.size === selectedSize
+          : true;
+        const matchesDate = selectedDate
+          ? new Date(order.createdAt).toLocaleDateString() ===
+            new Date(selectedDate).toLocaleDateString()
+          : true;
+        const matchesSeller = selectedSeller
+          ? order.seller === selectedSeller
+          : true;
+        return matchesSearch && matchesSize && matchesDate && matchesSeller;
+      });
+      setFilteredOrders(filtered);
+    },
+    [orders, selectedSize, selectedDate, selectedSeller],
+  );
 
   useEffect(() => {
-    handleSearch();
-  }, [searchOrderQuery, selectedSize, selectedDate, selectedSeller]);
+    handleSearch(searchOrderQuery);
+  }, [
+    searchOrderQuery,
+    selectedSize,
+    selectedDate,
+    selectedSeller,
+    handleSearch,
+  ]);
 
   const calculateTotalPrice = totalPrice(filteredOrders);
   const calculateTotalArea = totalArea(filteredOrders);
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-blue-50 p-6">
+    <div className="min-h-screen bg-blue-50 p-4 md:p-6">
       {isPending ? (
         <div className="flex items-center justify-center h-40">
           <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -82,7 +102,7 @@ const OrderList = () => {
       ) : (
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
             <button
               onClick={handleBack}
               className="text-blue-500 hover:text-blue-700 flex items-center"
@@ -103,23 +123,23 @@ const OrderList = () => {
               </svg>
               {t("back")}
             </button>
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
               {t("orderList")}
             </h1>
             <div></div> {/* Empty div for spacing */}
           </div>
 
-          {/* Search Bar */}
-          <div className="mb-8">
+          {/* Search Bar and Filters */}
+          <div className="mb-6 md:mb-8">
             <input
               type="text"
               placeholder={t("search")}
               value={searchOrderQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-8 flex gap-4">
+          <div className="mb-6 md:mb-8 flex flex-col md:flex-row gap-4">
             <select
               onChange={(e) => setSelectedSize(e.target.value)}
               className="p-2 border rounded-lg"
@@ -146,32 +166,33 @@ const OrderList = () => {
             />
           </div>
 
+          {/* Table */}
           {filteredOrders.length === 0 ? (
             <p className="text-center text-gray-500">{t("noOrdersFound")}</p>
           ) : (
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white rounded-lg shadow-md overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       No
                     </th>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       Ceramic
                     </th>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       Seller
                     </th>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       Time
                     </th>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       Total Area
                     </th>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       Total Price
                     </th>
-                    <th className="py-4 px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
                       User
                     </th>
                   </tr>
@@ -182,16 +203,20 @@ const OrderList = () => {
                       key={order.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="py-4 px-6 border-b">{index + 1}</td>
-                      <td className="py-4 px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                        {index + 1}
+                      </td>
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
                         {order.ceramicId?.size} ({order.ceramicId?.code})
                       </td>
-                      <td className="py-4 px-6 border-b">{order.seller}</td>
-                      <td className="py-4 px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                        {order.seller}
+                      </td>
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
                         {order.createdAt &&
                           new Date(order.createdAt).toLocaleString()}
                       </td>
-                      <td className="py-4 px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
                         {calculateArea(
                           order.packets,
                           order.pieces,
@@ -200,7 +225,7 @@ const OrderList = () => {
                         )}{" "}
                         m²
                       </td>
-                      <td className="py-4 px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
                         {(
                           order.price *
                           Number(
@@ -214,20 +239,25 @@ const OrderList = () => {
                         ).toFixed(2)}{" "}
                         birr
                       </td>
-                      <td className="py-4 px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
                         {order.userId.name}
                       </td>
                     </tr>
                   ))}
                   <tr className="bg-gray-100 font-bold">
-                    <td colSpan={4} className="py-4 px-6 text-right">
+                    <td
+                      colSpan={4}
+                      className="py-3 px-4 md:py-4 md:px-6 text-right"
+                    >
                       Total:
                     </td>
-                    <td className="py-4 px-6">{calculateTotalArea} m²</td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 px-4 md:py-4 md:px-6">
+                      {calculateTotalArea} m²
+                    </td>
+                    <td className="py-3 px-4 md:py-4 md:px-6">
                       {calculateTotalPrice.toFixed(2)} birr
                     </td>
-                    <td className="py-4 px-6"></td>
+                    <td className="py-3 px-4 md:py-4 md:px-6"></td>
                   </tr>
                 </tbody>
               </table>
