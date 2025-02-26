@@ -61,8 +61,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className={`h-screen ${darkMode ? "dark" : ""}`}>
-      <div className="dark:bg-gray-900 dark:text-gray-100">
+    <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
+      <div className="dark:bg-gray-900 dark:text-gray-100 flex flex-col h-screen">
         {/* Top Header */}
         <div className="flex justify-end p-4 gap-4">
           <button
@@ -141,16 +141,7 @@ export default function DashboardPage() {
           </motion.div>
 
           {/* Main Content */}
-          <div className="flex-1 p-8">
-            <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8"
-            >
-              Welcome to the Ceramics Store
-            </motion.h1>
-
+          <div className="flex-1 p-8 overflow-y-auto">
             {/* Graphs Section */}
             <motion.div
               variants={containerVariants}
@@ -158,7 +149,7 @@ export default function DashboardPage() {
               animate="visible"
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              {/* Bar Chart for Monthly Sales */}
+              {/* Bar Chart */}
               <motion.div
                 variants={itemVariants}
                 className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
@@ -177,7 +168,7 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </motion.div>
 
-              {/* Line Chart for Revenue Over Time */}
+              {/* Line Chart */}
               <motion.div
                 variants={itemVariants}
                 className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
