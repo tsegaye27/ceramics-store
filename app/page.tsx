@@ -13,6 +13,8 @@ import {
   Line,
   ResponsiveContainer,
 } from "recharts";
+import { FiSun, FiMoon, FiUser, FiLogOut } from "react-icons/fi"; // Import icons from Feather Icons
+import { useAuth } from "./_context/AuthContext";
 
 // Sample data (replace with real data from your backend)
 const initialSalesData = [
@@ -39,6 +41,7 @@ export default function DashboardPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [salesData, setSalesData] = useState(initialSalesData);
   const router = useRouter();
+  const { user } = useAuth(); // Replace with real user data
 
   // Fetch real sales data from the backend
   useEffect(() => {
@@ -60,38 +63,41 @@ export default function DashboardPage() {
     });
   };
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle("dark", !darkMode);
+  };
+
   return (
     <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
       <div className="dark:bg-gray-900 dark:text-gray-100 flex flex-col h-screen">
         {/* Top Header */}
         <div className="flex justify-end p-4 gap-4">
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={toggleDarkMode}
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           >
-            {darkMode ? "🌞" : "🌙"}
-          </button>
-          <button
-            onClick={() => handleNavigation("/profile")}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            👤
+            {darkMode ? (
+              <FiSun className="h-5 w-5 text-gray-800 dark:text-gray-100" />
+            ) : (
+              <FiMoon className="h-5 w-5 text-gray-800 dark:text-gray-100" />
+            )}
           </button>
         </div>
 
         {/* Sidebar and Main Content */}
-        <div className="flex">
+        <div className="flex flex-1">
           {/* Sidebar */}
           <motion.div
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="w-64 bg-gray-700 shadow-lg"
+            className="w-64 bg-gray-700 shadow-lg flex flex-col"
           >
             <div className="p-6">
               <h2 className="text-xl font-semibold text-white">Dashboard</h2>
             </div>
-            <nav className="mt-6">
+            <nav className="mt-6 flex-1">
               <button
                 onClick={() => handleNavigation("/")}
                 className="flex items-center p-4 text-white hover:bg-gray-600 cursor-pointer w-full text-left"
@@ -138,55 +144,76 @@ export default function DashboardPage() {
                 <span>Orders</span>
               </button>
             </nav>
+
+            {/* Profile Section */}
+            <div className="p-4 border-t border-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                  {user.name.charAt(0)}
+                </div>
+                <span className="text-white">{user.name}</span>
+                <button
+                  onClick={() => handleNavigation("/logout")}
+                  className="ml-auto p-2 hover:bg-gray-600 rounded-full"
+                >
+                  <FiLogOut className="h-5 w-5 text-white" />
+                </button>
+              </div>
+            </div>
           </motion.div>
 
           {/* Main Content */}
           <div className="flex-1 p-8 overflow-y-auto">
-            {/* Graphs Section */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
-              {/* Bar Chart */}
+            {isPending ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
               <motion.div
-                variants={itemVariants}
-                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
               >
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                  Monthly Sales
-                </h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="sales" fill="#3b82f6" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </motion.div>
+                {/* Bar Chart */}
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+                >
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                    Monthly Sales
+                  </h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={salesData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="sales" fill="#3b82f6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </motion.div>
 
-              {/* Line Chart */}
-              <motion.div
-                variants={itemVariants}
-                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
-              >
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                  Revenue Over Time
-                </h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="sales" stroke="#3b82f6" />
-                  </LineChart>
-                </ResponsiveContainer>
+                {/* Line Chart */}
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+                >
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                    Revenue Over Time
+                  </h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={salesData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="sales" stroke="#3b82f6" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            )}
           </div>
         </div>
       </div>
