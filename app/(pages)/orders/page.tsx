@@ -66,6 +66,10 @@ const OrderList = () => {
     setFilteredOrders(filtered);
   };
 
+  useEffect(() => {
+    handleSearch();
+  }, [searchOrderQuery, selectedSize, selectedDate, selectedSeller]);
+
   const calculateTotalPrice = totalPrice(filteredOrders);
   const calculateTotalArea = totalArea(filteredOrders);
 
