@@ -1,4 +1,5 @@
 "use client";
+import { Loader } from "@/app/_components/Loader";
 import { useAuth } from "@/app/_context/AuthContext";
 import { login } from "@/app/_features/auth/slice";
 import {
@@ -54,9 +55,7 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
       {isPending ? (
         <>
-          <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-75">
-            <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
+          <Loader />
         </>
       ) : (
         <>
