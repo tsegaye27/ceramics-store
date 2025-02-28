@@ -15,3 +15,13 @@ body {
 .text-gray-800 {
   color: #1f2937;
 }
+
+@media (max-width: 640px) {
+  .chart-buttons {
+    padding: 0.25rem;
+    font-size: 0.875rem;
+  }
+  .chart-container {
+    padding: 1rem;
+  }
+}
