@@ -25,9 +25,9 @@ const LoginPage: React.FC = () => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
-  const handleNavigation = () => {
+  const handleNavigation = (route: string) => {
     startTransition(() => {
-      router.push("/ceramics");
+      router.push(route);
     });
   };
 
@@ -48,7 +48,9 @@ const LoginPage: React.FC = () => {
       ).unwrap();
       loginContext(response.data.user, response.data.token);
       toast.success("Login successful!");
-      handleNavigation();
+      response.data.user.role === "admin"
+        ? handleNavigation("/")
+        : handleNavigation("/ceramics");
     } catch (err: any) {
       toast.error(err || "Login failed!");
     }
