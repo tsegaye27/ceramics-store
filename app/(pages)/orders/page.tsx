@@ -85,18 +85,10 @@ const OrderList = () => {
   const calculateTotalPrice = totalPrice(filteredOrders);
   const calculateTotalArea = totalArea(filteredOrders);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-blue-50 p-4 md:p-6">
-      {isPending ? (
-        <div className="flex items-center justify-center h-40">
+      {isPending || isLoading ? (
+        <div className="flex items-center justify-center h-full">
           <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
@@ -200,7 +192,7 @@ const OrderList = () => {
                 <tbody>
                   {filteredOrders.map((order, index) => (
                     <tr
-                      key={order.id}
+                      key={index}
                       className="hover:bg-gray-50 transition-colors"
                     >
                       <td className="py-3 px-4 md:py-4 md:px-6 border-b">
@@ -252,7 +244,7 @@ const OrderList = () => {
                       Total:
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6">
-                      {calculateTotalArea} m²
+                      {calculateTotalArea.toFixed(2)} m²
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6">
                       {calculateTotalPrice.toFixed(2)} birr

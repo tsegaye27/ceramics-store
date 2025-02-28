@@ -30,9 +30,9 @@ const SignUpPage: React.FC = () => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const handleNavigate = () => {
+  const handleNavigate = (route: string) => {
     startTransition(() => {
-      router.push("/ceramics");
+      router.push(route);
     });
   };
 
@@ -60,7 +60,9 @@ const SignUpPage: React.FC = () => {
       ).unwrap();
       login(response.data.user, response.data.token);
       toast.success("Signup successful!");
-      handleNavigate();
+      response.data.user.role === "admin"
+        ? handleNavigate("/")
+        : handleNavigate("/ceramics");
     } catch (err: any) {
       toast.error(err || "Signup failed!");
     }
