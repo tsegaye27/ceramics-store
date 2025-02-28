@@ -2,9 +2,10 @@ import { JwtPayload } from "jsonwebtoken";
 
 interface DecodedToken extends JwtPayload {
   role?: string;
+  name?: string;
+  id?: string;
 }
 
-// Function to check if the user has the required role
 export const checkPermission = (
   decodedToken: DecodedToken,
   role: string,
