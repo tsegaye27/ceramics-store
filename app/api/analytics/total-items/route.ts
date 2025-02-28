@@ -6,13 +6,13 @@ import { Ceramic } from "../../_models";
 import logger from "@/services/logger";
 
 export async function GET(req: Request) {
-  const decodedToken = decodeToken(req);
+  const tokenResult = decodeToken(req);
 
-  if (!decodedToken) {
+  if (!tokenResult?.decodedToken) {
     return errorResponse("Unauthorized: No token provided", 401);
   }
 
-  if (!checkPermission(decodedToken, "admin")) {
+  if (!checkPermission(tokenResult?.decodedToken, "admin")) {
     return errorResponse("You don't have permission to get orders", 403);
   }
 

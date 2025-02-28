@@ -5,13 +5,13 @@ import dbConnect from "../../_lib/mongoose";
 import { Order } from "../../_models";
 
 export async function GET(req: Request) {
-  const decodedToken = decodeToken(req);
+  const tokenResult = decodeToken(req);
 
-  if (!decodedToken) {
+  if (!tokenResult?.decodedToken) {
     return errorResponse("Unauthorized: No token provided", 401);
   }
 
-  if (!checkPermission(decodedToken, "admin")) {
+  if (!checkPermission(tokenResult?.decodedToken, "admin")) {
     return errorResponse("You don't have permission to get orders", 403);
   }
 
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     );
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const getMostSoldCeramic = async (startDate: Date) => {
+    const getMostSoldCeramics = async (startDate: Date) => {
       const result = await Order.aggregate([
         {
           $match: {
@@ -53,24 +53,14 @@ export async function GET(req: Request) {
                 ],
               },
             },
+            ceramic: { $first: "$ceramic" },
           },
-        },
-        {
-          $lookup: {
-            from: "ceramics",
-            localField: "_id",
-            foreignField: "_id",
-            as: "ceramic",
-          },
-        },
-        {
-          $unwind: "$ceramic",
         },
         {
           $sort: { totalQuantity: -1 },
         },
         {
-          $limit: 1,
+          $limit: 5,
         },
         {
           $project: {
@@ -80,32 +70,16 @@ export async function GET(req: Request) {
               type: "$ceramic.type",
               manufacturer: "$ceramic.manufacturer",
             },
-            totalQuantity: {
-              $multiply: [
-                "$totalQuantity",
-                {
-                  $switch: {
-                    branches: [
-                      { case: { $eq: ["$ceramic.size", "60x60"] }, then: 0.36 },
-                      { case: { $eq: ["$ceramic.size", "40x40"] }, then: 0.16 },
-                      { case: { $eq: ["$ceramic.size", "30x30"] }, then: 0.09 },
-                      { case: { $eq: ["$ceramic.size", "30x60"] }, then: 0.18 },
-                      { case: { $eq: ["$ceramic.size", "zekolo"] }, then: 0.6 },
-                    ],
-                    default: 0,
-                  },
-                },
-              ],
-            },
+            totalQuantity: 1,
           },
         },
       ]);
-      return result[0] || null;
+      return result;
     };
 
-    const mostSoldToday = await getMostSoldCeramic(todayStart);
-    const mostSoldThisWeek = await getMostSoldCeramic(thisWeekStart);
-    const mostSoldThisMonth = await getMostSoldCeramic(thisMonthStart);
+    const mostSoldToday = await getMostSoldCeramics(todayStart);
+    const mostSoldThisWeek = await getMostSoldCeramics(thisWeekStart);
+    const mostSoldThisMonth = await getMostSoldCeramics(thisMonthStart);
 
     return successResponse(
       {
