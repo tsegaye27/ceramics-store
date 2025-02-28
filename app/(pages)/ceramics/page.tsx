@@ -10,6 +10,8 @@ import { useAuth } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import SkeletonLoader from "@/app/_components/SkeletonLoader";
+import withAuth from "@/app/_components/hoc/withAuth";
+import { Loader } from "@/app/_components/Loader";
 
 const CeramicsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +22,7 @@ const CeramicsPage = () => {
   const { token, user } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleAddNewCeramic = () => {
     startTransition(() => {
@@ -56,6 +59,7 @@ const CeramicsPage = () => {
       router.push("/login");
       return;
     }
+    setIsChecked(true);
 
     if (debouncedSearchQuery) {
       dispatch(searchCeramics(debouncedSearchQuery));
@@ -65,15 +69,19 @@ const CeramicsPage = () => {
   }, [debouncedSearchQuery, dispatch, token, router]);
   const isAdmin = user?.role === "admin";
 
+  if (!isChecked) {
+    return <Loader />;
+  }
+
   return (
-    <div className="p-6 bg-blue-50 min-h-screen">
+    <div className="p-6 bg-blue-50 dark:bg-gray-900 min-h-screen">
       {isPending ? (
         <div className="flex items-center justify-center h-40">
-          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
         <>
-          <h1 className="text-4xl font-extrabold text-center text-blue-700 mb-8">
+          <h1 className="text-4xl font-extrabold text-center text-blue-700 dark:text-blue-300 mb-8">
             {t("ceramicsList")}
           </h1>
 
@@ -85,7 +93,7 @@ const CeramicsPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("searchPlaceholder")}
-                className="border border-blue-300 p-3 w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-blue-300 dark:border-gray-600 p-3 w-full rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
             </form>
 
@@ -94,10 +102,10 @@ const CeramicsPage = () => {
                 <button
                   onClick={handleAddNewCeramic}
                   disabled={isPending}
-                  className={`bg-transparent text-blue-500 rounded-md ${
+                  className={`text-blue-500 dark:text-blue-400 rounded-md transition ${
                     isPending
                       ? "opacity-50 cursor-not-allowed"
-                      : "hover:text-blue-600"
+                      : "hover:text-blue-600 dark:hover:text-blue-300"
                   }`}
                 >
                   {t("addNewCeramic")}
@@ -106,10 +114,10 @@ const CeramicsPage = () => {
                 <button
                   onClick={handleViewOrders}
                   disabled={isPending}
-                  className={`bg-transparent text-blue-500 rounded-md ${
+                  className={`text-blue-500 dark:text-blue-400 rounded-md transition ${
                     isPending
                       ? "opacity-50 cursor-not-allowed"
-                      : "hover:text-blue-600"
+                      : "hover:text-blue-600 dark:hover:text-blue-300"
                   }`}
                 >
                   {t("orderList")}
@@ -120,7 +128,7 @@ const CeramicsPage = () => {
             {loading ? (
               <SkeletonLoader />
             ) : ceramics.length === 0 ? (
-              <p className="text-center text-gray-500 mt-8">
+              <p className="text-center text-gray-500 dark:text-gray-400 mt-8">
                 {t("noCeramicsFound")}
               </p>
             ) : (
@@ -128,9 +136,9 @@ const CeramicsPage = () => {
                 {ceramics.map((ceramic) => (
                   <div
                     key={ceramic._id}
-                    className={`bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ${
+                    className={`bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ${
                       ceramic.totalPackets <= 10
-                        ? "border-2 border-red-600"
+                        ? "border-2 border-red-600 dark:border-red-500"
                         : ""
                     }`}
                   >
@@ -157,10 +165,10 @@ const CeramicsPage = () => {
                               }
                               title={`${t("add")} ${ceramic.code}`}
                               disabled={isPending}
-                              className={`bg-white/90 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all ${
+                              className={`bg-white/90 dark:bg-gray-700 text-blue-600 dark:text-blue-300 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition ${
                                 isPending
                                   ? "opacity-50 cursor-not-allowed"
-                                  : "hover:scale-105"
+                                  : "hover:scale-105 hover:bg-white dark:hover:bg-gray-600"
                               }`}
                             >
                               +
@@ -171,10 +179,10 @@ const CeramicsPage = () => {
                               }
                               title={`${t("sell")} ${ceramic.code}`}
                               disabled={isPending}
-                              className={`bg-white/90 text-red-600 w-8 h-8 rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all ${
+                              className={`bg-white/90 dark:bg-gray-700 text-red-600 dark:text-red-400 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition ${
                                 isPending
                                   ? "opacity-50 cursor-not-allowed"
-                                  : "hover:scale-105"
+                                  : "hover:scale-105 hover:bg-white dark:hover:bg-gray-600"
                               }`}
                             >
                               -
@@ -183,16 +191,16 @@ const CeramicsPage = () => {
                         )}
                       </div>
                     )}
-                    <h2 className="font-semibold text-lg text-blue-800 mb-2">
+                    <h2 className="font-semibold text-lg text-blue-800 dark:text-blue-300 mb-2">
                       {t("code")}: {ceramic.code}
                     </h2>
-                    <p className="text-gray-700">
+                    <p className="text-gray-700 dark:text-gray-300">
                       {t("size")}: {ceramic.size}
                     </p>
-                    <p className="text-gray-700">
+                    <p className="text-gray-700 dark:text-gray-300">
                       {t("type")}: {ceramic.type}
                     </p>
-                    <p className="mb-4 text-gray-700">
+                    <p className="mb-4 text-gray-700 dark:text-gray-300">
                       {t("totalArea")}:{" "}
                       {calculateArea(
                         ceramic.totalPackets || 0,
@@ -205,7 +213,7 @@ const CeramicsPage = () => {
                     <button
                       onClick={() => handleViewDetails(ceramic._id as string)}
                       aria-label={`${t("viewDetails")} ${ceramic.code}`}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 hover:underline dark:hover:text-blue-300"
                     >
                       {t("viewDetails")}
                     </button>
@@ -220,4 +228,4 @@ const CeramicsPage = () => {
   );
 };
 
-export default CeramicsPage;
+export default withAuth(CeramicsPage, ["user", "admin"]);

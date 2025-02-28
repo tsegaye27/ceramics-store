@@ -11,6 +11,9 @@ import { useAppDispatch } from "@/app/_features/store/store";
 import { useRouter } from "next/navigation";
 import { fetchOrders } from "@/app/_features/orders/slice";
 import toast from "react-hot-toast";
+import { Loader } from "@/app/_components/Loader";
+import withAuth from "@/app/_components/hoc/withAuth";
+import { useAuth } from "@/app/_context/AuthContext";
 
 const OrderList = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -24,6 +27,8 @@ const OrderList = () => {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSeller, setSelectedSeller] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { token, user } = useAuth();
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleBack = () => {
     startTransition(() => {
@@ -32,6 +37,14 @@ const OrderList = () => {
   };
 
   useEffect(() => {
+    if (!token) {
+      router.push("/login");
+      return;
+    } else if (user.role === "user") {
+      router.push("/ceramics");
+      return;
+    }
+    setIsChecked(true);
     async function fetchData() {
       try {
         const result = await dispatch(fetchOrders()).unwrap();
@@ -85,12 +98,14 @@ const OrderList = () => {
   const calculateTotalPrice = totalPrice(filteredOrders);
   const calculateTotalArea = totalArea(filteredOrders);
 
+  if (!isChecked) {
+    return <Loader />;
+  }
+
   return (
     <div className="min-h-screen bg-blue-50 p-4 md:p-6">
       {isPending || isLoading ? (
-        <div className="flex items-center justify-center h-full">
-          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <Loader />
       ) : (
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -261,4 +276,4 @@ const OrderList = () => {
   );
 };
 
-export default OrderList;
+export default withAuth(OrderList, ["admin"]);

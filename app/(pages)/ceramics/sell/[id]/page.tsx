@@ -9,11 +9,14 @@ import {
   useAppDispatch,
   useAppSelector,
 } from "@/app/_features/store/store";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { sellCeramic } from "@/app/_features/ceramics/slice";
 import toast from "react-hot-toast";
+import withAuth from "@/app/_components/hoc/withAuth";
+import { useAuth } from "@/app/_context/AuthContext";
+import { Loader } from "@/app/_components/Loader";
 
 type SellCeramicProps = {
   params: {
@@ -23,13 +26,14 @@ type SellCeramicProps = {
 
 type FormData = z.infer<typeof soldCeramicSchema>;
 
-export default function SellCeramic({ params }: SellCeramicProps) {
+const SellCeramic = ({ params }: SellCeramicProps) => {
   const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { loading } = useAppSelector((state: RootState) => state.ceramics);
-
+  const [isChecked, setIsChecked] = useState(false);
+  const { token, user } = useAuth();
   const {
     register,
     handleSubmit,
@@ -44,6 +48,17 @@ export default function SellCeramic({ params }: SellCeramicProps) {
       router.push("/ceramics");
     });
   };
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+      return;
+    } else if (user.role !== "admin") {
+      router.push("/not-found");
+      return;
+    }
+    setIsChecked(true);
+  }, [token, user, router]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const packets = isNaN(data.packetsSold) ? 0 : data.packetsSold;
@@ -71,15 +86,19 @@ export default function SellCeramic({ params }: SellCeramicProps) {
     }
   };
 
+  if (!isChecked) {
+    return <Loader />;
+  }
+
   return (
     <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
-      <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-        {isPending ? (
-          <div className="flex items-center justify-center h-40">
-            <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <>
+      {isPending ? (
+        <div className="flex items-center justify-center h-40">
+          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
             <button
               onClick={handleBack}
               className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
@@ -164,9 +183,11 @@ export default function SellCeramic({ params }: SellCeramicProps) {
                 </button>
               </form>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
-}
+};
+
+export default withAuth(SellCeramic, ["admin"]);
