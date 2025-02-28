@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import toast from "react-hot-toast";
 import {
@@ -14,6 +14,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateCeramicSchema } from "@/app/_validators/ceramicSchema";
 import { updateCeramic } from "@/app/_features/ceramics/slice";
+import withAuth from "@/app/_components/hoc/withAuth";
+import { useAuth } from "@/app/_context/AuthContext";
+import { Loader } from "@/app/_components/Loader";
 
 type AddCeramicProps = {
   params: {
@@ -23,12 +26,14 @@ type AddCeramicProps = {
 
 type FormData = z.infer<typeof updateCeramicSchema>;
 
-export default function AddCeramic({ params }: AddCeramicProps) {
+const AddCeramic = ({ params }: AddCeramicProps) => {
   const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { loading } = useAppSelector((state: RootState) => state.ceramics);
+  const [isChecked, setIsChecked] = useState(false);
+  const { token, user } = useAuth();
 
   const {
     register,
@@ -38,6 +43,15 @@ export default function AddCeramic({ params }: AddCeramicProps) {
   } = useForm<FormData>({
     resolver: zodResolver(updateCeramicSchema),
   });
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+    } else if (user.role !== "admin") {
+      router.push("/not-found");
+    }
+    setIsChecked(true);
+  }, [token, user, router]);
 
   const handleBack = () => {
     startTransition(() => {
@@ -68,15 +82,20 @@ export default function AddCeramic({ params }: AddCeramicProps) {
       toast.error(error.message);
     }
   };
+
+  if (!isChecked) {
+    return <Loader />;
+  }
+
   return (
     <div className="container mx-auto p-6 bg-transparent min-h-screen flex items-center justify-center">
-      <div className="max-w-lg w-full bg-white p-8 rounded-xl shadow-md">
-        {isPending ? (
-          <div className="flex items-center justify-center h-40">
-            <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <>
+      {isPending ? (
+        <div className="flex items-center justify-center h-40">
+          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <div className="max-w-lg w-full bg-white p-8 rounded-xl shadow-md">
             <button
               onClick={handleBack}
               className="text-blue-500 hover:text-blue-700 mb-6 inline-block font-medium"
@@ -130,9 +149,11 @@ export default function AddCeramic({ params }: AddCeramicProps) {
                 </button>
               </form>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
-}
+};
+
+export default withAuth(AddCeramic, ["admin"]);

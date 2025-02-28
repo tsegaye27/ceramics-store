@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/app/_context/LanguageContext";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/_features/store/store";
@@ -14,6 +14,9 @@ import {
   createCeramicSchema,
   CeramicFormData,
 } from "@/app/_validators/ceramicSchema";
+import { Loader } from "@/app/_components/Loader";
+import withAuth from "@/app/_components/hoc/withAuth";
+import { useAuth } from "@/app/_context/AuthContext";
 
 const sizes = ["60x60", "40x40", "30x60", "30x30", "Zekolo"];
 const types = ["Polished", "Normal", "Digital"];
@@ -25,8 +28,8 @@ const CeramicForm = () => {
   const { loading } = useSelector((state: RootState) => state.ceramics);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [isUploading, setIsUploading] = useState(false); // Track upload status
-
+  const [isUploading, setIsUploading] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const {
     register,
     handleSubmit,
@@ -43,6 +46,18 @@ const CeramicForm = () => {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showManufacturerDropdown, setShowManufacturerDropdown] =
     useState(false);
+  const { token, user } = useAuth();
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+      return;
+    } else if (user.role !== "admin") {
+      router.push("/not-found");
+      return;
+    }
+    setIsChecked(true);
+  }, [token, user, router]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,12 +70,14 @@ const CeramicForm = () => {
           setValue("imageUrl", result.payload);
           toast.success("Image uploaded successfully");
         } else if (uploadImage.rejected.match(result)) {
-          toast.error("Failed to upload image: " + (result.payload || "Unknown error"));
+          toast.error(
+            "Failed to upload image: " + (result.payload || "Unknown error"),
+          );
         }
       } catch (err) {
         toast.error("An unexpected error occurred during upload");
       } finally {
-        setIsUploading(false); // End upload
+        setIsUploading(false);
       }
     }
   };
@@ -85,31 +102,34 @@ const CeramicForm = () => {
         reset();
         router.push("/ceramics");
       } else if (addCeramic.rejected.match(result)) {
-        toast.error((result.payload as string) || "An unexpected error occurred");
+        toast.error(
+          (result.payload as string) || "An unexpected error occurred",
+        );
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred");
     }
   };
 
+  if (!isChecked) {
+    return <Loader />;
+  }
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
-      <button onClick={handleBack} className="text-blue-500">
-        {t("back")}
-      </button>
-      <h1 className="text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-4 md:mb-6">
-        {t("addCeramic")}
-      </h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
-      >
-        {isPending ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
-            <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <>
+      {isPending ? (
+        <Loader />
+      ) : (
+        <>
+          <button onClick={handleBack} className="text-blue-500">
+            {t("back")}
+          </button>
+          <h1 className="text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-4 md:mb-6">
+            {t("addCeramic")}
+          </h1>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
+          >
             {/* Left Column */}
             <div className="space-y-4">
               {/* Size Field */}
@@ -402,11 +422,11 @@ const CeramicForm = () => {
             >
               {loading || isUploading ? t("addingCeramic") : t("addNewCeramic")}
             </button>
-          </>
-        )}
-      </form>
+          </form>
+        </>
+      )}
     </div>
   );
 };
 
-export default CeramicForm;
+export default withAuth(CeramicForm, ["admin"]);
