@@ -58,102 +58,64 @@ function CeramicDetail({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
-      {!ceramic || loading || isPending ? (
-        <Loader />
-      ) : (
-        <>
-          <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-            <button
-              onClick={handleBack}
-              className="text-blue-500 hover:text-blue-700 mb-6 inline-block"
-            >
-              {t("back")}
-            </button>
-            <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-700">
-              {t("ceramicDetails")}
-            </h1>
+<div className="container mx-auto p-6 bg-blue-50 dark:bg-gray-900 min-h-screen">
+  {!ceramic || loading || isPending ? (
+    <Loader />
+  ) : (
+    <>
+      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-4 md:p-8 rounded-lg shadow-lg dark:shadow-gray-700/50">
+        <button
+          onClick={handleBack}
+          className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 md:mb-6 inline-block text-sm md:text-base"
+        >
+          {t("back")}
+        </button>
+        <h1 className="text-2xl md:text-3xl font-extrabold mb-4 md:mb-6 text-center text-blue-700 dark:text-blue-400">
+          {t("ceramicDetails")}
+        </h1>
 
-            {ceramic.imageUrl && (
-              <div className="mb-6 text-center">
-                <Image
-                  src={ceramic.imageUrl}
-                  alt={ceramic.code || t("ceramicImage")}
-                  width={400}
-                  height={400}
-                  priority
-                  className="rounded-lg w-auto h-auto object-cover mx-auto shadow-md"
-                />
-              </div>
-            )}
-
-            <div className="space-y-4 text-blue-800">
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("date")}:
-                </strong>
-                <span>
-                  {ceramic?.createdAt &&
-                    formatDate(ceramic?.createdAt.toString())}
-                </span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("size")}:
-                </strong>
-                <span>{ceramic?.size}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("type")}:
-                </strong>
-                <span>{ceramic?.type}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("manufacturer")}:
-                </strong>
-                <span>{ceramic?.manufacturer}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("code")}:
-                </strong>
-                <span>{ceramic?.code}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("piecesPerPacket")}:
-                </strong>
-                <span>{ceramic?.piecesPerPacket}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("totalPackets")}:
-                </strong>
-                <span>{ceramic?.totalPackets}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("totalPiecesWithoutPacket")}:
-                </strong>
-                <span>{ceramic?.totalPiecesWithoutPacket}</span>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg shadow-sm">
-                <strong className="block font-semibold text-blue-900">
-                  {t("updatedAt")}:
-                </strong>
-                <span>
-                  {ceramic?.updatedAt &&
-                    formatDate(ceramic?.updatedAt.toString())}
-                </span>
-              </div>
-            </div>
+        {ceramic.imageUrl && (
+          <div className="mb-4 md:mb-6 text-center">
+            <Image
+              src={ceramic.imageUrl}
+              alt={ceramic.code || t("ceramicImage")}
+              width={400}
+              height={400}
+              priority
+              className="rounded-lg w-full max-w-[400px] h-auto object-cover mx-auto shadow-md dark:border dark:border-gray-600"
+            />
           </div>
-        </>
-      )}
-    </div>
-  );
+        )}
+
+        <div className="space-y-3 md:space-y-4 text-blue-800 dark:text-gray-300">
+          {[
+            { label: t("date"), value: ceramic?.createdAt && formatDate(ceramic?.createdAt?.toString()) },
+            { label: t("size"), value: ceramic?.size },
+            { label: t("type"), value: ceramic?.type },
+            { label: t("manufacturer"), value: ceramic?.manufacturer },
+            { label: t("code"), value: ceramic?.code },
+            { label: t("piecesPerPacket"), value: ceramic?.piecesPerPacket },
+            { label: t("totalPackets"), value: ceramic?.totalPackets },
+            { label: t("totalPiecesWithoutPacket"), value: ceramic?.totalPiecesWithoutPacket },
+            { label: t("updatedAt"), value: ceramic?.updatedAt && formatDate(ceramic?.updatedAt?.toString()) },
+          ].map((item, index) => (
+            <div 
+              key={index}
+              className="p-3 md:p-4 bg-blue-100 dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+            >
+              <strong className="block font-semibold text-blue-900 dark:text-blue-300 text-sm md:text-base mb-1">
+                {item.label}:
+              </strong>
+              <span className="break-words text-sm md:text-base">
+                {item.value || "-"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )}
+</div>  );
 }
 
 export default withAuth(CeramicDetail);
