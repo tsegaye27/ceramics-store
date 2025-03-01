@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const storedToken = cookies.jwt;
     const storedUser = localStorage.getItem("user");
+    console.log(storedUser);
 
     if (storedToken && storedUser) {
       dispatch(setToken(storedToken));
