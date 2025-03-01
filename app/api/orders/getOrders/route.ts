@@ -6,6 +6,8 @@ import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import { decodeToken } from "../../_utils/decodeToken";
 import { checkPermission } from "../../_utils/checkPermission";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const tokenResult = decodeToken(req);

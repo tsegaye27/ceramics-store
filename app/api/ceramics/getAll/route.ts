@@ -4,6 +4,8 @@ import { successResponse, errorResponse } from "@/app/_utils/apiResponse";
 import logger from "@/services/logger";
 import { decodeToken } from "../../_utils/decodeToken";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     await dbConnect();

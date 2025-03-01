@@ -94,7 +94,6 @@ const CeramicForm = () => {
       return;
     }
 
-    console.log("form data", data);
     try {
       const result = await dispatch(addCeramic(data));
       if (addCeramic.fulfilled.match(result)) {

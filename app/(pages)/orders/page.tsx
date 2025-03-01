@@ -57,7 +57,7 @@ const OrderList = () => {
       }
     }
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, router, token, user.role]);
 
   const handleSearch = useCallback(
     (term: string) => {

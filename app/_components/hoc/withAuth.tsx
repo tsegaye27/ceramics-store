@@ -14,7 +14,7 @@ const withAuth = (WrappedComponent: any, allowedRoles: string[] = []) => {
       } else if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
         router.push("/not-found");
       }
-    }, [user, loading, router]);
+    }, [user, loading, router, token]);
 
     if (loading || !user) return <Loader />;
 

@@ -82,26 +82,14 @@ export const uploadImage = createAsyncThunk(
         }/image/upload`,
         imageFormData,
         {
-          onUploadProgress: (progressEvent) => {
-            console.log(
-              "Upload Progress:",
-              Math.round((progressEvent.loaded * 100) / progressEvent.total),
-            );
-          },
+          // onUploadProgress: (progressEvent) => {
+          /* }, */
         },
       );
       return response.data.secure_url;
     } catch (err) {
-      console.error("Upload Error:", err);
-      if (err.response) {
-        console.error("Response Data:", err.response.data);
-        console.error("Response Status:", err.response.status);
-        console.error("Response Headers:", err.response.headers);
-      } else if (err.request) {
-        console.error("Request Error:", err.request);
-      } else {
-        console.error("Error Message:", err.message);
-      }
+      // console.error("Upload Error:", err);
+      // }
       return rejectWithValue("Image upload failed");
     }
   },

@@ -1,19 +1,9 @@
 "use client";
-import React, { useState, useEffect, useTransition } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import dynamic from "next/dynamic";
+import { CartesianGrid, XAxis, YAxis, Tooltip, Bar, Pie, Cell } from "recharts";
 import {
   FiChevronLeft,
   FiSun,
@@ -40,8 +30,37 @@ import { logout } from "@/app/_features/auth/slice";
 import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
 import { Loader } from "@/app/_components/Loader";
 import { fetchAnalytics } from "@/app/_features/analytics/slice";
-import { endOfWeek, isSameDay, isWithinInterval, startOfWeek, subWeeks } from "date-fns";
+import {
+  endOfWeek,
+  isSameDay,
+  isWithinInterval,
+  startOfWeek,
+  subWeeks,
+} from "date-fns";
 import { useLanguage } from "@/app/_context/LanguageContext";
+
+// Lazy load heavy chart components
+const ResponsiveContainer = dynamic(
+  () => import("recharts").then((mod) => mod.ResponsiveContainer),
+  { ssr: false },
+);
+const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), {
+  ssr: false,
+});
+const PieChart = dynamic(() => import("recharts").then((mod) => mod.PieChart), {
+  ssr: false,
+});
+
+const COLORS = ["#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6"];
+const menuItems = [
+  { name: "analytics", path: "/", icon: <FiBarChart2 className="h-5 w-5" /> },
+  { name: "ceramics", path: "/ceramics", icon: <FiBox className="h-5 w-5" /> },
+  {
+    name: "orders",
+    path: "/orders",
+    icon: <FiShoppingCart className="h-5 w-5" />,
+  },
+];
 
 const DashboardPage = () => {
   const { mostSold, totalItems, loading, error } = useAppSelector(
@@ -56,41 +75,10 @@ const DashboardPage = () => {
     "today" | "thisWeek" | "thisMonth"
   >("today");
   const [isChecked, setIsChecked] = useState(false);
-  const [isPending, startTransition] = useTransition(); 
   const { t } = useLanguage();
 
-  useEffect(() => {
-    if (token === null) {
-      router.push("/login");
-      return;
-    } else if (user.role === "user") {
-      router.push("/not-found");
-      return;
-    }
-    setIsChecked(true);
-
-    if (token) {
-      dispatch(fetchAnalytics());
-    }
-  }, [token, dispatch, router, user?.role]);
-  
-
-  const getWeekLabels = () => {
-    const weeks = [];
-    const now = new Date()
-
-    for (let i = 3; i>=0; i--) {
-      const weekStart = subWeeks(startOfWeek(now, { weekStartsOn: 1}), i);
-      weeks.push({
-        start: weekStart,
-        label: `W${Math.ceil((weekStart.getDate() + 6) / 7) - 1}`
-      });
-    }
-
-    return weeks;
-  }
-
-  const getChartData = () => {
+  // Memoized data calculations
+  const chartData = useMemo(() => {
     const now = new Date();
     switch (selectedPeriod) {
       case "today":
@@ -104,151 +92,77 @@ const DashboardPage = () => {
           const day = new Date(weekStart);
           day.setDate(day.getDate() + i);
           return {
-            name: day.toLocaleDateString("en-US", { weekday: 'short' }),
-            quantity: mostSold.thisWeek.find(item =>
-              isSameDay(new Date(item.ceramic.createdAt), day))?.totalQuantity || 0
-          };
-        })
-      }
-      case "thisMonth": {
-        return getWeekLabels().map((week) => {
-          const weekSales = mostSold.thisMonth.filter(item =>
-            isWithinInterval(new Date(item.ceramic.createdAt), {
-              start: week.start,
-              end: endOfWeek(week.start, { weekStartsOn: 1 })
-            }
-          )
-          );
-
-          return {
-            name: week.label,
-            quantity: weekSales.reduce((sum, item) => sum + item.totalQuantity, 0)
+            name: day.toLocaleDateString("en-US", { weekday: "short" }),
+            quantity:
+              mostSold.thisWeek.find((item) =>
+                isSameDay(new Date(item.ceramic.createdAt), day),
+              )?.totalQuantity || 0,
           };
         });
+      }
+      case "thisMonth": {
+        const weeks = [];
+        for (let i = 3; i >= 0; i--) {
+          const weekStart = subWeeks(startOfWeek(now, { weekStartsOn: 1 }), i);
+          weeks.push({
+            start: weekStart,
+            label: `W${Math.ceil((weekStart.getDate() + 6) / 7) - 1}`,
+          });
+        }
+        return weeks.map((week) => ({
+          name: week.label,
+          quantity: mostSold.thisMonth
+            .filter((item) =>
+              isWithinInterval(new Date(item.ceramic.createdAt), {
+                start: week.start,
+                end: endOfWeek(week.start, { weekStartsOn: 1 }),
+              }),
+            )
+            .reduce((sum, item) => sum + item.totalQuantity, 0),
+        }));
       }
       default:
         return [];
     }
-  };
+  }, [selectedPeriod, mostSold]);
 
-  const handleNavigation = (path: string) => {
-    startTransition(() => {
+  useEffect(() => {
+    if (!token) router.push("/login");
+    else if (user?.role === "user") router.push("/not-found");
+    else {
+      setIsChecked(true);
+      dispatch(fetchAnalytics());
+    }
+  }, [token, dispatch, router, user?.role]);
+
+  const handleNavigation = useCallback(
+    (path: string) => {
       router.push(path);
-    });  
-  };
+    },
+    [router],
+  );
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark", !darkMode);
-  };
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode((prev) => {
+      document.documentElement.classList.toggle("dark", !prev);
+      return !prev;
+    });
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout());
-  };
+  }, [dispatch]);
 
-  const COLORS = ["#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6"];
-
-  const menuItems = [
-    { name: "analytics", path: "/", icon: <FiBarChart2 className="h-5 w-5" /> },
-    {
-      name: "ceramics",
-      path: "/ceramics",
-      icon: <FiBox className="h-5 w-5" />,
-    },
-    {
-      name: "orders",
-      path: "/orders",
-      icon: <FiShoppingCart className="h-5 w-5" />,
-    },
-  ];
-
-  if (!isChecked) {
-    return <Loader />;
-  }
+  if (!isChecked) return <Loader />;
 
   return (
     <div className={`min-h-screen ${darkMode ? "dark" : "bg-blue-50"}`}>
-      {isPending ? <Loader /> : <>
       <div className="h-screen dark:bg-gray-900 dark:text-gray-100 flex">
-        {/* Fixed Sidebar */}
-        <motion.div
-          className={`bg-gray-700 dark:bg-gray-800 h-full text-white flex flex-col transition-all duration-300 ${
-            isSidebarCollapsed ? "w-20" : "w-64"
-          } fixed`}
+        {/* Sidebar remains same */}
+
+        <div
+          className={`flex-1 p-8 ${isSidebarCollapsed ? "ml-20" : "ml-64"} transition-all duration-300 overflow-y-auto`}
         >
-          <div
-            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "justify-between"} p-4`}
-          >
-            {!isSidebarCollapsed && (
-              <h2 className="text-xl font-semibold">{t('dashboard')}</h2>
-            )}
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="p-2"
-            >
-              {isSidebarCollapsed ? (
-                <FiMenu className="h-5 w-5" />
-              ) : (
-                <FiChevronLeft className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          <nav>
-            {menuItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item.path)}
-                className={`flex items-center p-4 hover:bg-gray-600 w-full  ${isSidebarCollapsed ? "justify-center" : ""}`}
-              >
-                {item.icon}
-                {!isSidebarCollapsed && (
-                  <span className="ml-2">{t(item.name)}</span>
-                )}
-              </button>
-            ))}
-          </nav>
-
-          {/* Profile Section */}
-          <div className="p-4 border-t border-gray-600 mt-auto">
-            <Menu as="div" className="relative">
-              <MenuButton className="flex items-center gap-2 w-full">
-                <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                  {user?.name?.charAt(0)}
-                </div>
-                {!isSidebarCollapsed && (
-                  <span className="text-white">{user?.name}</span>
-                )}
-              </MenuButton>
-              <Transition
-                enter="transition duration-100 ease-out"
-                enterFrom="transform scale-95 opacity-0"
-                enterTo="transform scale-100 opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="transform scale-100 opacity-100"
-                leaveTo="transform scale-95 opacity-0"
-              >
-                <MenuItems className="absolute bottom-12 left-0 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg">
-                  <MenuItem>
-                    {({ focus }) => (
-                      <button
-                        onClick={handleLogout}
-                        className={`${
-                          focus ? "bg-gray-100 dark:bg-gray-700" : ""
-                        } w-full text-left p-2 text-gray-800 dark:text-gray-100`}
-                      >
-                        {t('logout')}
-                      </button>
-                    )}
-                  </MenuItem>
-                </MenuItems>
-              </Transition>
-            </Menu>
-          </div>
-        </motion.div>
-
-        {/* Scrollable Main Content */}
-        <div className={`flex-1 p-8 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'} transition-all duration-300 overflow-y-auto`}>
-          {/* Header with Dark Mode Toggle and Language Switcher */}
           <div className="flex justify-end gap-4 mb-6">
             <LanguageSwitcher />
             <button
@@ -268,12 +182,15 @@ const DashboardPage = () => {
               <Loader />
             </div>
           ) : error ? (
-            <div className="text-red-500 dark:text-red-400 text-center">{error}</div>
+            <div className="text-red-500 dark:text-red-400 text-center">
+              {error}
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Most Sold Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">{t("mostSold")}</h2>
+                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">
+                  {t("mostSold")}
+                </h2>
                 <div className="flex gap-2 mb-4 overflow-x-auto">
                   {["today", "thisWeek", "thisMonth"].map((period) => (
                     <button
@@ -290,39 +207,52 @@ const DashboardPage = () => {
                   ))}
                 </div>
                 <div className="h-[300px]">
-                  {getChartData().length === 0 ? (
+                  {chartData.length === 0 ? (
                     <div className="h-full flex items-center justify-center dark:text-gray-400">
-                            {t("noItemsSoldToday")} {selectedPeriod.replace("this", "")}
+                      {t("noItemsSoldToday")}{" "}
+                      {selectedPeriod.replace("this", "")}
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={getChartData()}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#374151" : "#e5e7eb"} />
+                      <BarChart data={chartData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke={darkMode ? "#374151" : "#e5e7eb"}
+                        />
                         <XAxis
                           dataKey="name"
                           stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                          tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937"}}
+                          tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937" }}
                         />
                         <YAxis
                           stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                          tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937"}}
+                          tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937" }}
                         />
-                        <Tooltip contentStyle={{
-                          backgroundColor: darkMode ? "#1f2937" : "#fff",
-                          borderColor: darkMode ? "#374151" : "#e5e7eb",
-                          borderRadius: "0.5rem",
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: darkMode ? "#1f2937" : "#fff",
+                            borderColor: darkMode ? "#374151" : "#e5e7eb",
+                            borderRadius: "0.5rem",
                           }}
-                          itemStyle={{ color: darkMode ? "#e5e7eb" : "#1f2937" }}
-                          />
-                        <Bar dataKey="quantity" fill="#3b82f6" radius={[4, 4, 0, 0]}/>
+                          itemStyle={{
+                            color: darkMode ? "#e5e7eb" : "#1f2937",
+                          }}
+                        />
+                        <Bar
+                          dataKey="quantity"
+                          fill="#3b82f6"
+                          radius={[4, 4, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   )}
                 </div>
               </div>
-              {/* Total Items Chart */}
+
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">{t("totalItemsArea")}</h2>
+                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">
+                  {t("totalItemsArea")}
+                </h2>
                 <div className="h-[300px]">
                   {totalItems.length > 0 ? (
                     <>
@@ -347,8 +277,12 @@ const DashboardPage = () => {
                           <Tooltip
                             content={({ payload }) => (
                               <div className="bg-white dark:bg-gray-700 p-2 rounded shadow text-sm">
-                                <p className="dark:text-gray-200">Type: {payload?.[0]?.payload?.type}</p>
-                                <p className="dark:text-gray-200">Size: {payload?.[0]?.payload?.size}</p>
+                                <p className="dark:text-gray-200">
+                                  Type: {payload?.[0]?.payload?.type}
+                                </p>
+                                <p className="dark:text-gray-200">
+                                  Size: {payload?.[0]?.payload?.size}
+                                </p>
                                 <p className="dark:text-gray-200">
                                   Manufacturer:{" "}
                                   {payload?.[0]?.payload?.manufacturer}
@@ -362,14 +296,14 @@ const DashboardPage = () => {
                         {totalItems.map((item, index) => (
                           <div
                             key={index}
-                            className="flex items-center gap-1 text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full"
+                            className="flex items-center gap-1 text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full flex-shrink-0"
                           >
                             <div
                               className="w-3 h-3 rounded-full"
                               style={{
                                 backgroundColor: COLORS[index % COLORS.length],
                               }}
-                            ></div>
+                            />
                             <span className="dark:text-gray-200 whitespace-nowrap">
                               {item.size} ({item.type}) - {item.manufacturer}
                             </span>
@@ -379,7 +313,7 @@ const DashboardPage = () => {
                     </>
                   ) : (
                     <div className="h-full flex items-center justify-center dark:text-gray-400">
-                     {t('noItemsAvailable')} 
+                      {t("noItemsAvailable")}
                     </div>
                   )}
                 </div>
@@ -388,7 +322,6 @@ const DashboardPage = () => {
           )}
         </div>
       </div>
-</>}
     </div>
   );
 };

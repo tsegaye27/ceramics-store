@@ -29,7 +29,6 @@ export const validateInput = (
   totalPiecesWithoutPacket: number,
 ): boolean => {
   const isValid = totalPackets >= 0 && totalPiecesWithoutPacket >= 0;
-  if (!isValid) console.log("Invalid Data: Negative values are not allowed.");
   return isValid;
 };
 
@@ -40,11 +39,9 @@ export const checkSufficiency = (
   piecesToSell: number,
 ): boolean => {
   if (packetsAvailable < packetsToSell) {
-    console.log("Insufficient packets.");
     return false;
   }
   if (packetsAvailable === packetsToSell && piecesAvailable < piecesToSell) {
-    console.log("Insufficient pieces.");
     return false;
   }
   return true;

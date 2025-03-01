@@ -1,5 +1,4 @@
 import axiosInstance from "@/app/_lib/axios";
-import { removeCookie } from "@/app/_lib/cookie";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type AuthState = {
