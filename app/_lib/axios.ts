@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 const isProduction = process.env.NODE_ENV === "production";
 
 const baseURL = isProduction
-  ? "https://production-api.com"
+  ? process.env.NEXT_PUBLIC_API_URL
   : typeof window !== "undefined"
     ? `http://${window.location.hostname}:3000/api`
     : "http://localhost:3000/api";
