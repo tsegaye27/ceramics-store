@@ -151,7 +151,7 @@ const OrderList = () => {
               onChange={(e) => setSelectedSize(e.target.value)}
               className="p-2 border rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             >
-              <option value="">All Sizes</option>
+              <option value="">{t('allSizes')}</option>
               {["60x60", "40x40", "30x60", "30x30", "zekolo"].map((size) => (
                 <option key={size} value={size}>
                   {size}
@@ -161,13 +161,14 @@ const OrderList = () => {
 
             <input
               type="date"
+              placeholder={t("filterByDate")}
               onChange={(e) => setSelectedDate(e.target.value)}
               className="p-2 border rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-700"
             />
 
             <input
               type="text"
-              placeholder="Filter by seller"
+              placeholder={t("filterBySeller")}
               onChange={(e) => setSelectedSeller(e.target.value)}
               className="p-2 border rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-700"
             />
@@ -176,7 +177,7 @@ const OrderList = () => {
           {/* Table */}
           {filteredOrders.length === 0 ? (
             <p className="text-center text-gray-500 dark:text-gray-400">
-              {t("noOrdersFound")}
+              {t("noOrdersYet")}
             </p>
           ) : (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-x-auto">
@@ -184,25 +185,25 @@ const OrderList = () => {
                 <thead className="bg-gray-100 dark:bg-gray-700">
                   <tr>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      No
+                      {t('no')}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      Ceramic
+                      {t('ceramic')}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      Seller
+                      {t('seller')}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      Time
+                      {t('time')}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      Total Area
+                      {t('totalArea')}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      Total Price
+                      {t('totalPrice')}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      User
+                      {t('user')}
                     </th>
                   </tr>
                 </thead>
@@ -246,7 +247,7 @@ const OrderList = () => {
                             ),
                           )
                         ).toFixed(2)}{" "}
-                        birr
+                        {t('birr')}
                       </td>
                       <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {order.userId.name}
@@ -258,13 +259,13 @@ const OrderList = () => {
                       colSpan={4}
                       className="py-3 px-4 md:py-4 md:px-6 text-right"
                     >
-                      Total:
+                          {t('total')}:
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6">
                       {calculateTotalArea.toFixed(2)} m²
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6">
-                      {calculateTotalPrice.toFixed(2)} birr
+                      {calculateTotalPrice.toFixed(2)} {t('birr')}
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6"></td>
                   </tr>
