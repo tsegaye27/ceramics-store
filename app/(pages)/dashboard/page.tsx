@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -40,6 +40,7 @@ import { logout } from "@/app/_features/auth/slice";
 import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
 import { Loader } from "@/app/_components/Loader";
 import { fetchAnalytics } from "@/app/_features/analytics/slice";
+import { endOfWeek, isSameDay, isWithinInterval, startOfWeek, subWeeks } from "date-fns";
 
 const DashboardPage = () => {
   const { mostSold, totalItems, loading, error } = useAppSelector(
@@ -54,6 +55,7 @@ const DashboardPage = () => {
     "today" | "thisWeek" | "thisMonth"
   >("today");
   const [isChecked, setIsChecked] = useState(false);
+  const [isPending, startTransition] = useTransition(); 
 
   useEffect(() => {
     if (token === null) {
@@ -69,19 +71,25 @@ const DashboardPage = () => {
       dispatch(fetchAnalytics());
     }
   }, [token, dispatch, router, user?.role]);
+  
 
-  const getWeekDays = () => {
-    const days = [];
-    const date = new Date();
-    const first = date.getDate() - date.getDay() + 1;
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(date.setDate(first + 1));
-      days.push(day.toLocaleDateString("en-US", { weekday: "short" }));
+  const getWeekLabels = () => {
+    const weeks = [];
+    const now = new Date()
+
+    for (let i = 3; i>=0; i--) {
+      const weekStart = subWeeks(startOfWeek(now, { weekStartsOn: 1}), i);
+      weeks.push({
+        start: weekStart,
+        label: `W${Math.ceil((weekStart.getDate() + 6) / 7) - 1}`
+      });
     }
-    return days;
-  };
 
-  const getChartData = (): { name: string; quantity: number }[] => {
+    return weeks;
+  }
+
+  const getChartData = () => {
+    const now = new Date();
     switch (selectedPeriod) {
       case "today":
         return mostSold.today.map((item) => ({
@@ -89,27 +97,30 @@ const DashboardPage = () => {
           quantity: item.totalQuantity,
         }));
       case "thisWeek": {
-        const weekDays = getWeekDays();
-        return weekDays.map((day) => {
-          const found = mostSold.thisWeek.find(
-            (d) =>
-              new Date(d.ceramic.createdAt).toLocaleDateString("en-US", {
-                weekday: "short",
-              }) === day,
-          );
+        const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+        return Array.from({ length: 7 }, (_, i) => {
+          const day = new Date(weekStart);
+          day.setDate(day.getDate() + i);
           return {
-            name: day,
-            quantity: found?.totalQuantity || 0,
+            name: day.toLocaleDateString("en-US", { weekday: 'short' }),
+            quantity: mostSold.thisWeek.find(item =>
+              isSameDay(new Date(item.ceramic.createdAt), day))?.totalQuantity || 0
           };
-        });
+        })
       }
       case "thisMonth": {
-        const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
-        return weeks.map((week, idx) => {
-          const found = mostSold.thisMonth.find((_, i) => i === idx);
+        return getWeekLabels().map((week) => {
+          const weekSales = mostSold.thisMonth.filter(item =>
+            isWithinInterval(new Date(item.ceramic.createdAt), {
+              start: week.start,
+              end: endOfWeek(week.start, { weekStartsOn: 1 })
+            }
+          )
+          );
+
           return {
-            name: week,
-            quantity: found?.totalQuantity || 0,
+            name: week.label,
+            quantity: weekSales.reduce((sum, item) => sum + item.totalQuantity, 0)
           };
         });
       }
@@ -117,8 +128,11 @@ const DashboardPage = () => {
         return [];
     }
   };
+
   const handleNavigation = (path: string) => {
-    router.push(path);
+    startTransition(() => {
+      router.push(path);
+    });  
   };
 
   const toggleDarkMode = () => {
@@ -152,10 +166,11 @@ const DashboardPage = () => {
 
   return (
     <div className={`min-h-screen ${darkMode ? "dark" : "bg-blue-50"}`}>
+      {isPending ? <Loader /> : <>
       <div className="h-screen dark:bg-gray-900 dark:text-gray-100 flex">
         {/* Fixed Sidebar */}
         <motion.div
-          className={`bg-gray-700 h-full text-white flex flex-col transition-all duration-300 ${
+          className={`bg-gray-700 dark:bg-gray-800 h-full text-white flex flex-col transition-all duration-300 ${
             isSidebarCollapsed ? "w-20" : "w-64"
           } fixed`}
         >
@@ -230,7 +245,7 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Scrollable Main Content */}
-        <div className="flex-1 p-8 ml-64 overflow-y-auto">
+        <div className={`flex-1 p-8 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'} transition-all duration-300 overflow-y-auto`}>
           {/* Header with Dark Mode Toggle and Language Switcher */}
           <div className="flex justify-end gap-4 mb-6">
             <LanguageSwitcher />
@@ -251,12 +266,12 @@ const DashboardPage = () => {
               <Loader />
             </div>
           ) : error ? (
-            <div className="text-red-500 text-center">{error}</div>
+            <div className="text-red-500 dark:text-red-400 text-center">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Most Sold Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4">Most Sold</h2>
+                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">Most Sold</h2>
                 <div className="flex gap-2 mb-4 overflow-x-auto">
                   {["today", "thisWeek", "thisMonth"].map((period) => (
                     <button
@@ -265,26 +280,39 @@ const DashboardPage = () => {
                       className={`p-2 rounded min-w-[100px] ${
                         selectedPeriod === period
                           ? "bg-blue-500 text-white"
-                          : "bg-gray-200"
+                          : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"
                       }`}
                     >
-                      {period.replace("this", "").replace("t", "T")}
+                      {period.replace("this", "")}
                     </button>
                   ))}
                 </div>
                 <div className="h-[300px]">
                   {getChartData().length === 0 ? (
-                    <div className="h-full flex items-center justify-center">
+                    <div className="h-full flex items-center justify-center dark:text-gray-400">
                       No items sold today {selectedPeriod.replace("this", "")}
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={getChartData()}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="quantity" fill="#3b82f6" />
+                        <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#374151" : "#e5e7eb"} />
+                        <XAxis
+                          dataKey="name"
+                          stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                          tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937"}}
+                        />
+                        <YAxis
+                          stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                          tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937"}}
+                        />
+                        <Tooltip contentStyle={{
+                          backgroundColor: darkMode ? "#1f2937" : "#fff",
+                          borderColor: darkMode ? "#374151" : "#e5e7eb",
+                          borderRadius: "0.5rem",
+                          }}
+                          itemStyle={{ color: darkMode ? "#e5e7eb" : "#1f2937" }}
+                          />
+                        <Bar dataKey="quantity" fill="#3b82f6" radius={[4, 4, 0, 0]}/>
                       </BarChart>
                     </ResponsiveContainer>
                   )}
@@ -292,7 +320,7 @@ const DashboardPage = () => {
               </div>
               {/* Total Items Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4">Total Items</h2>
+                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">Total Items Area(m2)</h2>
                 <div className="h-[300px]">
                   {totalItems.length > 0 ? (
                     <>
@@ -316,10 +344,10 @@ const DashboardPage = () => {
                           </Pie>
                           <Tooltip
                             content={({ payload }) => (
-                              <div className="bg-white p-2 rounded shadow">
-                                <p>Type: {payload?.[0]?.payload?.type}</p>
-                                <p>Size: {payload?.[0]?.payload?.size}</p>
-                                <p>
+                              <div className="bg-white dark:bg-gray-700 p-2 rounded shadow text-sm">
+                                <p className="dark:text-gray-200">Type: {payload?.[0]?.payload?.type}</p>
+                                <p className="dark:text-gray-200">Size: {payload?.[0]?.payload?.size}</p>
+                                <p className="dark:text-gray-200">
                                   Manufacturer:{" "}
                                   {payload?.[0]?.payload?.manufacturer}
                                 </p>
@@ -328,11 +356,11 @@ const DashboardPage = () => {
                           />
                         </PieChart>
                       </ResponsiveContainer>
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-2 overflow-x-auto pb-2">
                         {totalItems.map((item, index) => (
                           <div
                             key={index}
-                            className="flex items-center gap-1 text-sm"
+                            className="flex items-center gap-1 text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full"
                           >
                             <div
                               className="w-3 h-3 rounded-full"
@@ -340,7 +368,7 @@ const DashboardPage = () => {
                                 backgroundColor: COLORS[index % COLORS.length],
                               }}
                             ></div>
-                            <span>
+                            <span className="dark:text-gray-200 whitespace-nowrap">
                               {item.size} ({item.type}) - {item.manufacturer}
                             </span>
                           </div>
@@ -348,7 +376,7 @@ const DashboardPage = () => {
                       </div>
                     </>
                   ) : (
-                    <div className="h-full flex items-center justify-center">
+                    <div className="h-full flex items-center justify-center dark:text-gray-400">
                       No items available
                     </div>
                   )}
@@ -358,6 +386,7 @@ const DashboardPage = () => {
           )}
         </div>
       </div>
+</>}
     </div>
   );
 };
