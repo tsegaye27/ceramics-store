@@ -6,8 +6,6 @@ import { Order } from "../../_models";
 import {
   startOfToday,
   startOfWeek,
-  startOfMonth,
-  endOfMonth,
   endOfToday,
   endOfWeek,
   subWeeks,
@@ -78,6 +76,7 @@ export async function GET(req: Request) {
             ceramic: {
               size: 1,
               type: 1,
+              code: 1,
               manufacturer: 1,
               createdAt: 1,
             },

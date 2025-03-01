@@ -41,6 +41,7 @@ import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
 import { Loader } from "@/app/_components/Loader";
 import { fetchAnalytics } from "@/app/_features/analytics/slice";
 import { endOfWeek, isSameDay, isWithinInterval, startOfWeek, subWeeks } from "date-fns";
+import { useLanguage } from "@/app/_context/LanguageContext";
 
 const DashboardPage = () => {
   const { mostSold, totalItems, loading, error } = useAppSelector(
@@ -56,6 +57,7 @@ const DashboardPage = () => {
   >("today");
   const [isChecked, setIsChecked] = useState(false);
   const [isPending, startTransition] = useTransition(); 
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (token === null) {
@@ -93,7 +95,7 @@ const DashboardPage = () => {
     switch (selectedPeriod) {
       case "today":
         return mostSold.today.map((item) => ({
-          name: item.ceramic.size,
+          name: `${item.ceramic.size}(${item.ceramic.code})`,
           quantity: item.totalQuantity,
         }));
       case "thisWeek": {
@@ -147,14 +149,14 @@ const DashboardPage = () => {
   const COLORS = ["#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6"];
 
   const menuItems = [
-    { name: "Analytics", path: "/", icon: <FiBarChart2 className="h-5 w-5" /> },
+    { name: "analytics", path: "/", icon: <FiBarChart2 className="h-5 w-5" /> },
     {
-      name: "Ceramics",
+      name: "ceramics",
       path: "/ceramics",
       icon: <FiBox className="h-5 w-5" />,
     },
     {
-      name: "Orders",
+      name: "orders",
       path: "/orders",
       icon: <FiShoppingCart className="h-5 w-5" />,
     },
@@ -178,7 +180,7 @@ const DashboardPage = () => {
             className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "justify-between"} p-4`}
           >
             {!isSidebarCollapsed && (
-              <h2 className="text-xl font-semibold">Dashboard</h2>
+              <h2 className="text-xl font-semibold">{t('dashboard')}</h2>
             )}
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -200,7 +202,7 @@ const DashboardPage = () => {
               >
                 {item.icon}
                 {!isSidebarCollapsed && (
-                  <span className="ml-2">{item.name}</span>
+                  <span className="ml-2">{t(item.name)}</span>
                 )}
               </button>
             ))}
@@ -234,7 +236,7 @@ const DashboardPage = () => {
                           focus ? "bg-gray-100 dark:bg-gray-700" : ""
                         } w-full text-left p-2 text-gray-800 dark:text-gray-100`}
                       >
-                        Logout
+                        {t('logout')}
                       </button>
                     )}
                   </MenuItem>
@@ -271,7 +273,7 @@ const DashboardPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Most Sold Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">Most Sold</h2>
+                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">{t("mostSold")}</h2>
                 <div className="flex gap-2 mb-4 overflow-x-auto">
                   {["today", "thisWeek", "thisMonth"].map((period) => (
                     <button
@@ -290,7 +292,7 @@ const DashboardPage = () => {
                 <div className="h-[300px]">
                   {getChartData().length === 0 ? (
                     <div className="h-full flex items-center justify-center dark:text-gray-400">
-                      No items sold today {selectedPeriod.replace("this", "")}
+                            {t("noItemsSoldToday")} {selectedPeriod.replace("this", "")}
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
@@ -320,7 +322,7 @@ const DashboardPage = () => {
               </div>
               {/* Total Items Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">Total Items Area(m2)</h2>
+                <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">{t("totalItemsArea")}</h2>
                 <div className="h-[300px]">
                   {totalItems.length > 0 ? (
                     <>
@@ -377,7 +379,7 @@ const DashboardPage = () => {
                     </>
                   ) : (
                     <div className="h-full flex items-center justify-center dark:text-gray-400">
-                      No items available
+                     {t('noItemsAvailable')} 
                     </div>
                   )}
                 </div>
