@@ -3,34 +3,29 @@ import { decodeToken } from "../../_utils/decodeToken";
 import { checkPermission } from "../../_utils/checkPermission";
 import dbConnect from "../../_lib/mongoose";
 import { Order } from "../../_models";
+import { startOfToday, startOfWeek, startOfMonth } from "date-fns";
+import logger from "@/services/logger";
 
 export async function GET(req: Request) {
   const tokenResult = decodeToken(req);
-
-  if (!tokenResult?.decodedToken) {
+  if (!tokenResult?.decodedToken)
     return errorResponse("Unauthorized: No token provided", 401);
-  }
-
-  if (!checkPermission(tokenResult?.decodedToken, "admin")) {
+  if (!checkPermission(tokenResult?.decodedToken, "admin"))
     return errorResponse("You don't have permission to get orders", 403);
-  }
 
   try {
     await dbConnect();
     const now = new Date();
-    const todayStart = new Date(now.setHours(0, 0, 0, 0));
-    const thisWeekStart = new Date(
-      new Date().setDate(now.getDate() - now.getDay()),
-    );
-    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const getMostSoldCeramics = async (startDate: Date) => {
-      const result = await Order.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: startDate },
-          },
-        },
+    const dateRanges = {
+      today: startOfToday(),
+      thisWeek: startOfWeek(now, { weekStartsOn: 1 }),
+      thisMonth: startOfMonth(now),
+    };
+
+    const getMostSold = async (startDate: Date, limit: number) => {
+      return Order.aggregate([
+        { $match: { createdAt: { $gte: startDate } } },
         {
           $lookup: {
             from: "ceramics",
@@ -39,9 +34,7 @@ export async function GET(req: Request) {
             as: "ceramic",
           },
         },
-        {
-          $unwind: "$ceramic",
-        },
+        { $unwind: "$ceramic" },
         {
           $group: {
             _id: "$ceramicId",
@@ -56,47 +49,38 @@ export async function GET(req: Request) {
             ceramic: { $first: "$ceramic" },
           },
         },
-        {
-          $sort: { totalQuantity: -1 },
-        },
-        {
-          $limit: 5,
-        },
+        { $sort: { totalQuantity: -1 } },
+        { $limit: limit },
         {
           $project: {
             _id: 0,
             ceramic: {
-              size: "$ceramic.size",
-              type: "$ceramic.type",
-              manufacturer: "$ceramic.manufacturer",
+              size: 1,
+              type: 1,
+              manufacturer: 1,
+              createdAt: 1,
             },
             totalQuantity: 1,
           },
         },
       ]);
-      return result;
     };
 
-    const mostSoldToday = await getMostSoldCeramics(todayStart);
-    const mostSoldThisWeek = await getMostSoldCeramics(thisWeekStart);
-    const mostSoldThisMonth = await getMostSoldCeramics(thisMonthStart);
-
+    const [today, thisWeek, thisMonth] = await Promise.all([
+      getMostSold(dateRanges.today, 5),
+      getMostSold(dateRanges.thisWeek, 1),
+      getMostSold(dateRanges.thisMonth, 1),
+    ]);
     return successResponse(
       {
-        today: mostSoldToday,
-        thisWeek: mostSoldThisWeek,
-        thisMonth: mostSoldThisMonth,
+        today,
+        thisWeek,
+        thisMonth,
       },
-      "Analytics fetched successfully",
+      "Analytics fetched",
     );
   } catch (error) {
-    if (error instanceof Error) {
-      return errorResponse(`Internal server error: ${error.message}`, 500);
-    } else {
-      return errorResponse(
-        "Internal server error: An unknown error occurred",
-        500,
-      );
-    }
+    logger.error(error);
+    return errorResponse("Internal server error", 500);
   }
 }
