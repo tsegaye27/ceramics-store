@@ -15,6 +15,7 @@
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^12.4.7",
     "jsonwebtoken": "^9.0.2",
