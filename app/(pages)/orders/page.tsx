@@ -103,7 +103,7 @@ const OrderList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 p-4 md:p-6">
+    <div className="min-h-screen bg-transparent p-4 md:p-6">
       {isPending || isLoading ? (
         <Loader />
       ) : (
@@ -112,7 +112,7 @@ const OrderList = () => {
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <button
               onClick={handleBack}
-              className="text-blue-500 hover:text-blue-700 flex items-center"
+              className="text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 hover:text-blue-700 flex items-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@ const OrderList = () => {
               </svg>
               {t("back")}
             </button>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
               {t("orderList")}
             </h1>
             <div></div> {/* Empty div for spacing */}
@@ -143,16 +143,16 @@ const OrderList = () => {
               placeholder={t("search")}
               value={searchOrderQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 md:p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="mb-6 md:mb-8 flex flex-col md:flex-row gap-4">
             <select
               onChange={(e) => setSelectedSize(e.target.value)}
-              className="p-2 border rounded-lg"
+              className="p-2 border rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             >
               <option value="">All Sizes</option>
-              {["60x60", "40x40", "30x60"].map((size) => (
+              {["60x60", "40x40", "30x60", "30x30", "zekolo"].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -162,44 +162,46 @@ const OrderList = () => {
             <input
               type="date"
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="p-2 border rounded-lg"
+              className="p-2 border rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-700"
             />
 
             <input
               type="text"
               placeholder="Filter by seller"
               onChange={(e) => setSelectedSeller(e.target.value)}
-              className="p-2 border rounded-lg"
+              className="p-2 border rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-700"
             />
           </div>
 
           {/* Table */}
           {filteredOrders.length === 0 ? (
-            <p className="text-center text-gray-500">{t("noOrdersFound")}</p>
+            <p className="text-center text-gray-500 dark:text-gray-400">
+              {t("noOrdersFound")}
+            </p>
           ) : (
-            <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-100">
+                <thead className="bg-gray-100 dark:bg-gray-700">
                   <tr>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       No
                     </th>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       Ceramic
                     </th>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       Seller
                     </th>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       Time
                     </th>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       Total Area
                     </th>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       Total Price
                     </th>
-                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium">
+                    <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
                       User
                     </th>
                   </tr>
@@ -208,22 +210,22 @@ const OrderList = () => {
                   {filteredOrders.map((order, index) => (
                     <tr
                       key={index}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-700"
                     >
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-bdark:border-gray-700">
                         {index + 1}
                       </td>
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {order.ceramicId?.size} ({order.ceramicId?.code})
                       </td>
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {order.seller}
                       </td>
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {order.createdAt &&
                           new Date(order.createdAt).toLocaleString()}
                       </td>
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {calculateArea(
                           order.packets,
                           order.pieces,
@@ -232,7 +234,7 @@ const OrderList = () => {
                         )}{" "}
                         m²
                       </td>
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {(
                           order.price *
                           Number(
@@ -246,12 +248,12 @@ const OrderList = () => {
                         ).toFixed(2)}{" "}
                         birr
                       </td>
-                      <td className="py-3 px-4 md:py-4 md:px-6 border-b">
+                      <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {order.userId.name}
                       </td>
                     </tr>
                   ))}
-                  <tr className="bg-gray-100 font-bold">
+                  <tr className="bg-gray-100 font-bold dark:bg-gray-700">
                     <td
                       colSpan={4}
                       className="py-3 px-4 md:py-4 md:px-6 text-right"

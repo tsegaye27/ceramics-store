@@ -91,33 +91,31 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-blue-50 min-h-screen">
+    <div className="p-6 bg-transparent min-h-screen flex items-center justify-center">
       {isPending ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <Loader />
       ) : (
         <>
-          <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <div className="max-w-lg w-full dark:bg-gray-800 bg-white p-8 rounded-xl shadow-md dark:shadow-gray-700">
             <button
               onClick={handleBack}
-              className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+              className="text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 hover:text-blue-700 mb-6 inline-block font-medium"
             >
               {t("back")}
             </button>
-            <h1 className="text-3xl font-semibold mb-6 text-center">
+            <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800 dark:text-white">
               {t("sellCeramic")}
             </h1>
             <div className="space-y-4">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t("packetsToSell")}:
                   </label>
                   <input
                     type="number"
                     {...register("packetsSold", { valueAsNumber: true })}
-                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder={t("enterPackets")}
                   />
                   {errors.packetsSold && (
@@ -127,13 +125,13 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t("piecesToSell")}:
                   </label>
                   <input
                     type="number"
                     {...register("piecesSold", { valueAsNumber: true })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder={t("enterPieces")}
                   />
                   {errors.piecesSold && (
@@ -143,13 +141,13 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t("pricePerArea")}:
                   </label>
                   <input
                     type="number"
                     {...register("pricePerArea", { valueAsNumber: true })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder={t("enterPrice")}
                   />
                   {errors.pricePerArea && (
@@ -159,13 +157,13 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t("seller")}:
                   </label>
                   <input
                     type="text"
                     {...register("seller")}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder={t("enterSeller")}
                   />
                   {errors.seller && (
