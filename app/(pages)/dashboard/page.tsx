@@ -23,26 +23,28 @@ import {
   FiBox,
   FiShoppingCart,
 } from "react-icons/fi";
-import { Menu, Transition } from "@headlessui/react";
-import axiosInstance from "@/app/_lib/axios";
+import {
+  Menu,
+  Transition,
+  MenuItem,
+  MenuButton,
+  MenuItems,
+} from "@headlessui/react";
 import { useAuth } from "@/app/_context/AuthContext";
-import { useAppDispatch } from "@/app/_features/store/store";
+import {
+  RootState,
+  useAppDispatch,
+  useAppSelector,
+} from "@/app/_features/store/store";
 import { logout } from "@/app/_features/auth/slice";
 import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
-import toast from "react-hot-toast";
-import withAuth from "@/app/_components/hoc/withAuth";
 import { Loader } from "@/app/_components/Loader";
+import { fetchAnalytics } from "@/app/_features/analytics/slice";
 
 const DashboardPage = () => {
-  const [mostSoldData, setMostSoldData] = useState<{
-    today: { ceramic: { size: string }; totalQuantity: number }[];
-    thisWeek: { ceramic: { size: string }; totalQuantity: number }[];
-    thisMonth: { ceramic: { size: string }; totalQuantity: number }[];
-  }>({ today: [], thisWeek: [], thisMonth: [] });
-  const [totalItemsData, setTotalItemsData] = useState<
-    { size: string; totalArea: number }[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { mostSold, totalItems, loading, error } = useAppSelector(
+    (state: RootState) => state.analytics,
+  );
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
@@ -54,39 +56,67 @@ const DashboardPage = () => {
   const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    if (token === null) {
       router.push("/login");
       return;
-    } else if (user.role !== "admin") {
+    } else if (user.role === "user") {
       router.push("/not-found");
       return;
     }
     setIsChecked(true);
-    const fetchData = async () => {
-      try {
-        const mostSold = await axiosInstance.get("/analytics/most-sold", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const totalItems = await axiosInstance.get("/analytics/total-items", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
 
-        setMostSoldData(mostSold.data.data);
-        setTotalItemsData(totalItems.data.data);
-      } catch (error) {
-        toast.error("Failed to fetch data");
-      } finally {
-        setIsLoading(false);
+    if (token) {
+      dispatch(fetchAnalytics());
+    }
+  }, [token, dispatch, router, user?.role]);
+
+  const getWeekDays = () => {
+    const days = [];
+    const date = new Date();
+    const first = date.getDate() - date.getDay() + 1;
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(date.setDate(first + 1));
+      days.push(day.toLocaleDateString("en-US", { weekday: "short" }));
+    }
+    return days;
+  };
+
+  const getChartData = (): { name: string; quantity: number }[] => {
+    switch (selectedPeriod) {
+      case "today":
+        return mostSold.today.map((item) => ({
+          name: item.ceramic.size,
+          quantity: item.totalQuantity,
+        }));
+      case "thisWeek": {
+        const weekDays = getWeekDays();
+        return weekDays.map((day) => {
+          const found = mostSold.thisWeek.find(
+            (d) =>
+              new Date(d.ceramic.createdAt).toLocaleDateString("en-US", {
+                weekday: "short",
+              }) === day,
+          );
+          return {
+            name: day,
+            quantity: found?.totalQuantity || 0,
+          };
+        });
       }
-    };
-
-    fetchData();
-  }, [token]);
-
+      case "thisMonth": {
+        const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
+        return weeks.map((week, idx) => {
+          const found = mostSold.thisMonth.find((_, i) => i === idx);
+          return {
+            name: week,
+            quantity: found?.totalQuantity || 0,
+          };
+        });
+      }
+      default:
+        return [];
+    }
+  };
   const handleNavigation = (path: string) => {
     router.push(path);
   };
@@ -164,14 +194,14 @@ const DashboardPage = () => {
           {/* Profile Section */}
           <div className="p-4 border-t border-gray-600 mt-auto">
             <Menu as="div" className="relative">
-              <Menu.Button className="flex items-center gap-2 w-full">
+              <MenuButton className="flex items-center gap-2 w-full">
                 <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
                   {user?.name?.charAt(0)}
                 </div>
                 {!isSidebarCollapsed && (
                   <span className="text-white">{user?.name}</span>
                 )}
-              </Menu.Button>
+              </MenuButton>
               <Transition
                 enter="transition duration-100 ease-out"
                 enterFrom="transform scale-95 opacity-0"
@@ -180,20 +210,20 @@ const DashboardPage = () => {
                 leaveFrom="transform scale-100 opacity-100"
                 leaveTo="transform scale-95 opacity-0"
               >
-                <Menu.Items className="absolute bottom-12 left-0 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg">
-                  <Menu.Item>
-                    {({ active }) => (
+                <MenuItems className="absolute bottom-12 left-0 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg">
+                  <MenuItem>
+                    {({ focus }) => (
                       <button
                         onClick={handleLogout}
                         className={`${
-                          active ? "bg-gray-100 dark:bg-gray-700" : ""
+                          focus ? "bg-gray-100 dark:bg-gray-700" : ""
                         } w-full text-left p-2 text-gray-800 dark:text-gray-100`}
                       >
                         Logout
                       </button>
                     )}
-                  </Menu.Item>
-                </Menu.Items>
+                  </MenuItem>
+                </MenuItems>
               </Transition>
             </Menu>
           </div>
@@ -216,103 +246,113 @@ const DashboardPage = () => {
             </button>
           </div>
 
-          {isLoading ? (
+          {loading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="h-16 w-16 border-8 border-t-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <Loader />
             </div>
+          ) : error ? (
+            <div className="text-red-500 text-center">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Most Sold Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-semibold mb-4">Most Sold</h2>
-                <div className="flex gap-2 mb-4">
-                  <button
-                    onClick={() => setSelectedPeriod("today")}
-                    className={`p-2 rounded ${
-                      selectedPeriod === "today"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
-                    }`}
-                  >
-                    Today
-                  </button>
-                  <button
-                    onClick={() => setSelectedPeriod("thisWeek")}
-                    className={`p-2 rounded ${
-                      selectedPeriod === "thisWeek"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
-                    }`}
-                  >
-                    This Week
-                  </button>
-                  <button
-                    onClick={() => setSelectedPeriod("thisMonth")}
-                    className={`p-2 rounded ${
-                      selectedPeriod === "thisMonth"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
-                    }`}
-                  >
-                    This Month
-                  </button>
+                <div className="flex gap-2 mb-4 overflow-x-auto">
+                  {["today", "thisWeek", "thisMonth"].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setSelectedPeriod(period as any)}
+                      className={`p-2 rounded min-w-[100px] ${
+                        selectedPeriod === period
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200"
+                      }`}
+                    >
+                      {period.replace("this", "").replace("t", "T")}
+                    </button>
+                  ))}
                 </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={
-                      mostSoldData[selectedPeriod]?.map((item) => ({
-                        name: item.ceramic.size,
-                        quantity: item.totalQuantity,
-                      })) || []
-                    }
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="quantity" fill="#3b82f6" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="h-[300px]">
+                  {getChartData().length === 0 ? (
+                    <div className="h-full flex items-center justify-center">
+                      No items sold today {selectedPeriod.replace("this", "")}
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={getChartData()}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="quantity" fill="#3b82f6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
               </div>
-
               {/* Total Items Chart */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-semibold mb-4">Total Items</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={totalItemsData.map((item) => ({
-                        ...item,
-                        totalArea: parseFloat(item.totalArea.toFixed(2)),
-                      }))}
-                      dataKey="totalArea"
-                      nameKey="size"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#3b82f6"
-                      label
-                    >
-                      {totalItemsData.map((_entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      content={({ payload }) => (
-                        <div className="bg-white p-2 rounded shadow">
-                          <p>Type: {payload?.[0]?.payload?.type}</p>
-                          <p>Size: {payload?.[0]?.payload?.size}</p>
-                          <p>
-                            Manufacturer: {payload?.[0]?.payload?.manufacturer}
-                          </p>
-                        </div>
-                      )}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="h-[300px]">
+                  {totalItems.length > 0 ? (
+                    <>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={totalItems}
+                            dataKey="totalArea"
+                            nameKey="size"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            label
+                          >
+                            {totalItems.map((_, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            content={({ payload }) => (
+                              <div className="bg-white p-2 rounded shadow">
+                                <p>Type: {payload?.[0]?.payload?.type}</p>
+                                <p>Size: {payload?.[0]?.payload?.size}</p>
+                                <p>
+                                  Manufacturer:{" "}
+                                  {payload?.[0]?.payload?.manufacturer}
+                                </p>
+                              </div>
+                            )}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {totalItems.map((item, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-1 text-sm"
+                          >
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{
+                                backgroundColor: COLORS[index % COLORS.length],
+                              }}
+                            ></div>
+                            <span>
+                              {item.size} ({item.type}) - {item.manufacturer}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="h-full flex items-center justify-center">
+                      No items available
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -322,4 +362,4 @@ const DashboardPage = () => {
   );
 };
 
-export default withAuth(DashboardPage, ["admin", "user"]);
+export default DashboardPage;
