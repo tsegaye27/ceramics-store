@@ -152,6 +152,7 @@ const CeramicForm = () => {
                           setTimeout(() => setShowSizeDropdown(false), 200)
                         }
                         className="border border-gray-300 dark:border-gray-600 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-700 dark:text-white"
+                        placeholder={t("selectSize")}
                       />
                       {showSizeDropdown && (
                         <ul className="absolute z-10 dark:bg-gray-700 bg-white border border-gray-300 dark:border-gray-600 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
@@ -203,6 +204,7 @@ const CeramicForm = () => {
                           setTimeout(() => setShowTypeDropdown(false), 200)
                         }
                         className="border border-gray-300 dark:border-gray-600 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-700 dark:text-white"
+                        placeholder={t("selectType")}
                       />
                       {showTypeDropdown && (
                         <ul className="absolute z-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
@@ -260,6 +262,7 @@ const CeramicForm = () => {
                           )
                         }
                         className="border border-gray-300 dark:border-gray-600 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-700 dark:text-white"
+                        placeholder={t("selectManufacturer")}
                       />
                       {showManufacturerDropdown && (
                         <ul className="absolute z-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
@@ -302,6 +305,7 @@ const CeramicForm = () => {
                   id="code"
                   {...register("code")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
+                  placeholder={t("enterCode")}
                 />
                 {errors.code && (
                   <p className="text-red-500 text-sm dark:text-red-400">{errors.code.message}</p>
@@ -321,6 +325,7 @@ const CeramicForm = () => {
                   type="number"
                   {...register("piecesPerPacket")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
+                  placeholder={t("enterPiecesPerPacket")}
                 />
                 {errors.piecesPerPacket && (
                   <p className="text-red-500 text-sm dark:text-red-400">
@@ -342,6 +347,7 @@ const CeramicForm = () => {
                   type="number"
                   {...register("totalPackets")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
+                  placeholder={t("enterTotalPackets")}
                 />
                 {errors.totalPackets && (
                   <p className="text-red-500 text-sm dark:text-red-400">
@@ -363,6 +369,7 @@ const CeramicForm = () => {
                   type="number"
                   {...register("totalPiecesWithoutPacket")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
+                  placeholder={t("enterTotalPiecesWithoutPacket")}
                 />
                 {errors.totalPiecesWithoutPacket && (
                   <p className="text-red-500 text-sm dark:text-red-400">
@@ -420,7 +427,7 @@ const CeramicForm = () => {
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
             >
-              {loading ? t("addingCeramic") : t("addNewCeramic")}
+              {loading ? t("adding") : t("addNewCeramic")}
             </button>
           </form>
         </>

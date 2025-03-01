@@ -143,7 +143,7 @@ const AddCeramic = ({ params }: AddCeramicProps) => {
                   disabled={loading}
                   className={`w-full py-3 rounded-lg font-semibold text-white transition duration-300  ${loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
                 >
-                  {loading ? t("updating") : t("add")}
+                  {loading ? t("adding") : t("add")}
                 </button>
               </form>
             </div>
