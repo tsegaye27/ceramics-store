@@ -35,9 +35,14 @@ export const fetchAnalytics = createAsyncThunk(
       }),
     ]);
 
+    const fixedTotalItems = totalItems.data.data.map((item: any) => ({
+      ...item,
+      totalArea: parseFloat(item.totalArea.toFixed(2)),
+    }));
+
     return {
       mostSold: mostSold.data.data,
-      totalItems: totalItems.data.data,
+      totalItems: fixedTotalItems,
     };
   },
 );
