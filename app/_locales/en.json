@@ -45,5 +45,19 @@
   "adding": "Adding",
   "no": "No",
   "uploadImage": "Upload Image",
-  "selectImage": "Select Image"
+  "selectImage": "Select Image",
+  "noCeramicsFound": "No ceramics found",
+  "selling": "Selling",
+  "selectSize": "Select Size",
+  "selectType": "Select Type",
+  "selectManufacturer": "Select Manufacturer",
+  "enterCode": "Enter Code",
+  "enterPiecesPerPacket": "Enter Pieces Per Packet",
+  "enterTotalPackets": "Enter Total Packets",
+  "enterTotalPiecesWithoutPacket": "Enter Total Pieces",
+  "search": "Search",
+  "allSizes": "All Sizes",
+  "filterByDate": "Filter By Date",
+  "filterBySeller": "Filter By Seller",
+  "total": "Total"
 }

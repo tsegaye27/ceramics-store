@@ -45,5 +45,19 @@
   "adding": "በመጨመር ላይ",
   "no": "ተቁ",
   "uploadImage": "ምስል አስገባ",
-  "selectImage": "ምስል ይምረጡ"
+  "selectImage": "ምስል ይምረጡ",
+  "noCeramicsFound": "ሴራሚክ አልተገኘም",
+  "selling": "በመሸጥ ላይ",
+  "selectSize": "መጠን ይምረጡ",
+  "selectType": "አይነት ይምረጡ",
+  "selectManufacturer": "አምራች ይምረጡ",
+  "enterCode": "ኮድ ያስገቡ",
+  "enterPiecesPerPacket": "ካርቶኑ የሚይዘው ፍሬ ያስገቡ",
+  "enterTotalPackets": "ጠቅላላ ካርቶን ያስገቡ",
+  "enterTotalPiecesWithoutPacket": "ጠቅላላ ፍሬዎች ያስገቡ",
+  "search": "ፈልግ",
+  "allSizes": "ሁሉም መጠን",
+  "filterByDate": "በቀን ይምረጡ",
+  "filterBySeller": "በሻጭ ይምረጡ",
+  "total": "ጠቅላላ"
 }
