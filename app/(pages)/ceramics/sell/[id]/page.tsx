@@ -164,7 +164,7 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
                     type="text"
                     {...register("seller")}
                     className="w-full p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder={t("enterSeller")}
+                    placeholder={t("enterSellerName")}
                   />
                   {errors.seller && (
                     <p className="text-red-500 text-sm mt-1">
