@@ -4,6 +4,7 @@ import ceramicsReducer from "@/app/_features/ceramics/slice";
 import ordersReducer from "@/app/_features/orders/slice";
 import authReducer from "@/app/_features/auth/slice";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import analyticsReducer from "@/app/_features/analytics/slice";
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     ceramics: ceramicsReducer,
     orders: ordersReducer,
     auth: authReducer,
+    analytics: analyticsReducer,
   },
 });
 
