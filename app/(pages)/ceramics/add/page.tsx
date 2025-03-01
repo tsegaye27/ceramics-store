@@ -115,15 +115,15 @@ const CeramicForm = () => {
     return <Loader />;
   }
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md dark:bg-gray-800 dark:shadow-900">
       {isPending ? (
         <Loader />
       ) : (
         <>
-          <button onClick={handleBack} className="text-blue-500">
+          <button onClick={handleBack} className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300">
             {t("back")}
           </button>
-          <h1 className="text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-4 md:mb-6">
+          <h1 className="text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-4 md:mb-6 dark:text-gray-200">
             {t("addCeramic")}
           </h1>
           <form
@@ -134,7 +134,7 @@ const CeramicForm = () => {
             <div className="space-y-4">
               {/* Size Field */}
               <div className="relative">
-                <label htmlFor="size" className="block mb-2 text-gray-700">
+                <label htmlFor="size" className="block mb-2 text-gray-700 dark:text-gray-300">
                   {t("size")}
                 </label>
                 <Controller
@@ -151,10 +151,10 @@ const CeramicForm = () => {
                         onBlur={() =>
                           setTimeout(() => setShowSizeDropdown(false), 200)
                         }
-                        className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-700 dark:text-white"
                       />
                       {showSizeDropdown && (
-                        <ul className="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto">
+                        <ul className="absolute z-10 dark:bg-gray-700 bg-white border border-gray-300 dark:border-gray-600 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
                           {sizes
                             .filter((size) =>
                               size
@@ -168,7 +168,7 @@ const CeramicForm = () => {
                                   setValue("size", size);
                                   setShowSizeDropdown(false);
                                 }}
-                                className="p-2 hover:bg-blue-100 cursor-pointer"
+                                className="p-2 hover:bg-blue-100 dark:hover:bg-gray-600 cursor-pointer dark:text-gray-200"
                               >
                                 {size}
                               </li>
@@ -179,13 +179,13 @@ const CeramicForm = () => {
                   )}
                 />
                 {errors.size && (
-                  <p className="text-red-500 text-sm">{errors.size.message}</p>
+                  <p className="text-red-500 text-sm dark:text-red-400">{errors.size.message}</p>
                 )}
               </div>
 
               {/* Type Field */}
               <div className="relative">
-                <label htmlFor="type" className="block mb-2 text-gray-700">
+                <label htmlFor="type" className="block mb-2 text-gray-700 dark:text-gray-300">
                   {t("type")}
                 </label>
                 <Controller
@@ -202,10 +202,10 @@ const CeramicForm = () => {
                         onBlur={() =>
                           setTimeout(() => setShowTypeDropdown(false), 200)
                         }
-                        className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-700 dark:text-white"
                       />
                       {showTypeDropdown && (
-                        <ul className="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto">
+                        <ul className="absolute z-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
                           {types
                             .filter((type) =>
                               type
@@ -219,7 +219,7 @@ const CeramicForm = () => {
                                   setValue("type", type);
                                   setShowTypeDropdown(false);
                                 }}
-                                className="p-2 hover:bg-blue-100 cursor-pointer"
+                                className="p-2 hover:bg-blue-100 dark:hover:bg-gray-600 cursor-pointer dark:text-gray-200"
                               >
                                 {type}
                               </li>
@@ -230,7 +230,7 @@ const CeramicForm = () => {
                   )}
                 />
                 {errors.type && (
-                  <p className="text-red-500 text-sm">{errors.type.message}</p>
+                  <p className="text-red-500 dark:text-red-400 text-sm">{errors.type.message}</p>
                 )}
               </div>
 
@@ -238,7 +238,7 @@ const CeramicForm = () => {
               <div className="relative">
                 <label
                   htmlFor="manufacturer"
-                  className="block mb-2 text-gray-700"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t("manufacturer")}
                 </label>
@@ -259,10 +259,10 @@ const CeramicForm = () => {
                             200,
                           )
                         }
-                        className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border border-gray-300 dark:border-gray-600 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 bg-white dark:bg-gray-700 dark:text-white"
                       />
                       {showManufacturerDropdown && (
-                        <ul className="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto">
+                        <ul className="absolute z-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
                           {manufacturers
                             .filter((manufacturer) =>
                               manufacturer
@@ -276,7 +276,7 @@ const CeramicForm = () => {
                                   setValue("manufacturer", manufacturer);
                                   setShowManufacturerDropdown(false);
                                 }}
-                                className="p-2 hover:bg-blue-100 cursor-pointer"
+                                className="p-2 hover:bg-blue-100 cursor-pointer dark:hover:bg-gray-600 dark:text-gray-200"
                               >
                                 {manufacturer}
                               </li>
@@ -287,7 +287,7 @@ const CeramicForm = () => {
                   )}
                 />
                 {errors.manufacturer && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-sm dark:text-red-400">
                     {errors.manufacturer.message}
                   </p>
                 )}
@@ -295,16 +295,16 @@ const CeramicForm = () => {
 
               {/* Code Field */}
               <div>
-                <label htmlFor="code" className="block mb-2 text-gray-700">
+                <label htmlFor="code" className="block mb-2 text-gray-700 dark:text-gray-300">
                   {t("code")}
                 </label>
                 <input
                   id="code"
                   {...register("code")}
-                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
                 />
                 {errors.code && (
-                  <p className="text-red-500 text-sm">{errors.code.message}</p>
+                  <p className="text-red-500 text-sm dark:text-red-400">{errors.code.message}</p>
                 )}
               </div>
 
@@ -312,7 +312,7 @@ const CeramicForm = () => {
               <div>
                 <label
                   htmlFor="piecesPerPacket"
-                  className="block mb-2 text-gray-700"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t("piecesPerPacket")}
                 </label>
@@ -320,10 +320,10 @@ const CeramicForm = () => {
                   id="piecesPerPacket"
                   type="number"
                   {...register("piecesPerPacket")}
-                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
                 />
                 {errors.piecesPerPacket && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-sm dark:text-red-400">
                     {errors.piecesPerPacket.message}
                   </p>
                 )}
@@ -333,7 +333,7 @@ const CeramicForm = () => {
               <div>
                 <label
                   htmlFor="totalPackets"
-                  className="block mb-2 text-gray-700"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t("totalPackets")}
                 </label>
@@ -341,10 +341,10 @@ const CeramicForm = () => {
                   id="totalPackets"
                   type="number"
                   {...register("totalPackets")}
-                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
                 />
                 {errors.totalPackets && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-sm dark:text-red-400">
                     {errors.totalPackets.message}
                   </p>
                 )}
@@ -354,7 +354,7 @@ const CeramicForm = () => {
               <div>
                 <label
                   htmlFor="totalPiecesWithoutPacket"
-                  className="block mb-2 text-gray-700"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
                 >
                   {t("totalPiecesWithoutPacket")}
                 </label>
@@ -362,10 +362,10 @@ const CeramicForm = () => {
                   id="totalPiecesWithoutPacket"
                   type="number"
                   {...register("totalPiecesWithoutPacket")}
-                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
                 />
                 {errors.totalPiecesWithoutPacket && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-sm dark:text-red-400">
                     {errors.totalPiecesWithoutPacket.message}
                   </p>
                 )}
@@ -373,10 +373,10 @@ const CeramicForm = () => {
             </div>
             {/* Right Column */}
             <div className="relative">
-              <label htmlFor="image" className="block mb-2 text-gray-700">
+              <label htmlFor="image" className="block mb-2 text-gray-700 dark:text-gray-300">
                 {t("uploadImage")}
               </label>
-              <div className="w-full h-48 md:h-64 border-dashed border-2 border-gray-300 flex justify-center items-center rounded-md relative overflow-hidden">
+              <div className="w-full h-48 md:h-64 border-dashed border-2 border-gray-300 dark:border-gray-600 flex justify-center items-center rounded-md relative overflow-hidden bg-gray-50 dark:bg-gray-900">
                 {imagePreview ? (
                   <>
                     <Image
@@ -393,7 +393,7 @@ const CeramicForm = () => {
                     )}
                   </>
                 ) : (
-                  <p className="text-gray-500">{t("selectImage")}</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t("selectImage")}</p>
                 )}
                 <input
                   id="image"
@@ -405,7 +405,7 @@ const CeramicForm = () => {
                 />
               </div>
               {errors.imageUrl && (
-                <p className="text-red-500 text-sm">
+                <p className="text-red-500 text-sm dark:text-red-400">
                   {errors.imageUrl.message}
                 </p>
               )}
@@ -420,7 +420,7 @@ const CeramicForm = () => {
                   : "bg-blue-500 hover:bg-blue-600"
               } text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out`}
             >
-              {loading || isUploading ? t("addingCeramic") : t("addNewCeramic")}
+              {loading ? t("addingCeramic") : t("addNewCeramic")}
             </button>
           </form>
         </>
