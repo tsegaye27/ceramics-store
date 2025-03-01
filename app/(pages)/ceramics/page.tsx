@@ -76,9 +76,7 @@ const CeramicsPage = () => {
   return (
     <div className="p-6 bg-blue-50 dark:bg-gray-900 min-h-screen">
       {isPending ? (
-        <div className="flex items-center justify-center h-40">
-          <div className="h-16 w-16 border-8 border-t-8 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <Loader />
       ) : (
         <>
           <h1 className="text-4xl font-extrabold text-center text-blue-700 dark:text-blue-300 mb-8">
@@ -228,4 +226,4 @@ const CeramicsPage = () => {
   );
 };
 
-export default withAuth(CeramicsPage, ["user", "admin"]);
+export default withAuth(CeramicsPage);
