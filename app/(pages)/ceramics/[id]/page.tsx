@@ -36,9 +36,6 @@ function CeramicDetail({ params }: { params: { id: string } }) {
     if (!token) {
       router.push("/login");
       return;
-    } else if (user.role === "user") {
-      router.push("/ceramics");
-      return;
     }
     setIsChecked(true);
 
@@ -118,4 +115,4 @@ function CeramicDetail({ params }: { params: { id: string } }) {
 </div>  );
 }
 
-export default withAuth(CeramicDetail);
+export default CeramicDetail;
