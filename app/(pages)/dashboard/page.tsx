@@ -45,7 +45,6 @@ import {
 } from "date-fns";
 import { useLanguage } from "@/app/_context/LanguageContext";
 
-// Lazy load heavy chart components
 const ResponsiveContainer = dynamic(
   () => import("recharts").then((mod) => mod.ResponsiveContainer),
   { ssr: false },
@@ -165,7 +164,6 @@ const DashboardPage = () => {
       ) : (
         <>
           <div className="h-screen dark:bg-gray-900 dark:text-gray-100 flex">
-            {/* Fixed Sidebar */}
             <motion.div
               className={`bg-gray-700 dark:bg-gray-800 h-full text-white flex flex-col transition-all duration-300 ${
                 isSidebarCollapsed ? "w-20" : "w-64"
@@ -203,7 +201,6 @@ const DashboardPage = () => {
                 ))}
               </nav>
 
-              {/* Profile Section */}
               <div className="p-4 border-t border-gray-600 mt-auto">
                 <Menu as="div" className="relative">
                   <MenuButton className="flex items-center gap-2 w-full">
@@ -282,7 +279,7 @@ const DashboardPage = () => {
                               : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"
                           }`}
                         >
-                          {period.replace("this", "")}
+                          {t(period.replace("this", ""))}
                         </button>
                       ))}
                     </div>
@@ -358,13 +355,13 @@ const DashboardPage = () => {
                                 content={({ payload }) => (
                                   <div className="bg-white dark:bg-gray-700 p-2 rounded shadow text-sm">
                                     <p className="dark:text-gray-200">
-                                      Type: {payload?.[0]?.payload?.type}
+                                      {t('type')}: {payload?.[0]?.payload?.type}
                                     </p>
                                     <p className="dark:text-gray-200">
-                                      Size: {payload?.[0]?.payload?.size}
+                                      {t('size')}: {payload?.[0]?.payload?.size}
                                     </p>
                                     <p className="dark:text-gray-200">
-                                      Manufacturer:{" "}
+                                      {t('manufacturer')}:{" "}
                                       {payload?.[0]?.payload?.manufacturer}
                                     </p>
                                   </div>
