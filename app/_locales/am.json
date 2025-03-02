@@ -59,5 +59,16 @@
   "allSizes": "ሁሉም መጠን",
   "filterByDate": "በቀን ይምረጡ",
   "filterBySeller": "በሻጭ ይምረጡ",
-  "total": "ጠቅላላ"
+  "total": "ጠቅላላ",
+  "dashboard": "ሰሌዳ",
+  "ceramics": "ሴራሚክ",
+  "orders": "ሽያጭ",
+  "analytics": "ስሌቶች",
+  "mostSold": "ብዙ የተሸጡ እቃዎች",
+  "today": "የዛሬ",
+  "Week": "ሳምንታዊ",
+  "Month": "ወራዊ",
+  "noItemsSoldToday": "ዛሬ ምንም እቃ አልተሸጠም",
+  "noItemsAvailable": "ምንም እቃ የለም",
+  "totalItemsArea": "አጠቃላይ ካሬ"
 }

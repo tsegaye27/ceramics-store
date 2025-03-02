@@ -59,5 +59,16 @@
   "allSizes": "All Sizes",
   "filterByDate": "Filter By Date",
   "filterBySeller": "Filter By Seller",
-  "total": "Total"
+  "total": "Total",
+  "dashboard": "Dashboard",
+  "ceramics": "Ceramics",
+  "orders": "Orders",
+  "analytics": "Analytics",
+  "mostSold": "Most Sold",
+  "today": "Today",
+  "Week": "Week",
+  "Month": "Month",
+  "noItemsSoldToday": "No items sold today",
+  "noItemsAvailable": "No items available",
+  "totalItemsArea": "Total Items Area"
 }
