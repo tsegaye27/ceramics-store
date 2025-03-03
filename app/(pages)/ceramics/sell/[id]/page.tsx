@@ -33,7 +33,7 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
   const [isPending, startTransition] = useTransition();
   const { loading } = useAppSelector((state: RootState) => state.ceramics);
   const [isChecked, setIsChecked] = useState(false);
-  const { token, user } = useAuth();
+  const { token, user, loading: contextLoading } = useAuth();
   const {
     register,
     handleSubmit,
@@ -50,7 +50,7 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
   };
 
   useEffect(() => {
-    if (!token) {
+    if (!token && !contextLoading) {
       router.push("/login");
       return;
     } else if (user.role !== "admin") {
@@ -58,7 +58,7 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
       return;
     }
     setIsChecked(true);
-  }, [token, user, router]);
+  }, [token, user, router, contextLoading]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const packets = isNaN(data.packetsSold) ? 0 : data.packetsSold;
@@ -86,7 +86,7 @@ const SellCeramic = ({ params }: SellCeramicProps) => {
     }
   };
 
-  if (!isChecked) {
+  if (!isChecked && contextLoading) {
     return <Loader />;
   }
 

@@ -46,10 +46,10 @@ const CeramicForm = () => {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showManufacturerDropdown, setShowManufacturerDropdown] =
     useState(false);
-  const { token, user } = useAuth();
+  const { token, user, loading: contextLoading } = useAuth();
 
   useEffect(() => {
-    if (!token) {
+    if (!token && !contextLoading) {
       router.push("/login");
       return;
     } else if (user.role !== "admin") {
@@ -57,18 +57,17 @@ const CeramicForm = () => {
       return;
     }
     setIsChecked(true);
-  }, [token, user, router]);
+  }, [token, user, router, contextLoading]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      setIsUploading(true); // Start upload
+      setIsUploading(true);
       try {
         const result = await dispatch(uploadImage(file));
         if (uploadImage.fulfilled.match(result)) {
           setValue("imageUrl", result.payload);
-          toast.success("Image uploaded successfully");
         } else if (uploadImage.rejected.match(result)) {
           toast.error(
             "Failed to upload image: " + (result.payload || "Unknown error"),
@@ -119,7 +118,10 @@ const CeramicForm = () => {
         <Loader />
       ) : (
         <>
-          <button onClick={handleBack} className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300">
+          <button
+            onClick={handleBack}
+            className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300"
+          >
             {t("back")}
           </button>
           <h1 className="text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-4 md:mb-6 dark:text-gray-200">
@@ -129,11 +131,12 @@ const CeramicForm = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
           >
-            {/* Left Column */}
             <div className="space-y-4">
-              {/* Size Field */}
               <div className="relative">
-                <label htmlFor="size" className="block mb-2 text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="size"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
+                >
                   {t("size")}
                 </label>
                 <Controller
@@ -145,7 +148,7 @@ const CeramicForm = () => {
                       <input
                         {...field}
                         id="size"
-                        value={field.value || ""}
+                        value={t(field.value) || ""}
                         onFocus={() => setShowSizeDropdown(true)}
                         onBlur={() =>
                           setTimeout(() => setShowSizeDropdown(false), 200)
@@ -179,13 +182,16 @@ const CeramicForm = () => {
                   )}
                 />
                 {errors.size && (
-                  <p className="text-red-500 text-sm dark:text-red-400">{errors.size.message}</p>
+                  <p className="text-red-500 text-sm dark:text-red-400">
+                    {errors.size.message}
+                  </p>
                 )}
               </div>
-
-              {/* Type Field */}
               <div className="relative">
-                <label htmlFor="type" className="block mb-2 text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="type"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
+                >
                   {t("type")}
                 </label>
                 <Controller
@@ -231,11 +237,11 @@ const CeramicForm = () => {
                   )}
                 />
                 {errors.type && (
-                  <p className="text-red-500 dark:text-red-400 text-sm">{errors.type.message}</p>
+                  <p className="text-red-500 dark:text-red-400 text-sm">
+                    {errors.type.message}
+                  </p>
                 )}
               </div>
-
-              {/* Manufacturer Field */}
               <div className="relative">
                 <label
                   htmlFor="manufacturer"
@@ -294,10 +300,11 @@ const CeramicForm = () => {
                   </p>
                 )}
               </div>
-
-              {/* Code Field */}
               <div>
-                <label htmlFor="code" className="block mb-2 text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="code"
+                  className="block mb-2 text-gray-700 dark:text-gray-300"
+                >
                   {t("code")}
                 </label>
                 <input
@@ -307,11 +314,11 @@ const CeramicForm = () => {
                   placeholder={t("enterCode")}
                 />
                 {errors.code && (
-                  <p className="text-red-500 text-sm dark:text-red-400">{errors.code.message}</p>
+                  <p className="text-red-500 text-sm dark:text-red-400">
+                    {errors.code.message}
+                  </p>
                 )}
               </div>
-
-              {/* Pieces Per Packet Field */}
               <div>
                 <label
                   htmlFor="piecesPerPacket"
@@ -322,6 +329,7 @@ const CeramicForm = () => {
                 <input
                   id="piecesPerPacket"
                   type="number"
+                  min="2"
                   {...register("piecesPerPacket")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
                   placeholder={t("enterPiecesPerPacket")}
@@ -332,8 +340,6 @@ const CeramicForm = () => {
                   </p>
                 )}
               </div>
-
-              {/* Total Packets Field */}
               <div>
                 <label
                   htmlFor="totalPackets"
@@ -344,6 +350,7 @@ const CeramicForm = () => {
                 <input
                   id="totalPackets"
                   type="number"
+                  min="1"
                   {...register("totalPackets")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
                   placeholder={t("enterTotalPackets")}
@@ -354,8 +361,6 @@ const CeramicForm = () => {
                   </p>
                 )}
               </div>
-
-              {/* Total Pieces Without Packet Field */}
               <div>
                 <label
                   htmlFor="totalPiecesWithoutPacket"
@@ -365,6 +370,7 @@ const CeramicForm = () => {
                 </label>
                 <input
                   id="totalPiecesWithoutPacket"
+                  min="0"
                   type="number"
                   {...register("totalPiecesWithoutPacket")}
                   className="border border-gray-300 rounded-md p-2 md:p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-600 bg-white"
@@ -377,9 +383,11 @@ const CeramicForm = () => {
                 )}
               </div>
             </div>
-            {/* Right Column */}
             <div className="relative">
-              <label htmlFor="image" className="block mb-2 text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="image"
+                className="block mb-2 text-gray-700 dark:text-gray-300"
+              >
                 {t("uploadImage")}
               </label>
               <div className="w-full h-48 md:h-64 border-dashed border-2 border-gray-300 dark:border-gray-600 flex justify-center items-center rounded-md relative overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -399,7 +407,9 @@ const CeramicForm = () => {
                     )}
                   </>
                 ) : (
-                  <p className="text-gray-500 dark:text-gray-400">{t("selectImage")}</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {t("selectImage")}
+                  </p>
                 )}
                 <input
                   id="image"
@@ -416,7 +426,6 @@ const CeramicForm = () => {
                 </p>
               )}
             </div>
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || isUploading}

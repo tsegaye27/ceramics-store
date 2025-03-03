@@ -24,7 +24,7 @@ function CeramicDetail({ params }: { params: { id: string } }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { loading } = useAppSelector((state: RootState) => state.ceramics);
-  const { user, token } = useAuth();
+  const { user, token, loading: contextLoading } = useAuth();
   const [isChecked, setIsChecked] = useState(false);
 
   const handleBack = () => {
@@ -33,7 +33,7 @@ function CeramicDetail({ params }: { params: { id: string } }) {
     });
   };
   useEffect(() => {
-    if (!token) {
+    if (!token && !contextLoading) {
       router.push("/login");
       return;
     }
@@ -48,71 +48,88 @@ function CeramicDetail({ params }: { params: { id: string } }) {
       }
     };
     fetchDetails();
-  }, [params.id, token, user, dispatch, router]);
+  }, [params.id, token, user, dispatch, router, contextLoading]);
 
-  if (!isChecked) {
+  if (!isChecked || contextLoading) {
     return <Loader />;
   }
 
   return (
-<div className="container mx-auto p-6 bg-blue-50 dark:bg-gray-900 min-h-screen">
-  {!ceramic || loading || isPending ? (
-    <Loader />
-  ) : (
-    <>
-      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-4 md:p-8 rounded-lg shadow-lg dark:shadow-gray-700/50">
-        <button
-          onClick={handleBack}
-          className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 md:mb-6 inline-block text-sm md:text-base"
-        >
-          {t("back")}
-        </button>
-        <h1 className="text-2xl md:text-3xl font-extrabold mb-4 md:mb-6 text-center text-blue-700 dark:text-blue-400">
-          {t("ceramicDetails")}
-        </h1>
-
-        {ceramic.imageUrl && (
-          <div className="mb-4 md:mb-6 text-center">
-            <Image
-              src={ceramic.imageUrl}
-              alt={ceramic.code || t("ceramicImage")}
-              width={400}
-              height={400}
-              priority
-              className="rounded-lg w-full max-w-[400px] h-auto object-cover mx-auto shadow-md dark:border dark:border-gray-600"
-            />
-          </div>
-        )}
-
-        <div className="space-y-3 md:space-y-4 text-blue-800 dark:text-gray-300">
-          {[
-            { label: t("date"), value: ceramic?.createdAt && formatDate(ceramic?.createdAt?.toString()) },
-            { label: t("size"), value: ceramic?.size },
-            { label: t("type"), value: ceramic?.type },
-            { label: t("manufacturer"), value: ceramic?.manufacturer },
-            { label: t("code"), value: ceramic?.code },
-            { label: t("piecesPerPacket"), value: ceramic?.piecesPerPacket },
-            { label: t("totalPackets"), value: ceramic?.totalPackets },
-            { label: t("totalPiecesWithoutPacket"), value: ceramic?.totalPiecesWithoutPacket },
-            { label: t("updatedAt"), value: ceramic?.updatedAt && formatDate(ceramic?.updatedAt?.toString()) },
-          ].map((item, index) => (
-            <div 
-              key={index}
-              className="p-3 md:p-4 bg-blue-100 dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+    <div className="container mx-auto p-6 bg-blue-50 dark:bg-gray-900 min-h-screen">
+      {!ceramic || loading || isPending ? (
+        <Loader />
+      ) : (
+        <>
+          <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-4 md:p-8 rounded-lg shadow-lg dark:shadow-gray-700/50">
+            <button
+              onClick={handleBack}
+              className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 md:mb-6 inline-block text-sm md:text-base"
             >
-              <strong className="block font-semibold text-blue-900 dark:text-blue-300 text-sm md:text-base mb-1">
-                {item.label}:
-              </strong>
-              <span className="break-words text-sm md:text-base">
-                {item.value || "-"}
-              </span>
+              {t("back")}
+            </button>
+            <h1 className="text-2xl md:text-3xl font-extrabold mb-4 md:mb-6 text-center text-blue-700 dark:text-blue-400">
+              {t("ceramicDetails")}
+            </h1>
+
+            {ceramic.imageUrl && (
+              <div className="mb-4 md:mb-6 text-center">
+                <Image
+                  src={ceramic.imageUrl}
+                  alt={ceramic.code || t("ceramicImage")}
+                  width={400}
+                  height={400}
+                  priority
+                  className="rounded-lg w-full max-w-[400px] h-auto object-cover mx-auto shadow-md dark:border dark:border-gray-600"
+                />
+              </div>
+            )}
+
+            <div className="space-y-3 md:space-y-4 text-blue-800 dark:text-gray-300">
+              {[
+                {
+                  label: t("date"),
+                  value:
+                    ceramic?.createdAt &&
+                    formatDate(ceramic?.createdAt?.toString()),
+                },
+                { label: t("size"), value: ceramic?.size },
+                { label: t("type"), value: ceramic?.type },
+                { label: t("manufacturer"), value: ceramic?.manufacturer },
+                { label: t("code"), value: ceramic?.code },
+                {
+                  label: t("piecesPerPacket"),
+                  value: ceramic?.piecesPerPacket,
+                },
+                { label: t("totalPackets"), value: ceramic?.totalPackets },
+                {
+                  label: t("totalPiecesWithoutPacket"),
+                  value: ceramic?.totalPiecesWithoutPacket,
+                },
+                {
+                  label: t("updatedAt"),
+                  value:
+                    ceramic?.updatedAt &&
+                    formatDate(ceramic?.updatedAt?.toString()),
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="p-3 md:p-4 bg-blue-100 dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  <strong className="block font-semibold text-blue-900 dark:text-blue-300 text-sm md:text-base mb-1">
+                    {item.label}:
+                  </strong>
+                  <span className="break-words text-sm md:text-base">
+                    {item.value || "-"}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-    </>
-  )}
-</div>  );
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 export default CeramicDetail;

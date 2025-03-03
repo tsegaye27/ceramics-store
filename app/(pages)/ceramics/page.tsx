@@ -19,7 +19,7 @@ const CeramicsPage = () => {
   const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const { ceramics, loading } = useAppSelector((state) => state.ceramics);
-  const { token, user } = useAuth();
+  const { token, user, loading: contextLoading } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isChecked, setIsChecked] = useState(false);
@@ -55,7 +55,7 @@ const CeramicsPage = () => {
   };
 
   useEffect(() => {
-    if (!token) {
+    if (!token && !contextLoading) {
       router.push("/login");
       return;
     }
@@ -66,10 +66,10 @@ const CeramicsPage = () => {
     } else {
       dispatch(fetchCeramics());
     }
-  }, [debouncedSearchQuery, dispatch, token, router]);
+  }, [debouncedSearchQuery, dispatch, token, router, contextLoading]);
   const isAdmin = user?.role === "admin";
 
-  if (!isChecked) {
+  if (!isChecked || contextLoading) {
     return <Loader />;
   }
 

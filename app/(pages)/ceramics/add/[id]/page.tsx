@@ -33,7 +33,7 @@ const AddCeramic = ({ params }: AddCeramicProps) => {
   const router = useRouter();
   const { loading } = useAppSelector((state: RootState) => state.ceramics);
   const [isChecked, setIsChecked] = useState(false);
-  const { token, user } = useAuth();
+  const { token, user, loading: contextLoading } = useAuth();
 
   const {
     register,
@@ -45,13 +45,13 @@ const AddCeramic = ({ params }: AddCeramicProps) => {
   });
 
   useEffect(() => {
-    if (!token) {
+    if (!token && !contextLoading) {
       router.push("/login");
     } else if (user.role !== "admin") {
       router.push("/not-found");
     }
     setIsChecked(true);
-  }, [token, user, router]);
+  }, [token, user, router, contextLoading]);
 
   const handleBack = () => {
     startTransition(() => {
@@ -83,7 +83,7 @@ const AddCeramic = ({ params }: AddCeramicProps) => {
     }
   };
 
-  if (!isChecked) {
+  if (!isChecked || contextLoading) {
     return <Loader />;
   }
 
