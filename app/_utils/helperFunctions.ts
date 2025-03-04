@@ -105,3 +105,19 @@ export const calculateTotalArea = (orders: Order[]): number => {
     return total + (Number(area) || 0);
   }, 0);
 };
+
+export const AreaOfPiece = (size: string): number | undefined => {
+  if (!size) return;
+  switch (size) {
+    case "60x60":
+      return 0.36;
+    case "40x40":
+      return 0.16;
+    case "30x60":
+      return 0.18;
+    case "30x30":
+      return 0.09;
+    default:
+      return 0;
+  }
+};
