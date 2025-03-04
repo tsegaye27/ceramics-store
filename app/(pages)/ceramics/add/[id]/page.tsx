@@ -46,9 +46,9 @@ const AddCeramic = ({ params }: AddCeramicProps) => {
 
   useEffect(() => {
     if (!token && !contextLoading) {
-      router.push("/login");
+      router.replace("/login");
     } else if (user.role !== "admin") {
-      router.push("/not-found");
+      router.replace("/not-found");
     }
     setIsChecked(true);
   }, [token, user, router, contextLoading]);

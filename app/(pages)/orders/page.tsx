@@ -7,7 +7,11 @@ import {
 } from "@/app/_utils/helperFunctions";
 import { IOrder } from "@/app/_types/types";
 import { useLanguage } from "@/app/_context/LanguageContext";
-import { useAppDispatch } from "@/app/_features/store/store";
+import {
+  RootState,
+  useAppDispatch,
+  useAppSelector,
+} from "@/app/_features/store/store";
 import { useRouter } from "next/navigation";
 import { fetchOrders } from "@/app/_features/orders/slice";
 import toast from "react-hot-toast";
@@ -16,7 +20,9 @@ import withAuth from "@/app/_components/hoc/withAuth";
 import { useAuth } from "@/app/_context/AuthContext";
 
 const OrderList = () => {
-  const [orders, setOrders] = useState<IOrder[]>([]);
+  const { orders, loading: isLoading } = useAppSelector(
+    (state: RootState) => state.orders,
+  );
   const [filteredOrders, setFilteredOrders] = useState<IOrder[]>([]);
   const [searchOrderQuery, setSearchOrderQuery] = useState<string>("");
   const { t } = useLanguage();
@@ -26,8 +32,7 @@ const OrderList = () => {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSeller, setSelectedSeller] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { token, user } = useAuth();
+  const { token, user, loading } = useAuth();
   const [isChecked, setIsChecked] = useState(false);
 
   const handleBack = () => {
@@ -37,7 +42,7 @@ const OrderList = () => {
   };
 
   useEffect(() => {
-    if (!token) {
+    if (!token && !loading) {
       router.push("/login");
       return;
     } else if (user.role === "user") {
@@ -48,16 +53,13 @@ const OrderList = () => {
     async function fetchData() {
       try {
         const result = await dispatch(fetchOrders()).unwrap();
-        setOrders(result.data);
         setFilteredOrders(result.data);
       } catch (err: any) {
         toast.error(err.message);
-      } finally {
-        setIsLoading(false);
       }
     }
     fetchData();
-  }, [dispatch, router, token, user.role]);
+  }, [dispatch, router, token, user.role, loading]);
 
   const handleSearch = useCallback(
     (term: string) => {
@@ -133,10 +135,9 @@ const OrderList = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
               {t("orderList")}
             </h1>
-            <div></div> {/* Empty div for spacing */}
+            <div></div>
           </div>
 
-          {/* Search Bar and Filters */}
           <div className="mb-6 md:mb-8">
             <input
               type="text"
@@ -151,7 +152,7 @@ const OrderList = () => {
               onChange={(e) => setSelectedSize(e.target.value)}
               className="p-2 border rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             >
-              <option value="">{t('allSizes')}</option>
+              <option value="">{t("allSizes")}</option>
               {["60x60", "40x40", "30x60", "30x30", "zekolo"].map((size) => (
                 <option key={size} value={size}>
                   {size}
@@ -185,25 +186,25 @@ const OrderList = () => {
                 <thead className="bg-gray-100 dark:bg-gray-700">
                   <tr>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('no')}
+                      {t("no")}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('ceramic')}
+                      {t("ceramic")}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('seller')}
+                      {t("seller")}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('time')}
+                      {t("time")}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('totalArea')}
+                      {t("totalArea")}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('totalPrice')}
+                      {t("totalPrice")}
                     </th>
                     <th className="py-3 px-4 md:py-4 md:px-6 text-left text-gray-600 font-medium dark:text-gray-300">
-                      {t('user')}
+                      {t("user")}
                     </th>
                   </tr>
                 </thead>
@@ -247,7 +248,7 @@ const OrderList = () => {
                             ),
                           )
                         ).toFixed(2)}{" "}
-                        {t('birr')}
+                        {t("birr")}
                       </td>
                       <td className="py-3 px-4 md:py-4 md:px-6 border-b dark:border-gray-700">
                         {order.userId.name}
@@ -259,13 +260,13 @@ const OrderList = () => {
                       colSpan={4}
                       className="py-3 px-4 md:py-4 md:px-6 text-right"
                     >
-                          {t('total')}:
+                      {t("total")}:
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6">
                       {calculateTotalArea.toFixed(2)} m²
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6">
-                      {calculateTotalPrice.toFixed(2)} {t('birr')}
+                      {calculateTotalPrice.toFixed(2)} {t("birr")}
                     </td>
                     <td className="py-3 px-4 md:py-4 md:px-6"></td>
                   </tr>

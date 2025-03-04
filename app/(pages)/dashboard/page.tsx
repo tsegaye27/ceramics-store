@@ -74,7 +74,7 @@ const DashboardPage = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user, token, loading: contextLoading } = useAuth();
   const dispatch = useAppDispatch();
   const [selectedPeriod, setSelectedPeriod] = useState<
     "today" | "thisWeek" | "thisMonth"
@@ -132,13 +132,13 @@ const DashboardPage = () => {
   }, [selectedPeriod, mostSold]);
 
   useEffect(() => {
-    if (!token) router.push("/login");
-    else if (user?.role === "user") router.push("/not-found");
+    if (!token && !contextLoading) router.replace("/login");
+    else if (user?.role === "user") router.replace("/not-found");
     else {
       setIsChecked(true);
       dispatch(fetchAnalytics());
     }
-  }, [token, dispatch, router, user?.role]);
+  }, [token, dispatch, router, user?.role, contextLoading]);
 
   const handleNavigation = (path: string) => {
     startTransition(() => router.push(path));
@@ -155,7 +155,7 @@ const DashboardPage = () => {
     dispatch(logout());
   }, [dispatch]);
 
-  if (!isChecked) return <Loader />;
+  if (!isChecked || contextLoading) return <Loader />;
 
   return (
     <div className={`min-h-screen ${darkMode ? "dark" : "bg-blue-50"}`}>
@@ -355,13 +355,13 @@ const DashboardPage = () => {
                                 content={({ payload }) => (
                                   <div className="bg-white dark:bg-gray-700 p-2 rounded shadow text-sm">
                                     <p className="dark:text-gray-200">
-                                      {t('type')}: {payload?.[0]?.payload?.type}
+                                      {t("type")}: {payload?.[0]?.payload?.type}
                                     </p>
                                     <p className="dark:text-gray-200">
-                                      {t('size')}: {payload?.[0]?.payload?.size}
+                                      {t("size")}: {payload?.[0]?.payload?.size}
                                     </p>
                                     <p className="dark:text-gray-200">
-                                      {t('manufacturer')}:{" "}
+                                      {t("manufacturer")}:{" "}
                                       {payload?.[0]?.payload?.manufacturer}
                                     </p>
                                   </div>

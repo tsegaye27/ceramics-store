@@ -50,10 +50,10 @@ const CeramicForm = () => {
 
   useEffect(() => {
     if (!token && !contextLoading) {
-      router.push("/login");
+      router.replace("/login");
       return;
     } else if (user.role !== "admin") {
-      router.push("/not-found");
+      router.replace("/not-found");
       return;
     }
     setIsChecked(true);

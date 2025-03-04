@@ -13,7 +13,6 @@ import toast from "react-hot-toast";
 import { ceramicDetails } from "@/app/_features/ceramics/slice";
 import { useRouter } from "next/navigation";
 import { Loader } from "@/app/_components/Loader";
-import withAuth from "@/app/_components/hoc/withAuth";
 import { useAuth } from "@/app/_context/AuthContext";
 
 function CeramicDetail({ params }: { params: { id: string } }) {

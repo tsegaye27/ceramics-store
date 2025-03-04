@@ -78,11 +78,6 @@ const SignUpPage: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-semibold text-blue-600">
               Sign up
             </h2>
-            {error && (
-              <p className="text-red-500 bg-red-100 p-2 rounded-lg w-full text-center">
-                {error}
-              </p>
-            )}
             <div className="flex flex-col w-full gap-1">
               <input
                 type="text"
