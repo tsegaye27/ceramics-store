@@ -6,20 +6,36 @@ import { useEffect } from "react";
 import axiosInstance from "../_lib/axios";
 
 const AuthChecker = ({ children }: { children: React.ReactNode }) => {
-  const { token } = useAuth();
+  const { token, user, login } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    async function isTokenValid() {
+   let refreshInterval: NodeJS.Timeout;
+    
+   const checkAndRefreshToken = async () => {
       try {
-        await axiosInstance.get("/auth/verify");
+        if (!token) return;
+        await axiosInstance.get('/auth/verify');
+
+        const tokenData = JSON.parse(atob(token.split(".")[1]));
+        const expiresAt = tokenData.exp * 1000;
+        const timeBeforeExpiry = expiresAt - Date.now();
+
+        if (timeBeforeExpiry < 3600000) {
+          const { data } = await axiosInstance.post('/auth/refresh', { userId: user?.id })
+          login(user, data.token);
+        }
       } catch (error) {
-        router.push("/login");
+        router.replace('/login')
       }
-    }
+    };
+
     if (token) {
-      isTokenValid();
+      checkAndRefreshToken();
+      refreshInterval = setInterval(checkAndRefreshToken, 1800000)
     }
-  }, [token, router]);
+
+    return () => clearInterval(refreshInterval);
+  }, [token, router, user?.id, login]);
   return <>{children}</>;
 };
 
