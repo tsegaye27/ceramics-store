@@ -14,7 +14,7 @@
   "date": "Date",
   "manufacturer": "Manufacturer",
   "updatedAt": "Updated At",
-  "totalPiecesWithoutPacket": "Total Pieces",
+  "totalPiecesWithoutPacket": "Pieces Without Packet",
   "totalPackets": "Total Packets",
   "piecesPerPacket": "Pieces Per Packet",
   "sellCeramic": "Sell Ceramic",
@@ -70,5 +70,8 @@
   "Month": "Month",
   "noItemsSoldToday": "No items sold today",
   "noItemsAvailable": "No items available",
-  "totalItemsArea": "Total Items Area"
+  "totalItemsArea": "Total Items Area",
+  "Polished": "Polished",
+  "Normal": "Normal",
+  "Digital": "Digital"
 }

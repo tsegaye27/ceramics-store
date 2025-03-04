@@ -14,7 +14,7 @@
   "date": "የምዝገባ ቀን",
   "manufacturer": "አምራች",
   "updatedAt": "የተሻሻለበት ቀን",
-  "totalPiecesWithoutPacket": "ጠቅላላ ፍሬዎች",
+  "totalPiecesWithoutPacket": "ከፓኬት ውጭ ያሉ ፍሬዎች",
   "totalPackets": "ጠቅላላ ካርቶኖች",
   "piecesPerPacket": "ካርቶኑ የሚይዘው ፍሬ",
   "sellCeramic": "የሚሸጠው ሴራሚክ",
@@ -70,5 +70,8 @@
   "Month": "ወራዊ",
   "noItemsSoldToday": "ዛሬ ምንም እቃ አልተሸጠም",
   "noItemsAvailable": "ምንም እቃ የለም",
-  "totalItemsArea": "አጠቃላይ ካሬ"
+  "totalItemsArea": "አጠቃላይ ካሬ",
+  "Polished": "ለስላሳ",
+  "Normal": "ሸካራ",
+  "Digital": "ዲጂታል"
 }
