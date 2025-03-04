@@ -37,7 +37,6 @@ export async function POST(request: Request) {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRATION },
     );
-    logger.info(`User ${user.email} logged in`);
     return successResponse(
       {
         user: {
