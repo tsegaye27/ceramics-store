@@ -3,13 +3,7 @@ import { decodeToken } from "../../_utils/decodeToken";
 import { checkPermission } from "../../_utils/checkPermission";
 import dbConnect from "../../_lib/mongoose";
 import { Order } from "../../_models";
-import {
-  startOfToday,
-  startOfWeek,
-  endOfToday,
-  endOfWeek,
-  subWeeks,
-} from "date-fns";
+import { startOfToday, endOfToday, subDays } from "date-fns";
 import logger from "@/services/logger";
 
 export async function GET(req: Request) {
@@ -29,12 +23,12 @@ export async function GET(req: Request) {
         end: endOfToday(),
       },
       thisWeek: {
-        start: startOfWeek(now, { weekStartsOn: 1 }),
-        end: endOfWeek(now, { weekStartsOn: 1 }),
+        start: subDays(now, 6),
+        end: endOfToday(),
       },
       thisMonth: {
-        start: subWeeks(startOfWeek(now, { weekStartsOn: 1 }), 3),
-        end: endOfWeek(now, { weekStartsOn: 1 }),
+        start: subDays(now, 27),
+        end: endOfToday(),
       },
     };
 
