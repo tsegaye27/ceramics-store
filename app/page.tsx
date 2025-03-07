@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { Loader } from "./_components/Loader";
 
 const HomePage = () => {
-  const { token, user } = useAuth();
+  const { token, user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!token) {
+    if (!token && !loading) {
       router.push("/login");
       return;
     } else if (user.role === "admin") {
@@ -19,7 +19,7 @@ const HomePage = () => {
       router.push("/ceramics");
       return;
     }
-  }, [token, user, router]);
+  }, [token, user, router, loading]);
 
   return <Loader />;
 };
