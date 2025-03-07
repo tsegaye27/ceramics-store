@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   setUser,
   setToken,
@@ -33,6 +39,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     (state: RootState) => state.auth,
   );
   const [cookies, setCookie, removeCookie] = useCookies(["jwt"]);
+  const login = (user: any, token: string) => {
+    setCookie("jwt", token, {
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      httpOnly: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+    localStorage.setItem("user", JSON.stringify(user));
+    dispatch(setToken(token));
+    dispatch(setUser(user));
+  };
+
+  const logout = useCallback(() => {
+    removeCookie("jwt");
+    localStorage.removeItem("user");
+    dispatch(clearAuth());
+  }, [dispatch, removeCookie]);
 
   useEffect(() => {
     const storedToken = cookies.jwt;
@@ -65,26 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     validateToken();
-  }, [cookies.jwt, dispatch]);
-
-  const login = (user: any, token: string) => {
-    setCookie("jwt", token, {
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      httpOnly: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
-    });
-    localStorage.setItem("user", JSON.stringify(user));
-    dispatch(setToken(token));
-    dispatch(setUser(user));
-  };
-
-  const logout = () => {
-    removeCookie("jwt");
-    localStorage.removeItem("user");
-    dispatch(clearAuth());
-  };
+  }, [cookies.jwt, dispatch, logout]);
 
   return (
     <AuthContext.Provider
