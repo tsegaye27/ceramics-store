@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { FiSun, FiMoon, FiLogOut, FiChevronDown } from "react-icons/fi";
-import { Menu, Transition } from "@headlessui/react";
+import { useState, useEffect } from "react";
+import { FiSun, FiMoon, FiChevronDown } from "react-icons/fi";
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
 import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
 import { useLanguage } from "../_context/LanguageContext";
 import { useAuth } from "../_context/AuthContext";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Loader } from "../_components/Loader";
 
 export default function CeramicsLayout({
   children,
@@ -20,6 +27,15 @@ export default function CeramicsLayout({
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
 
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode !== null) {
+      const isDarkMode = savedDarkMode === "true";
+      setDarkMode(isDarkMode);
+      document.documentElement.classList.toggle("dark", isDarkMode);
+    }
+  }, []);
+
   const handleLogin = () => {
     startTransition(() => {
       router.push("/login");
@@ -27,15 +43,17 @@ export default function CeramicsLayout({
   };
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark", !darkMode);
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    document.documentElement.classList.toggle("dark", newDarkMode);
+    localStorage.setItem("darkMode", newDarkMode.toString());
   };
 
   return (
     <div className={`min-h-screen ${darkMode ? "dark" : "bg-blue-50"}`}>
       <div className="dark:bg-gray-900 dark:text-gray-100 p-6">
         {isPending ? (
-          <div>Loading...</div>
+          <Loader />
         ) : (
           <>
             <header className="flex justify-between items-center mb-6">
@@ -53,7 +71,7 @@ export default function CeramicsLayout({
                 </button>
                 {token && user ? (
                   <Menu as="div" className="relative">
-                    <Menu.Button className="flex items-center gap-2">
+                    <MenuButton className="flex items-center gap-2">
                       <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
                         {user.name.charAt(0)}
                       </div>
@@ -61,7 +79,7 @@ export default function CeramicsLayout({
                         {user.name}
                       </span>
                       <FiChevronDown className="h-5 w-5 text-gray-800 dark:text-gray-100" />
-                    </Menu.Button>
+                    </MenuButton>
                     <Transition
                       enter="transition duration-100 ease-out"
                       enterFrom="transform scale-95 opacity-0"
@@ -70,20 +88,20 @@ export default function CeramicsLayout({
                       leaveFrom="transform scale-100 opacity-100"
                       leaveTo="transform scale-95 opacity-0"
                     >
-                      <Menu.Items className="absolute right-0 mt-2 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg">
-                        <Menu.Item>
-                          {({ active }) => (
+                      <MenuItems className="absolute right-0 mt-2 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg">
+                        <MenuItem>
+                          {(focus) => (
                             <button
                               onClick={logout}
                               className={`${
-                                active ? "bg-gray-100 dark:bg-gray-700" : ""
+                                focus ? "bg-gray-100 dark:bg-gray-700" : ""
                               } w-full text-left p-2 text-gray-800 dark:text-gray-100`}
                             >
                               Logout
                             </button>
                           )}
-                        </Menu.Item>
-                      </Menu.Items>
+                        </MenuItem>
+                      </MenuItems>
                     </Transition>
                   </Menu>
                 ) : (
