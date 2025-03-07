@@ -6,8 +6,6 @@ const dbConnect = async () => {
 
   try {
     await mongoose.connect(process.env.MONGODB_URI as string);
-    logger.info("MongoDB connected");
-    logger.info(mongoose.modelNames());
   } catch (error) {
     logger.error("MongoDB connection error:", error);
     throw error;
