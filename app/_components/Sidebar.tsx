@@ -8,8 +8,7 @@ import {
 import { useAppDispatch } from "../_features/store/store";
 import { useAuth } from "../_context/AuthContext";
 import { useLanguage } from "../_context/LanguageContext";
-import { useRouter } from "next/navigation";
-import { useCallback, useTransition } from "react";
+import { useCallback } from "react";
 import { logout } from "../_features/auth/slice";
 import { motion } from "framer-motion";
 import {
@@ -19,7 +18,6 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { Loader } from "./Loader";
 
 const menuItems = [
   { name: "analytics", path: "/", icon: <FiBarChart2 className="h-5 w-5" /> },
@@ -34,29 +32,19 @@ const menuItems = [
 const Sidebar = ({
   isSidebarCollapsed,
   setIsSidebarCollapsed,
+  onNavigation,
 }: {
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: (val: boolean) => void;
+  onNavigation: (path: string) => void;
 }) => {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const [isPending, startTransition] = useTransition();
-
-  const handleNavigation = (path: string) => {
-    startTransition(() => {
-      router.push(path);
-    });
-  };
 
   const handleLogout = useCallback(() => {
     dispatch(logout());
   }, [dispatch]);
-
-  if (isPending) {
-    return <Loader />;
-  }
 
   return (
     <motion.div
@@ -85,7 +73,7 @@ const Sidebar = ({
         {menuItems.map((item) => (
           <button
             key={item.name}
-            onClick={() => handleNavigation(item.path)}
+            onClick={() => onNavigation(item.path)}
             className={`flex items-center p-4 hover:bg-gray-600 w-full ${isSidebarCollapsed ? "justify-center" : ""}`}
           >
             {item.icon}
