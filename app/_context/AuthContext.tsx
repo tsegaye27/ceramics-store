@@ -44,7 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      httpOnly: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60,
     });
     localStorage.setItem("user", JSON.stringify(user));
