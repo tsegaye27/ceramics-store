@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const storedToken = cookies.jwt;
-    const storedUser = sessionStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");
 
     const validateToken = async () => {
       if (storedToken) {
@@ -75,14 +75,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       httpOnly: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60,
     });
-    sessionStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(user));
     dispatch(setToken(token));
     dispatch(setUser(user));
   };
 
   const logout = () => {
     removeCookie("jwt");
-    sessionStorage.removeItem("user");
+    localStorage.removeItem("user");
     dispatch(clearAuth());
   };
 
