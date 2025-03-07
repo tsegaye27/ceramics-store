@@ -13,14 +13,10 @@ import {
 import LanguageSwitcher from "@/app/_components/LanguageSwitcher";
 import { Loader } from "@/app/_components/Loader";
 import { fetchAnalytics } from "@/app/_features/analytics/slice";
-import {
-    addDays,
-  isSameDay,
-  isWithinInterval,
-  subDays,
-} from "date-fns";
+import { subDays } from "date-fns";
 import { useLanguage } from "@/app/_context/LanguageContext";
 import Sidebar from "@/app/_components/Sidebar";
+import { getAreaFactor } from "@/app/_utils/helperFunctions";
 
 const ResponsiveContainer = dynamic(
   () => import("recharts").then((mod) => mod.ResponsiveContainer),
@@ -56,38 +52,65 @@ const DashboardPage = () => {
       case "today":
         return mostSold.today.map((item) => ({
           name: `${item.ceramic.size}(${item.ceramic.code})`,
-          quantity: item.totalQuantity,
+          quantity: item.totalQuantity * getAreaFactor(item.ceramic.size),
         }));
-      case "thisWeek": {
+      case "thisWeek":
         return Array.from({ length: 7 }, (_, i) => {
           const day = subDays(now, 6 - i);
+          const dayStr = day.toISOString().split("T")[0];
+          const dayData = mostSold.thisWeek.find((item) => {
+            const itemDate = new Date(item.createdAt)
+              .toISOString()
+              .split("T")[0];
+            return itemDate === dayStr;
+          });
           return {
             name: day.toLocaleDateString("en-US", { weekday: "short" }),
-            quantity:
-              mostSold.thisWeek.find((item) =>
-                isSameDay(new Date(item.ceramic.createdAt), day),
-              )?.totalQuantity || 0,
+            quantity: dayData?.mostSoldCeramic?.totalArea?.toFixed(2) || 0,
+            type: dayData?.mostSoldCeramic?.type,
+            manufacturer: dayData?.mostSoldCeramic?.manufacturer,
+            size: dayData?.mostSoldCeramic?.size,
+            code: dayData?.mostSoldCeramic?.code,
           };
         });
-      }
+
       case "thisMonth": {
+        const sixDaysBack = subDays(now, 6);
         const weeks = Array.from({ length: 4 }, (_, i) => {
           const weekStart = subDays(now, 27 - i * 7);
-          return {
-            start: weekStart,
-            label: `W${4 - i}`,
-          }
+          const weekEnd = subDays(now, 20 - i * 7);
+          return { start: weekStart, end: weekEnd, label: `W${4 - i}` };
         });
 
-        return weeks.map((week) => ({
-          name: week.label,
-          quantity: mostSold.thisMonth.filter((item) => 
-          isWithinInterval(new Date(item.ceramic.createdAt), {
-              start: week.start,
-              end: addDays(week.start, 6),
-            }),
-          ).reduce((sum, item) => sum + item.totalQuantity, 0)
-        }))
+        return weeks.map((week) => {
+          const weekData = mostSold.thisMonth
+            .filter((item) => {
+              const createdAtDate = new Date(item.createdAt);
+              return (
+                createdAtDate >= sixDaysBack &&
+                createdAtDate <= now &&
+                createdAtDate >= week.start &&
+                createdAtDate <= week.end
+              );
+            })
+            .reduce(
+              (max, item) =>
+                item.mostSoldCeramic?.totalArea >
+                (max?.mostSoldCeramic?.totalArea ?? 0)
+                  ? item
+                  : max,
+              null,
+            );
+
+          return {
+            name: week.label,
+            quantity: weekData?.mostSoldCeramic?.totalArea?.toFixed(2) || 0,
+            type: weekData?.mostSoldCeramic?.type,
+            manufacturer: weekData?.mostSoldCeramic?.manufacturer,
+            size: weekData?.mostSoldCeramic?.size,
+            code: weekData?.mostSoldCeramic?.code,
+          };
+        });
       }
       default:
         return [];
@@ -162,8 +185,7 @@ const DashboardPage = () => {
                 <div className="h-[300px]">
                   {chartData.length === 0 ? (
                     <div className="h-full flex items-center justify-center dark:text-gray-400">
-                      {t("noItemsSoldToday")}{" "}
-                      {selectedPeriod.replace("this", "")}
+                      {t("noItemsSold")}
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
@@ -182,14 +204,27 @@ const DashboardPage = () => {
                           tick={{ fill: darkMode ? "#e5e7eb" : "#1f2937" }}
                         />
                         <Tooltip
-                          contentStyle={{
-                            backgroundColor: darkMode ? "#1f2937" : "#fff",
-                            borderColor: darkMode ? "#374151" : "#e5e7eb",
-                            borderRadius: "0.5rem",
-                          }}
-                          itemStyle={{
-                            color: darkMode ? "#e5e7eb" : "#1f2937",
-                          }}
+                          content={({ payload }) => (
+                            <div className="bg-white dark:bg-gray-700 p-2 rounded shadow text-sm">
+                              <p className="dark:text-gray-200">
+                                {t("size")}: {payload?.[0]?.payload?.size}
+                              </p>
+                              <p className="dark:text-gray-200">
+                                {t("code")}: {payload?.[0]?.payload?.code}
+                              </p>
+                              <p className="dark:text-gray-200">
+                                {t("type")}: {payload?.[0]?.payload?.type}
+                              </p>
+                              <p className="dark:text-gray-200">
+                                {t("quantity")}:{" "}
+                                {payload?.[0]?.payload?.quantity}
+                              </p>
+                              <p className="dark:text-gray-200">
+                                {t("manufacturer")}:{" "}
+                                {payload?.[0]?.payload?.manufacturer}
+                              </p>
+                            </div>
+                          )}
                         />
                         <Bar
                           dataKey="quantity"
