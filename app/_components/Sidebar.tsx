@@ -20,7 +20,11 @@ import {
 } from "@headlessui/react";
 
 const menuItems = [
-  { name: "analytics", path: "/", icon: <FiBarChart2 className="h-5 w-5" /> },
+  {
+    name: "analytics",
+    path: "/dashboard",
+    icon: <FiBarChart2 className="h-5 w-5" />,
+  },
   { name: "ceramics", path: "/ceramics", icon: <FiBox className="h-5 w-5" /> },
   {
     name: "orders",
@@ -33,10 +37,12 @@ const Sidebar = ({
   isSidebarCollapsed,
   setIsSidebarCollapsed,
   onNavigation,
+  currentPath,
 }: {
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: (val: boolean) => void;
   onNavigation: (path: string) => void;
+  currentPath: string;
 }) => {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
@@ -74,7 +80,7 @@ const Sidebar = ({
           <button
             key={item.name}
             onClick={() => onNavigation(item.path)}
-            className={`flex items-center p-4 hover:bg-gray-600 w-full ${isSidebarCollapsed ? "justify-center" : ""}`}
+            className={`flex items-center p-4 hover:bg-gray-600 w-full ${isSidebarCollapsed ? "justify-center" : ""} ${currentPath === item.path ? "bg-gray-600 cursor-not-allowed" : ""}`}
           >
             {item.icon}
             {!isSidebarCollapsed && (
