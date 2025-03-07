@@ -106,8 +106,7 @@ export const calculateTotalArea = (orders: Order[]): number => {
   }, 0);
 };
 
-export const AreaOfPiece = (size: string): number | undefined => {
-  if (!size) return;
+export const getAreaFactor = (size: string): number => {
   switch (size) {
     case "60x60":
       return 0.36;
@@ -117,7 +116,9 @@ export const AreaOfPiece = (size: string): number | undefined => {
       return 0.18;
     case "30x30":
       return 0.09;
+    case "zekolo":
+      return 0.6;
     default:
-      return 0;
+      return 1;
   }
 };
