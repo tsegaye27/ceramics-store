@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useTransition,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { CartesianGrid, XAxis, YAxis, Tooltip, Bar, Pie, Cell } from "recharts";
 import { FiSun, FiMoon } from "react-icons/fi";
@@ -52,6 +52,21 @@ const DashboardPage = () => {
   const [isChecked, setIsChecked] = useState(false);
   const { t } = useLanguage();
   const [isPending, startTransition] = useTransition();
+  const currentPath = usePathname();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsSidebarCollapsed(true);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleNavigation = (path: string) => {
     startTransition(() => {
@@ -166,6 +181,7 @@ const DashboardPage = () => {
               isSidebarCollapsed={isSidebarCollapsed}
               setIsSidebarCollapsed={setIsSidebarCollapsed}
               onNavigation={handleNavigation}
+              currentPath={currentPath}
             />
             <div
               className={`flex-1 p-8 ${isSidebarCollapsed ? "ml-20" : "ml-64"} transition-all duration-300 overflow-y-auto`}
@@ -183,7 +199,6 @@ const DashboardPage = () => {
                   )}
                 </button>
               </div>
-
               {!loading && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
@@ -259,7 +274,6 @@ const DashboardPage = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4 dark:text-gray-200">
                       {t("totalItemsArea")}
