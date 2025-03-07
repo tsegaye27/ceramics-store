@@ -1,15 +1,21 @@
 # Ceramics Store  
 
-Welcome to **Ceramics Store**—an **Inventory Management** website built with **Next.js** to help you showcase, manage, and organize your ceramic collections efficiently. This project takes advantage of modern **Next.js** features to deliver seamless performance and an intuitive user experience.  
+Welcome to **Ceramics Store**—an **Inventory Management** platform designed to help you showcase, manage, and organize your ceramic collections with ease. Built with **Next.js**, this project leverages modern web technologies to deliver a seamless and intuitive user experience. Whether you're a small business owner or a ceramic enthusiast, this platform is tailored to meet your inventory management needs.  
+
+This project was built to help my family manage our ceramics shop more efficiently, providing an easy-to-use platform for tracking inventory, sales, and analytics.  
 
 ---
 
-## 🌟 Features  
+## 🌟 Key Features  
 
-✅ **Dynamic Product Showcase** – Display ceramic items beautifully with images, descriptions, and categories.  
-✅ **Inventory Management** – Easily add, update, and remove ceramics from your collection.  
+✅ **Dynamic Product Showcase** – Display ceramic items with high-quality images, detailed descriptions, and organized categories.  
+✅ **Inventory Management** – Add, update, and remove ceramic items effortlessly.  
+✅ **Responsive Design** – A mobile-friendly interface for managing inventory on any device.  
+✅ **Dark Mode Support** – Toggle between light and dark themes for a comfortable viewing experience.  
+✅ **Multi-language Support** – Switch between languages for a global audience.  
+✅ **Analytics Dashboard** – Visualize sales and inventory data with interactive charts and graphs.  
+✅ **Authentication** – Secure login and logout functionality for authorized users.  
 ✅ **Optimized Performance** – Built with **Next.js** for fast load times and smooth navigation.  
-✅ **Responsive Design** – Mobile-friendly interface for managing inventory on any device.  
 ✅ **Server-side Rendering (SSR) & Static Generation (SSG)** – Enhanced performance with pre-rendering techniques.  
 ✅ **API Integration** – Fetch and manage data efficiently with built-in API routes.  
 
@@ -36,9 +42,23 @@ Make sure you have **Node.js** installed. Then, run:
 npm install
 # or
 yarn install
+# or
+pnpm install
 ```
 
-### 🔹 3. Start the Development Server  
+### 🔹 3. Set Up Environment Variables  
+
+Create a `.env.local` file in the root directory and add the following variables:  
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+```
+
+Replace the placeholders with your actual MongoDB connection string and JWT secret key.  
+
+### 🔹 4. Start the Development Server  
 
 Run the following command to start the local development server:  
 
@@ -50,7 +70,7 @@ yarn dev
 
 Once the server is running, open your browser and visit:  
 
-🔗 **http://localhost:3000**
+📝 **http://localhost:3000**
 
 ---
 
@@ -58,15 +78,46 @@ Once the server is running, open your browser and visit:
 
 - **Next.js** – React framework for server-side rendering and static site generation.  
 - **Tailwind CSS** – Modern utility-first CSS framework for styling.  
-- **MongoDB** – For inventory data storage.    
+- **MongoDB** – For inventory data storage.  
+- **Recharts** – For interactive data visualization.  
+- **React Icons** – For a wide range of icons.  
+- **React Cookies** – For managing user authentication tokens.  
+- **Axios** – For making HTTP requests.  
+- **Framer Motion** – For smooth animations and transitions.  
 
 ---
 
-## 🤝 Contributing  
+## 📸 Screenshots    
 
-We welcome contributions! If you'd like to improve this project, follow these steps:  
+### 1. **Dashboard**  
+![Dashboard](public/dashboard.png)  
+*Interactive analytics dashboard with charts and graphs.*  
 
-1. **Fork the Repository**  
-2. **Create a New Branch**  
-3. **Make Your Changes**  
-4. **Submit a Pull Request**  
+### 2. **Inventory Management**  
+![Inventory](public/ceramics.png)  
+*Easily manage your ceramic inventory with a clean and intuitive interface.*  
+
+### 3. **Dark Mode**  
+![Dark Mode](public/dark_dashboard.png)  
+*Toggle between light and dark themes for a comfortable viewing experience.*  
+
+### 4. **Mobile View**  
+![Mobile](public/mobile.jpg)  
+*Fully responsive design for seamless use on any device.*  
+
+---
+
+## 📝 License  
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
+
+---
+
+## 📧 Contact  
+
+If you have any questions or suggestions, feel free to reach out:  
+
+- **Email**: ttalegn29@gmail.com  
+- **GitHub**: [tsegaye27](https://github.com/tsegaye27)  
+
+---
